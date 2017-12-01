@@ -6,3 +6,5 @@
 /.settings/
 /ant-bin/
 /bin/
+/bin-ant/
+/target/
