@@ -8,8 +8,8 @@ pipeline {
             bat "ant default"
           }
         }
-        echo ${env.sid}
-        echo ${sid}              
+        echo "${env.sid}"
+        echo "${sid}"              
       }
     }
   }
