@@ -22,11 +22,11 @@
           target: depends                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile">
-		<buildnumber/>				
-		<mkdir dir="${basedir}/ant-bin"/>
+		<buildnumber />
+		<mkdir dir="${basedir}/ant-bin" />
 		<copy todir="${basedir}/ant-bin">
 			<fileset dir="${basedir}">
-				<include name="build.number"/>				
+				<include name="build.number" />
 			</fileset>
 		</copy>
 		<javac debug="true" includeantruntime="false" srcdir="${basedir}/src" optimize="false" verbose="false" destdir="${basedir}/ant-bin">
@@ -41,7 +41,15 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: jar                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="jar">
+	<target name="jar" depends=" compile, setbuildinfo">
+		<loadproperties srcfile="build_info.properties" />
+		<manifest file="manifest">
+			<attribute name="Built-By" value="${user.name}" />
+			<attribute name="Main-Class" value="TerraMasterLauncher" />
+			<attribute name="Specification-Version" value="${build.major.number}.${build.minor.number}" />
+			<attribute name="Implementation-Version" value="${build.major.number}.${build.minor.number}" />
+			<attribute name="Specification-Vendor" value="Terramaster" />
+		</manifest>
 		<jar destfile="terramaster.jar" manifest="manifest">
 			<fileset dir="ant-bin">
 				<include name="**/*" />
@@ -68,5 +76,35 @@
 				<include name="**/*" />
 			</fileset>
 		</zip>
+	</target>
+
+	<target name="setbuildinfo">
+		<propertyfile file="build_info.properties">
+			<entry key="build.user" value="${user.name}" />
+		</propertyfile>
+	</target>
+
+	<target name="revision">
+		<echo>Revision</echo>
+		<propertyfile file="build_info.properties">
+			<entry key="build.revision.number" type="int" operation="+" value="1" pattern="00" />
+		</propertyfile>
+		<antcall target="setbuildinfo" />
+	</target>
+
+	<target name="minor">
+		<echo>Minor</echo>
+		<propertyfile file="build_info.properties">
+			<entry key="build.minor.number" type="int" operation="+" value="1" pattern="00" />
+		</propertyfile>
+		<antcall target="setbuildinfo" />
+	</target>
+
+	<target name="major">
+		<echo>Major</echo>
+		<propertyfile file="build_info.properties">
+			<entry key="build.major.number" type="int" operation="+" value="1" pattern="00" />
+		</propertyfile>
+		<antcall target="setbuildinfo" />
 	</target>
 </project>
