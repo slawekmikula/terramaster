@@ -16,11 +16,8 @@ pipeline {
         readProperties file: 'build_info.properties'
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME']])
         {
-          bat 'git commit -am "Version ${build.major.number}.${build.minor.number}"'
-          bat "echo ${env.GIT_USERNAME}"
-          //bat "git tag -a some_tag${env.BUILD_NUMBER} -m 'Jenkins'"
+          bat "git commit -am 'Version ${build.major.number}.${build.minor.number}'"
           bat "git  -c core.askpass=true  push https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.com/Portree-Kid/terramaster.git"
-          //bat ("git -c core.askpass=true push https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.com/some-tag/some-tag.git some_tag${env.BUILD_NUMBER}")
         }
         archiveArtifacts '*terramaster*.jar'    
       }
@@ -28,12 +25,9 @@ pipeline {
     
     stage( 'deploy' ) {
       steps{
-
         withEnv(["SID=${env.sid}"]) {
-//           bat 'git show-ref'
-           echo """${files}"""
            bat "C:\\Users\\keith.paterson\\go\\bin\\github-release release -s %SID% -u Portree-Kid -r terramaster -t ${build.major.number}.${build.minor.number}"
-           bat """C:\\Users\\keith.paterson\\go\\bin\\github-release upload -s %SID% -u Portree-Kid -r terramaster -t ${build.major.number}.${build.minor.number} -n ${build.major.number}.${build.minor.number} -f ${files}"""
+           bat """C:\\Users\\keith.paterson\\go\\bin\\github-release upload -s %SID% -u Portree-Kid -r terramaster -t ${build.major.number}.${build.minor.number} -n terramaster.jar -f ${files}"""
         }
         archiveArtifacts '*terramaster*.jar'
       }
