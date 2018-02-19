@@ -14,6 +14,7 @@ pipeline {
           }
         }  
         echo "${env.GIT_URL}"
+        bat "git rebase"
         readProperties file: 'build_info.properties'
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME']])
         {
