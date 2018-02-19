@@ -13,6 +13,7 @@ pipeline {
             bat "ant default"
           }
         }  
+        echo "${env.GIT_URL}"
         readProperties file: 'build_info.properties'
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME']])
         {
