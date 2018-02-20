@@ -6,7 +6,8 @@ pipeline {
   stages {
     stage( 'build' ) {
       steps{
-        bat 'git config --global credential.helper cache'  
+        bat 'git config --global credential.helper cache'
+        bat 'git status'  
         git credentialsId: 'github', url: 'https://github.com/Portree-Kid/terramaster.git'
         withEnv(["JAVA_HOME=${ tool 'jdk1.8.0_121' }"]) {
           withAnt('installation' : 'apache-ant-1.10.1') {
