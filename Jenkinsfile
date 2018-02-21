@@ -36,9 +36,9 @@ pipeline {
       }
     }
     
-    script{
-        if (env.BRANCH_NAME == 'master') {
-            stage( 'deploy' ) {
+    stage( 'deploy' ) {
+        script{
+            if (env.BRANCH_NAME == 'master') {
             withEnv(["SID=${env.sid}"]) {
                 script{
                   def props = readProperties file: 'build_info.properties'
