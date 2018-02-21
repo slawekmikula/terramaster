@@ -10,20 +10,11 @@ pipeline {
         bat 'git status'  
         git credentialsId: 'github', url: "${env.GIT_URL}", branch: "${env.GIT_BRANCH}"
         bat 'git status'
-      }
-    }
-    stage( 'build1' ) {
-      steps{
         withEnv(["JAVA_HOME=${ tool 'jdk1.8.0_121' }"]) {
           withAnt('installation' : 'apache-ant-1.10.1') {
             bat "ant default"
           }
         }  
-      }
-    }
-    stage( 'build2' ) {
-      steps{
-        echo "URL : ${env.GIT_URL}#${env.GIT_BRANCH}"
         script{
           def props = readProperties file: 'build_info.properties'
         }
@@ -45,9 +36,9 @@ pipeline {
       }
     }
     
-    if (env.BRANCH_NAME == 'master') {
-        stage( 'deploy' ) {
-          steps{
+    script{
+        if (env.BRANCH_NAME == 'master') {
+            stage( 'deploy' ) {
             withEnv(["SID=${env.sid}"]) {
                 script{
                   def props = readProperties file: 'build_info.properties'
@@ -55,10 +46,10 @@ pipeline {
                    bat "C:\\Users\\keith.paterson\\go\\bin\\github-release release -s %SID% -u Portree-Kid -r terramaster -t ${message}"
                    bat """C:\\Users\\keith.paterson\\go\\bin\\github-release upload -s %SID% -u Portree-Kid -r terramaster -t ${message} -n terramaster.jar -f ${files}"""
                 }
-            }
             archiveArtifacts '*terramaster*.jar'
+            }
           }
         }
-    }
+     }
   }
 }
