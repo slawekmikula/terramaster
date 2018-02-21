@@ -37,10 +37,10 @@ pipeline {
     }
     
     stage( 'deploy' ) {
+      steps{
         script{
             if (env.BRANCH_NAME == 'master') {
-            withEnv(["SID=${env.sid}"]) {
-                script{
+              withEnv(["SID=${env.sid}"]) {
                   def props = readProperties file: 'build_info.properties'
                   def message = props['build.major.number'] + "." + props['build.minor.number'] 
                    bat "C:\\Users\\keith.paterson\\go\\bin\\github-release release -s %SID% -u Portree-Kid -r terramaster -t ${message}"
