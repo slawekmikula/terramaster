@@ -103,7 +103,7 @@
 	<target name="major">
 		<echo>Major</echo>
 		<propertyfile file="build_info.properties">
-			<entry key="build.major.number" type="int" operation="+" value="1" pattern="00" />
+			<entry key="build.major.number" type="int" operation="+" value="1" pattern="0" />
 		</propertyfile>
 		<antcall target="setbuildinfo" />
 	</target>

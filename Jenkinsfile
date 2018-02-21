@@ -33,7 +33,7 @@ pipeline {
           bat "git add build_info.properties"
             script{
               def props = readProperties file: 'build_info.properties'
-              def message = "${props['build.major.number']}.${props['build.minor.number']}" 
+              def message = props['build.major.number'] + "." + props['build.minor.number'] 
               bat "git commit -m \"Version ${message}\""
               bat "git push ${env.GIT_URL}"
             }
@@ -45,14 +45,20 @@ pipeline {
       }
     }
     
-    stage( 'deploy' ) {
-      steps{
-        withEnv(["SID=${env.sid}"]) {
-           bat "C:\\Users\\keith.paterson\\go\\bin\\github-release release -s %SID% -u Portree-Kid -r terramaster -t ${build.major.number}.${build.minor.number}"
-           bat """C:\\Users\\keith.paterson\\go\\bin\\github-release upload -s %SID% -u Portree-Kid -r terramaster -t ${build.major.number}.${build.minor.number} -n terramaster.jar -f ${files}"""
+    if (env.BRANCH_NAME == 'master') {
+        stage( 'deploy' ) {
+          steps{
+            withEnv(["SID=${env.sid}"]) {
+                script{
+                  def props = readProperties file: 'build_info.properties'
+                  def message = props['build.major.number'] + "." + props['build.minor.number'] 
+                   bat "C:\\Users\\keith.paterson\\go\\bin\\github-release release -s %SID% -u Portree-Kid -r terramaster -t ${message}"
+                   bat """C:\\Users\\keith.paterson\\go\\bin\\github-release upload -s %SID% -u Portree-Kid -r terramaster -t ${message} -n terramaster.jar -f ${files}"""
+                }
+            }
+            archiveArtifacts '*terramaster*.jar'
+          }
         }
-        archiveArtifacts '*terramaster*.jar'
-      }
     }
   }
 }
