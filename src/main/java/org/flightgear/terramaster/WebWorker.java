@@ -1,11 +1,11 @@
 package org.flightgear.terramaster;
 
-import java.io.StringBufferInputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,21 +16,16 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -153,13 +148,12 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 			return webquery(new URL(url));
 		} catch (MalformedURLException e) {
 			LOG.log(Level.WARNING, e.toString(), e);
-			// System.err.printf("Error: Malformed URL: %s\n", url);
 		}
-		return null;
+		return new ArrayList<Airport>();
 	}
 
 	public List<Airport> browse(Collection<TileName> list) {
-		List<Airport> result = new LinkedList<Airport>();
+		List<Airport> result = new LinkedList<>();
 
 		for (TileName t : list) {
 			int lat = t.getLat(), lon = t.getLon();
@@ -174,7 +168,7 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 					}
 				});
 			} catch (MalformedURLException e) {
-				System.err.printf("Error: Malformed URL: %s\n", url);
+				LOG.severe(String.format("Error: Malformed URL: %s\n", url));
 			}
 		}
 		return result;
