@@ -268,6 +268,9 @@ public class TerraMaster {
         .getResourceAsStream("/META-INF/maven/org.flightgear/terramaster/pom.properties")) {
       props.load(is);
     }
+    catch (Exception e) {
+      
+    }
   }
 
 }

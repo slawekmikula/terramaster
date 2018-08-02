@@ -5,12 +5,17 @@ import java.util.Collection;
 
 public interface TileService {
 
+  /**Set the TerraSync scenery path*/
 	void setScnPath(File file);
 
+	/**Start the Thread*/
 	void start();
+	
 
+	/**Add the tiles to the queue*/
 	void sync(Collection<TileName> set, boolean ageCheck);
 
+	/***/
 	Collection<TileName> getSyncList();
 
 	void quit();
