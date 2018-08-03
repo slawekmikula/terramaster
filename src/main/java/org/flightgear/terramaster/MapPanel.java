@@ -53,6 +53,8 @@ class MapPanel extends JPanel {
    * @return
    */
 	private Point2D.Double screen2geo(Point n) {
+	  if(n==null)
+	    return null;
 		Point s = new Point(n);
 		// s.y += getY();
 		Point p = new Point();
@@ -210,7 +212,8 @@ class MapPanel extends JPanel {
 		}
 
 		public void mouseDraggedPanning(MouseEvent e) {
-			Point2D.Double d1 = screen2geo(press), d2 = screen2geo(e.getPoint());
+			Point2D.Double d1 = screen2geo(press);
+			Double d2 = screen2geo(e.getPoint());
 			if (d1 == null || d2 == null)
 				return;
 

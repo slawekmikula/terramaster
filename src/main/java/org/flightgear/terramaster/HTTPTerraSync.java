@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -222,6 +223,7 @@ public class HTTPTerraSync extends Thread implements TileService {
       urls = flightgearNAPTRQuery
           .queryDNSServer(TerraMaster.props.getProperty(TerraMasterProperties.SCENERY_VERSION, "ws20"));
       downloadStats.clear();
+      badUrls.clear();
       urls.forEach(element-> downloadStats.put(element, new TileResult(element)));
       final TileName n;
       synchronized (syncList) {
@@ -572,6 +574,11 @@ public class HTTPTerraSync extends Thread implements TileService {
       } catch (SocketException e) {
         log.log(Level.WARNING, "Connect Error " + e.toString() + " syncing with " + baseUrl.getUrl().toExternalForm()
             + path.replace("\\", "/") + " removing URL", e);
+        markBad(baseUrl,e);
+        return 0;
+      } catch (UnknownHostException e) {
+        log.log(Level.WARNING, "Unknown Host Error " + e.toString() + " syncing with " + baseUrl.getUrl().toExternalForm()
+            + path.replace("\\", "/") + " removing URL. Connected?", e);
         markBad(baseUrl,e);
         return 0;
       } catch (Exception e) {
