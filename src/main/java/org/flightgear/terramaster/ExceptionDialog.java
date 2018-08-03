@@ -23,7 +23,7 @@ import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class DownloadResultDialog extends JDialog {
+public class ExceptionDialog extends JDialog {
 
   private final JPanel contentPanel = new JPanel();
   private ArrayList<Exception> exceptions = new ArrayList<>();
@@ -33,7 +33,7 @@ public class DownloadResultDialog extends JDialog {
    */
   public static void main(String[] args) {
     try {
-      DownloadResultDialog dialog = new DownloadResultDialog(null);
+      ExceptionDialog dialog = new ExceptionDialog(null);
       dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
       dialog.setVisible(true);
     } catch (Exception e) {
@@ -46,9 +46,9 @@ public class DownloadResultDialog extends JDialog {
    * 
    * @param downloadStats
    */
-  public DownloadResultDialog(HashMap<WeightedUrl, TileResult> downloadStats) {
+  public ExceptionDialog(Exception ex) {
     setAlwaysOnTop(true);
-    setBounds(100, 100, 450, 300);
+    setBounds(100, 100, 885, 528);
     getContentPane().setLayout(new BorderLayout());
     contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
     getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -57,19 +57,15 @@ public class DownloadResultDialog extends JDialog {
       JEditorPane jEditorPane = new JEditorPane();
       jEditorPane.setBackground(SystemColor.control);
       jEditorPane.setEditable(false);
-      jEditorPane.addHyperlinkListener(e -> {
-        if (e.getEventType() == EventType.ACTIVATED) {
-          new ExceptionDialog(exceptions.get(Integer.parseInt(e.getURL().getHost()))).setVisible(true);
-        }
-      });
       HTMLEditorKit kit = new HTMLEditorKit();
       jEditorPane.setEditorKit(kit);
       Document doc = kit.createDefaultDocument();
       jEditorPane.setDocument(doc);
-      jEditorPane.setText(getHTML(downloadStats));
+      jEditorPane.setText(getHTML(ex));
       jEditorPane.setCaretPosition(0);
       JScrollPane scrollPane = new JScrollPane(jEditorPane);
       contentPanel.add(scrollPane, BorderLayout.CENTER);
+      
     }
     {
       JPanel buttonPane = new JPanel();
@@ -91,38 +87,12 @@ public class DownloadResultDialog extends JDialog {
     }
   }
 
-  private String getHTML(HashMap<WeightedUrl, TileResult> downloadStats) {
+  private String getHTML(Exception ex) {
 
     StringBuilder sb = new StringBuilder();
     sb.append("<HTML>");
-    for (Entry<WeightedUrl, TileResult> entry : downloadStats.entrySet()) {
-      sb.append("<H3>" + entry.getKey().getUrl().toExternalForm() + "</H3>");
-      sb.append("404s " + entry.getValue().errors + " Downloads " + entry.getValue().actualDownloads + " Equal "
-          + entry.getValue().equal + "<BR>");
-      if (entry.getValue().numberBytes > 1024)
-        sb.append(String.format("Dowloaded %d kBytes in %d seconds<BR>", entry.getValue().numberBytes / 1024,
-            entry.getValue().time / 1000));
-      else
-        sb.append(String.format("Dowloaded %d Bytes in %d seconds<BR>", entry.getValue().numberBytes,
-            entry.getValue().time / 1000));
-      if (entry.getValue().time > 1000) {
-        long seconds = entry.getValue().time / 1000;
-        if (entry.getValue().numberBytes > 1024)
-          sb.append(
-              String.format("Dowload Speed %4.2f kB/s<BR>", ((double) entry.getValue().numberBytes / seconds) / 1024));
-        else
-          sb.append(String.format("Dowload Speed %4.2f B/s<BR>", ((double) entry.getValue().numberBytes / seconds)));
-      }
-      if (entry.getValue().getException() != null) {
-        sb.append(
-            String.format("<A href=\"http://%d\">%s</A>", exceptions.size(), entry.getValue().getException().toString()));
-        exceptions.add(entry.getValue().getException());
-      }
-      // if (entry.getValue().getException() != null) {
-      // HtmlExceptionFormatter hef = new HtmlExceptionFormatter();
-      // hef.formatMessage(sb, entry.getValue().getException());
-      // }
-    }
+    HtmlExceptionFormatter hef = new HtmlExceptionFormatter();
+    hef.formatMessage(sb, ex);
     sb.append("</HTML>");
     return sb.toString();
   }
