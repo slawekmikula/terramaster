@@ -31,12 +31,13 @@ import org.xml.sax.InputSource;
 
 public class WebWorker extends SwingWorker<List<Airport>, Void> {
 	Logger LOG = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
-	String url;
 	Collection<TileName> selection;
-	List<Airport> result;
-	int jobType;
+	private List<Airport> result;
+	
+  int jobType;
 	XMLInputFactory input;
 	AirportResult callback;
+  private String searchString;
 
 	private static final int SEARCH = 1, BROWSE = 2;
 
@@ -48,7 +49,7 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 	public WebWorker(String str, AirportResult callback) {
 		init();
 		jobType = SEARCH;
-		url = str;
+		searchString = str;
 		this.callback = callback;
 	}
 
@@ -74,7 +75,7 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 	public List<Airport> doInBackground() {
 		switch (jobType) {
 		case SEARCH:
-			result = search(url);
+			result = search(searchString);
 			break;
 		case BROWSE:
 			result = browse(selection);
@@ -90,6 +91,10 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 		callback.done();
 	}
 
+	 public synchronized List<Airport> getResult() {
+	    return result;
+	  }
+
 	private List<Airport> webquery(URL url) {
 		List<Airport> result = new LinkedList<Airport>();
 		try {
@@ -104,6 +109,7 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 				// apt.lon = Float.parseFloat(reader.getAttributeValue(null, "lng"));
 				// }
 				// addAirport(apt);
+				callback.clearLastResult();
 				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 				factory.setNamespaceAware(true);
 				DocumentBuilder builder;
@@ -140,7 +146,12 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 		return result;
 	}
 
-	public List<Airport> search(String str) {
+	/**
+	 * Search
+	 * @param str
+	 * @return
+	 */
+	private List<Airport> search(String str) {
 		str = URLEncoder.encode(str.trim());
 		String url = String.format("http://mpmap02.flightgear.org/fg_nav_xml.cgi?sstr=%s&apt_code&apt_name", str);
 
@@ -151,8 +162,14 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 		}
 		return new ArrayList<Airport>();
 	}
+	
+	/**
+	 * Browse all airports in the tiles.
+	 * @param list
+	 * @return
+	 */
 
-	public List<Airport> browse(Collection<TileName> list) {
+	private List<Airport> browse(Collection<TileName> list) {
 		List<Airport> result = new LinkedList<>();
 
 		for (TileName t : list) {

@@ -77,6 +77,10 @@ public class FlightPlan extends JDialog {
 					public void done() {
 						txtDeparture.setEnabled(true);
 					}
+
+          @Override
+          public void clearLastResult() {
+          }
 				});
 				w.execute();
 			}
@@ -126,6 +130,10 @@ public class FlightPlan extends JDialog {
 					public void done() {
 						txtArrival.setEnabled(true);
 					}
+
+          @Override
+          public void clearLastResult() {
+          }
 				});
 				w.execute();
 			}

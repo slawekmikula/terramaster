@@ -719,7 +719,7 @@ class MapPanel extends JPanel {
 		if (TerraMaster.fgmap == null)
 			return;
 		Graphics2D g = (Graphics2D) g0.create();
-		HashMap<String, Airport> apts = TerraMaster.fgmap.getAirportList();
+		HashMap<String, Airport> apts = TerraMaster.fgmap.getAirportMap();
 		Point2D.Double p = new Point2D.Double();
 		Point p2 = new Point();
 
