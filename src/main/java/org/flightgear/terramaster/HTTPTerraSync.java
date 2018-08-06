@@ -287,6 +287,7 @@ public class HTTPTerraSync extends Thread implements TileService {
       new DownloadResultDialog(completeStats).setVisible(true);
     } catch (Exception e) {
       log.log(Level.SEVERE, "Error showing stats ", e);
+      e.printStackTrace();
     }
   }
 
@@ -539,8 +540,7 @@ public class HTTPTerraSync extends Thread implements TileService {
             WeightedUrl filebaseUrl = getBaseUrl();
             if (load) {
               try {
-                long start = System.currentTimeMillis();
-                int size = downloadFile(localFile, filebaseUrl,  path.replace("\\", "/") + "/" +  splitLine[1]);
+                downloadFile(localFile, filebaseUrl,  path.replace("\\", "/") + "/" +  splitLine[1]);
               } catch (javax.net.ssl.SSLHandshakeException e) {
                 log.log(Level.WARNING, "Handshake Error " + e.toString() + " syncing " + path + " removing Base-URL", e);
                 JOptionPane.showMessageDialog(TerraMaster.frame, "Sync can fail if Java older than 8u101 and 7u111 with https hosts.\r\n" + filebaseUrl.getUrl().toExternalForm(),

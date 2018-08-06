@@ -1,7 +1,7 @@
 package org.flightgear.terramaster;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
+import java.awt.Font;
 import java.awt.SystemColor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,17 +11,14 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 import org.flightgear.terramaster.dns.WeightedUrl;
-import org.slieb.formatter.HtmlExceptionFormatter;
-
-import javax.swing.JScrollPane;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class DownloadResultDialog extends JDialog {
 
@@ -48,7 +45,7 @@ public class DownloadResultDialog extends JDialog {
    */
   public DownloadResultDialog(HashMap<WeightedUrl, TileResult> downloadStats) {
     setAlwaysOnTop(true);
-    setBounds(100, 100, 450, 300);
+    setBounds(100, 100, 633, 381);
     getContentPane().setLayout(new BorderLayout());
     contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
     getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -63,6 +60,7 @@ public class DownloadResultDialog extends JDialog {
         }
       });
       HTMLEditorKit kit = new HTMLEditorKit();
+      cssStyling(kit);
       jEditorPane.setEditorKit(kit);
       Document doc = kit.createDefaultDocument();
       jEditorPane.setDocument(doc);
@@ -91,6 +89,16 @@ public class DownloadResultDialog extends JDialog {
     }
   }
 
+  public void cssStyling(HTMLEditorKit kit) {
+    // add some styles to the html
+    StyleSheet styleSheet = kit.getStyleSheet();
+    styleSheet.addRule(String.format("h1 {color:#000; font-family:%s; margin: 2px; }", Font.DIALOG));
+    styleSheet.addRule(String.format("h2 {font : %dpx %s}", 10, Font.DIALOG));
+    styleSheet.addRule(String.format("h3 {font : bold %dpx %s }", 12, Font.DIALOG));
+    styleSheet.addRule(String.format("body {font : %dpx %s}", 10, Font.DIALOG));
+    styleSheet.addRule(String.format("pre {font : %dpx %s }", 10, Font.DIALOG));
+  }
+
   private String getHTML(HashMap<WeightedUrl, TileResult> downloadStats) {
 
     StringBuilder sb = new StringBuilder();
@@ -99,23 +107,15 @@ public class DownloadResultDialog extends JDialog {
       sb.append("<H3>" + entry.getKey().getUrl().toExternalForm() + "</H3>");
       sb.append("404s " + entry.getValue().errors + " Downloads " + entry.getValue().actualDownloads + " Equal "
           + entry.getValue().equal + "<BR>");
-      if (entry.getValue().numberBytes > 1024)
-        sb.append(String.format("Dowloaded %d kBytes in %d seconds<BR>", entry.getValue().numberBytes / 1024,
-            entry.getValue().time / 1000));
-      else
-        sb.append(String.format("Dowloaded %d Bytes in %d seconds<BR>", entry.getValue().numberBytes,
-            entry.getValue().time / 1000));
+      sb.append(String.format("Dowloaded %s in %4.2f seconds<BR>", getBytes(entry.getValue().numberBytes),
+          (double) entry.getValue().time / 1000));
       if (entry.getValue().time > 1000) {
-        long seconds = entry.getValue().time / 1000;
-        if (entry.getValue().numberBytes > 1024)
-          sb.append(
-              String.format("Dowload Speed %4.2f kB/s<BR>", ((double) entry.getValue().numberBytes / seconds) / 1024));
-        else
-          sb.append(String.format("Dowload Speed %4.2f B/s<BR>", ((double) entry.getValue().numberBytes / seconds)));
+        double seconds = (double) entry.getValue().time / 1000;
+        sb.append(String.format("Dowload Speed %s<BR>", getSpeedBytes(entry.getValue().numberBytes, seconds)));
       }
       if (entry.getValue().getException() != null) {
-        sb.append(
-            String.format("<A href=\"http://%d\">%s</A>", exceptions.size(), entry.getValue().getException().toString()));
+        sb.append(String.format("<A href=\"http://%d\">%s</A>", exceptions.size(),
+            entry.getValue().getException().toString()));
         exceptions.add(entry.getValue().getException());
       }
       // if (entry.getValue().getException() != null) {
@@ -127,4 +127,19 @@ public class DownloadResultDialog extends JDialog {
     return sb.toString();
   }
 
+  public String getBytes(long numberBytes) {
+    if (numberBytes > 1024 * 1024)
+      return String.format("%4.2f MB", (float) numberBytes / (1024 * 1024));
+    if (numberBytes > 1024)
+      return String.format("%4.2f kB", (float) numberBytes / 1024);
+    return String.format("%d B", numberBytes);
+  }
+
+  public String getSpeedBytes(long numberBytes, double seconds) {
+    if (numberBytes > 1024 * 1024)
+      return String.format("%4.2f MB/s", ((double) numberBytes / seconds) / (1024 * 1024));
+    if (numberBytes > 1024)
+      return String.format("%4.2f kB/s<BR>", ((double) numberBytes / seconds) / 1024);
+    return String.format("%4.2f B/s<BR>", ((double) numberBytes / seconds));
+  }
 }
