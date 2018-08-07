@@ -38,10 +38,10 @@ public class FlightgearNAPTRQuery {
     @Override
     public int compare(Object[] o1, Object[] o2) {
 
-      if (o1[2].equals(o1[2]))
-        return ((Comparable) o1[3]).compareTo(o1[3]);
+      if (o1[2].equals(o2[2]))
+        return ((Comparable<Object>) o1[3]).compareTo(o1[3]);
       else
-        return ((Comparable) o1[2]).compareTo(o1[2]);
+        return ((Comparable<Object>) o1[2]).compareTo(o1[2]);
     }
 
   }

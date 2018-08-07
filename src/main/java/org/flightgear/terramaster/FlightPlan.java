@@ -24,19 +24,6 @@ public class FlightPlan extends JDialog {
 	private JComboBox<Airport> txtArrival;
 
 	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			FlightPlan dialog = new FlightPlan();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Create the dialog.
 	 */
 	public FlightPlan() {
@@ -86,7 +73,7 @@ public class FlightPlan extends JDialog {
 			}
 		};
 		{
-			txtDeparture = new JComboBox();
+			txtDeparture = new JComboBox<>();
 //			txtDeparture.addActionListener(getDepartureListener);
 			txtDeparture.setEditable(true);
 			GridBagConstraints gbc_txtDeparture = new GridBagConstraints();

@@ -1,27 +1,10 @@
 package org.flightgear.terramaster;
 
-import java.awt.Container;
-import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
-import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * this class handles webqueries and returns results it keeps a per-session
