@@ -956,10 +956,12 @@ class MapPanel extends JPanel {
 		case KeyEvent.VK_DOWN:
 			newSelection = cursor.getNeighbour(0, -1);
 			break;
+    case KeyEvent.VK_ADD:
 		case KeyEvent.VK_PLUS:
 			fromMetres += 1;
 			setFromMetres();
 			return;
+    case KeyEvent.VK_SUBTRACT:
 		case KeyEvent.VK_MINUS:
 			fromMetres -= 1;
 			setFromMetres();
