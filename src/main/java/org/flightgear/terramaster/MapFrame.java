@@ -13,6 +13,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
@@ -44,6 +47,7 @@ import org.flightgear.terramaster.gshhs.MapPoly;
 
 import javax.swing.Icon;
 import javax.swing.JComboBox;
+import java.awt.FlowLayout;
 
 public class MapFrame extends JFrame {
 
@@ -82,10 +86,12 @@ public class MapFrame extends JFrame {
 
     private static final String PREFS = "PREFS";
 
+    @Override
     public void componentMoved(ComponentEvent e) {
       storeSettings();
     }
 
+    @Override
     public void componentResized(ComponentEvent e) {
       // tileName.setLocation( 20, 10);
       // butSync.setLocation( 90-1, 7);
@@ -189,7 +195,8 @@ public class MapFrame extends JFrame {
   String title;
   MapPanel map;
   JComboBox searchBar;
-  JLabel tileName, search;
+  JLabel tileName;
+  JLabel search;
   JButton butSync, butDelete, butStop, butModels, butReset, butClear, butPrefs, butSearch;
   JFileChooser fc = new JFileChooser();
   JProgressBar progressBar;
@@ -198,6 +205,8 @@ public class MapFrame extends JFrame {
   private JButton butInfo;
   private JButton butSyncOld;
   private JButton addFlightplan;
+  private JPanel bottomPanel;
+  JTextField tileindex;
 
   public MapFrame(String title) {
     setIconImage(Toolkit.getDefaultToolkit().getImage("TerraMaster logo cropped.ico"));
@@ -417,6 +426,16 @@ public class MapFrame extends JFrame {
         }
       });
       getContentPane().add(map, BorderLayout.CENTER);
+      
+      bottomPanel = new JPanel();
+      getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+      bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+      
+      tileindex = new JTextField();
+      tileindex.setEditable(false);
+      tileindex.setFont(new Font("Tahoma", Font.PLAIN, 10));
+      bottomPanel.add(tileindex);
+      tileindex.setColumns(15);
 
       map.passFrame(this);
     } catch (Throwable e) {

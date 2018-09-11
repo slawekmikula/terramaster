@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -46,30 +45,13 @@ import com.jhlabs.map.proj.WinkelTripelProjection;
  */
 
 class MapPanel extends JPanel {
-
+  
   /**
-   * Converts a lat/lon point to screen coordinates
-   * @param n
-   * @return
+   * 
+   *
    */
-	private Point2D.Double screen2geo(Point n) {
-	  if(n==null)
-	    return null;
-		Point s = new Point(n);
-		// s.y += getY();
-		Point p = new Point();
 
-		try {
-			affine.createInverse().transform(s, p);
-			Point2D.Double dp = new Point2D.Double(p.x, p.y), dd = new Point2D.Double();
-			pj.inverseTransform(dp, dd);
-			return dd;
-		} catch (Exception x) {
-			return null;
-		}
-	}
-
-	private final class MapKeyAdapter extends KeyAdapter {
+  private final class MapKeyAdapter extends KeyAdapter {
 		private TileName selstart;
 
 		@Override
@@ -137,6 +119,7 @@ class MapPanel extends JPanel {
 		Point press, last;
 		int mode = 0;
 
+		@Override
 		public void mousePressed(MouseEvent e) {
 			press = e.getPoint();
 			mode = e.getButton();
@@ -199,7 +182,9 @@ class MapPanel extends JPanel {
 
 			mapFrame.repaint();
 		}
-
+		
+		
+    @Override
 		public void mouseDragged(MouseEvent e) {
 			switch (mode) {
 			case MouseEvent.BUTTON3:
@@ -236,30 +221,37 @@ class MapPanel extends JPanel {
 			mapFrame.repaint();
 		}
 
+		@Override
 		public void mouseClicked(MouseEvent e) {
 			Point2D.Double p2 = screen2geo(e.getPoint());
+      if (p2 == null)
+        return;
 
 			TileName tile = TileName.getTile(p2);
 			cursor = tile;
 			String txt = tile.getName();
 			mapFrame.tileName.setText(txt);
 
-			if (p2 == null)
-				return;
 		}
 		
 		/**
 		 * Zoom
 		 */
 
+    @Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			int n = e.getWheelRotation();
 			fromMetres -= n;
 			setFromMetres();
-		}
+		}		
 	}
 
+	/**
+	 * 
+	 *
+	 */
 	class MPAdapter extends ComponentAdapter {
+	  @Override
 		public void componentResized(ComponentEvent e) {
 			int w = getWidth();
 			int h = getHeight();
@@ -334,7 +326,29 @@ class MapPanel extends JPanel {
 		});
 	}
 
-	private void setOrtho() {
+	/**
+   * Converts screen coordinates to lat/lon point
+   * @param n
+   * @return
+   */
+  public Point2D.Double screen2geo(Point n) {
+    if(n==null)
+      return null;
+  	Point s = new Point(n);
+  	// s.y += getY();
+  	Point p = new Point();
+  
+  	try {
+  		affine.createInverse().transform(s, p);
+  		Point2D.Double dp = new Point2D.Double(p.x, p.y), dd = new Point2D.Double();
+  		pj.inverseTransform(dp, dd);
+  		return dd;
+  	} catch (Exception x) {
+  		return null;
+  	}
+  }
+
+  private void setOrtho() {
 		pj = new OrthographicAzimuthalProjection();
 		// System.out.println(pj.getPROJ4Description());
 		mapRadius = HALFPI - 0.1;
@@ -422,17 +436,23 @@ class MapPanel extends JPanel {
 		pj.setFromMetres(Math.pow(2, fromMetres / 4));
 		pj.initialize();
 	}
+	
+	/**
+	 * Returns the tooltip for the tile. 
+	 */
 
+	@Override
 	public String getToolTipText(MouseEvent e) {
 		Point s = e.getPoint();
-		// return TerraMaster.tilenameManager.getTile(screen2geo(s)).getName();
 		String txt = "";
 		String str = "";
 
-		TileName t = TileName.getTile(screen2geo(s));
+		Double p2 = screen2geo(s);
+    TileName t = TileName.getTile(p2);
 		if (t != null)
-			txt = t.getName();
+			txt = t.getName();			
 
+		//Is it downloaded?
 		if (TerraMaster.mapScenery.containsKey(t)) {
 			// list Terr, Obj, airports
 
@@ -442,7 +462,7 @@ class MapPanel extends JPanel {
 			if (d.terrain) {
 				txt += " +Terr";
 				File f = d.dir_terr;
-				if (f != null & f.exists()) {
+				if (f != null && f.exists()) {
 					int count = 0;
 					for (String i : f.list()) {
 						if (i.endsWith(".btg.gz")) {
@@ -469,7 +489,9 @@ class MapPanel extends JPanel {
 				txt += "<br>" + str;
 
 			txt += "</html>";
+	    mapFrame.tileindex.setText( t.getName() + " ("+TileName.getTileIndex(p2) + ")");
 		}
+		
 		return txt;
 	}
 
@@ -477,7 +499,7 @@ class MapPanel extends JPanel {
 		return poly.size();
 	}
 
-	/*
+	/**
 	 * selection stuff
 	 */
 

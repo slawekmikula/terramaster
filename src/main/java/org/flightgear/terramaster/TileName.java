@@ -1,8 +1,13 @@
 package org.flightgear.terramaster;
 
 import java.awt.geom.Point2D;
-import java.util.*;
-import java.util.regex.*;
+import java.awt.geom.Point2D.Double;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class representing a tile of scenery in the "e000s00" format and convenience
@@ -12,7 +17,7 @@ import java.util.regex.*;
 public class TileName implements Comparable<TileName> {
   private int lat;
   private int lon;
-  /**String representing this tile.*/
+  /** String representing this tile. */
   private String name;
 
   private static Hashtable<String, TileName> tilenameMap;
@@ -136,6 +141,57 @@ public class TileName implements Comparable<TileName> {
   public TileName getNeighbour(int i, int j) {
     TileName tile = TileName.getTile(lon + i, lat + j);
     return tile;
+  }
+  
+  /**
+   * Returns a TileIndex for the given lat/lon
+   * @see <a href="http://wiki.flightgear.org/Tile_Index_Scheme">http://wiki.flightgear.org/Tile_Index_Scheme</a>
+   * @param p
+   * @return
+   */
+
+  public static int getTileIndex(Point2D.Double p) {
+    double lon = p.x;
+    //FIXME Lats are always wrong way around
+    double lat = -p.y; 
+    double baseY = Math.floor(lat);
+    int y = (int)((lat - baseY) * 8);
+    double tileWidth = getTileWidth(p);
+    double base_x = Math.floor(Math.floor(lon / tileWidth) * tileWidth);
+    if (base_x < -180)
+      base_x = -180;
+    double x = Math.floor((lon - base_x) / tileWidth);
+    int index =  ((int)Math.floor(lon)+180)<<14;
+    index +=    ((int)Math.floor(lat) + 90) << 6 ; 
+    index += (y << 3); 
+    index += x;
+    return index;
+  }
+  
+  /**
+   * Get the amount of a tile is covered by one tileindex.
+   * @param p
+   * @return
+   */
+
+  private static double getTileWidth(Double p) {
+    if (Math.abs(p.y) < 22)
+      return 0.125;
+    if (Math.abs(p.y) < 62)
+      return 0.25;
+    if (Math.abs(p.y) < 76)
+      return 0.5;
+    if (Math.abs(p.y) < 83)
+      return 1;
+    if (Math.abs(p.y) < 86)
+      return 2;
+    if (Math.abs(p.y) < 88)
+      return 4;
+    if (Math.abs(p.y) < 89)
+      return 8;
+    if (Math.abs(p.y) <= 90)
+      return 360;
+    return 0;
   }
 
   @Override
