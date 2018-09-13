@@ -21,23 +21,21 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 public class AboutDialog extends JDialog {
-	Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
+	private static final String TEXT_HTML = "text/html";
+  static Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
 	private JLabel lblV;
 
 	private final class HyperLinkListener implements HyperlinkListener {
 		public void hyperlinkUpdate(HyperlinkEvent hle) {
 			if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.getEventType())) {
-				log.fine("Calling " + hle.getURL().toExternalForm());
+				log.fine(()->"Calling {}" + hle.getURL().toExternalForm());
 				try {
 					Desktop.getDesktop().browse(new URI(hle.getURL().toExternalForm()));
-				} catch (IOException e) {
-					log.log(Level.WARNING, e.getMessage(), e);
-				} catch (URISyntaxException e) {
+				} catch (IOException|URISyntaxException e) {
 					log.log(Level.WARNING, e.getMessage(), e);
 				}
 			}
@@ -68,11 +66,7 @@ public class AboutDialog extends JDialog {
 		getContentPane().setLayout(gridBagLayout);
 
 		JButton btnNewButton = new JButton("Ok");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-			}
-		});
+		btnNewButton.addActionListener( ev -> setVisible(false)		);
 		
 		JLabel label = new JLabel("Developed by :");
 		GridBagConstraints gbc_label = new GridBagConstraints();
@@ -81,7 +75,7 @@ public class AboutDialog extends JDialog {
 		gbc_label.gridy = 1;
 		getContentPane().add(label, gbc_label);
 		
-		JEditorPane editorPane = new JEditorPane("text/html", "<a href='https://github.com/open744'>reed</a>");
+		JEditorPane editorPane = new JEditorPane(TEXT_HTML, "<a href='https://github.com/open744'>reed</a>");
 		GridBagConstraints gbc_editorPane = new GridBagConstraints();
 		gbc_editorPane.insets = new Insets(0, 0, 5, 5);
 		gbc_editorPane.gridx = 1;
@@ -93,7 +87,7 @@ public class AboutDialog extends JDialog {
 		editorPane.setEditable(false);
 		editorPane.setBackground(Color.LIGHT_GRAY);
 		
-		JEditorPane editorPane_1 = new JEditorPane("text/html", "<a href='https://github.com/Portree-Kid'>portree_kid</a>");
+		JEditorPane editorPane_1 = new JEditorPane(TEXT_HTML, "<a href='https://github.com/Portree-Kid'>portree_kid</a>");
 		GridBagConstraints gbc_editorPane_1 = new GridBagConstraints();
 		gbc_editorPane_1.insets = new Insets(0, 0, 5, 5);
 		gbc_editorPane_1.gridx = 2;
@@ -104,7 +98,7 @@ public class AboutDialog extends JDialog {
 		editorPane_1.setEditable(false);
 		editorPane_1.setBackground(Color.LIGHT_GRAY);
 		
-		JEditorPane dtrpnclive = new JEditorPane("text/html", "<a href='https://forum.flightgear.org/memberlist.php?mode=viewprofile&u=19112'>Clive2670</a>");
+		JEditorPane dtrpnclive = new JEditorPane(TEXT_HTML, "<a href='https://forum.flightgear.org/memberlist.php?mode=viewprofile&u=19112'>Clive2670</a>");
 		GridBagConstraints gbc_dtrpnclive = new GridBagConstraints();
 		gbc_dtrpnclive.insets = new Insets(0, 0, 5, 0);
 		gbc_dtrpnclive.gridx = 3;
@@ -122,7 +116,7 @@ public class AboutDialog extends JDialog {
 				gbc_lblLicense.gridy = 2;
 				getContentPane().add(lblLicense, gbc_lblLicense);
 		
-				JEditorPane btnGpl = new JEditorPane("text/html",
+				JEditorPane btnGpl = new JEditorPane(TEXT_HTML,
 						"<a href='https://github.com/Portree-Kid/terramaster/blob/master/COPYING'>GPL 2.0</a>");
 				GridBagConstraints gbc_btnGpl = new GridBagConstraints();
 				gbc_btnGpl.insets = new Insets(0, 0, 5, 5);
@@ -135,7 +129,7 @@ public class AboutDialog extends JDialog {
 				btnGpl.setOpaque(false);
 				btnGpl.addHyperlinkListener(new HyperLinkListener());
 		
-				JEditorPane btnSource = new JEditorPane("text/html",
+				JEditorPane btnSource = new JEditorPane(TEXT_HTML,
 						"<a href='https://github.com/Portree-Kid/terramaster'>Source</a>");
 				GridBagConstraints gbc_btnSource = new GridBagConstraints();
 				gbc_btnSource.insets = new Insets(0, 0, 5, 5);
