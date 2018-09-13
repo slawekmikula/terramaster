@@ -89,8 +89,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   public void sync(Collection<TileName> set, boolean ageCheck) {
 
     this.ageCheck = ageCheck;
-    for (Iterator<TileName> iterator = set.iterator(); iterator.hasNext();) {
-      TileName tileName = (TileName) iterator.next();
+    for (TileName tileName : set) {
       if (tileName == null)
         continue;
       synchronized (syncList) {
@@ -187,7 +186,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   }
 
   private void sync() {
-    HashSet<String> apt = new HashSet<String>();
+    HashSet<String> apt = new HashSet<>();
     int tilesize = (terrain ? DIR_SIZE : 0) + (objects ? DIR_SIZE : 0) + (buildings ? 2000 : 0);
     // update progressbar
     invokeLater(EXTEND, syncList.size() * tilesize + AIRPORT_MAX); // update
@@ -260,7 +259,6 @@ public class HTTPTerraSync extends Thread implements TileService {
       new DownloadResultDialog(completeStats).setVisible(true);
     } catch (Exception e) {
       log.log(Level.SEVERE, "Error showing stats ", e);
-      e.printStackTrace();
     }
   }
 
@@ -306,7 +304,7 @@ public class HTTPTerraSync extends Thread implements TileService {
    * @return
    */
   private HashSet<String> findAirports(File d) {
-    HashSet<String> set = new HashSet<String>();
+    HashSet<String> set = new HashSet<>();
 
     if (!d.exists())
       return set;
@@ -512,18 +510,7 @@ public class HTTPTerraSync extends Thread implements TileService {
             }
             WeightedUrl filebaseUrl = getBaseUrl();
             if (load) {
-              try {
-                downloadFile(localFile, filebaseUrl,  path.replace("\\", "/") + "/" +  splitLine[1]);
-              } catch (javax.net.ssl.SSLHandshakeException e) {
-                log.log(Level.WARNING, "Handshake Error " + e.toString() + " syncing " + path + " removing Base-URL", e);
-                JOptionPane.showMessageDialog(TerraMaster.frame, "Sync can fail if Java older than 8u101 and 7u111 with https hosts.\r\n" + filebaseUrl.getUrl().toExternalForm(),
-                    "SSL Error", JOptionPane.ERROR_MESSAGE);
-                markBad(filebaseUrl, e);
-              } catch (SocketException e) {
-                log.log(Level.WARNING, "Connect Error " + e.toString() + " syncing with "
-                    + baseUrl.getUrl().toExternalForm() + path.replace("\\", "/") + " removing Base-URL", e);
-                markBad(filebaseUrl, e);
-              }
+              downloadFile(path, baseUrl, splitLine, localFile, filebaseUrl);
             }
             else {
               downloadStats.get(filebaseUrl).equal += 1;              
@@ -562,6 +549,22 @@ public class HTTPTerraSync extends Thread implements TileService {
     }
     return 0;
   }
+
+  public void downloadFile(String path, WeightedUrl baseUrl, String[] splitLine, File localFile,
+      WeightedUrl filebaseUrl) throws IOException {
+    try {
+      downloadFile(localFile, filebaseUrl,  path.replace("\\", "/") + "/" +  splitLine[1]);
+    } catch (javax.net.ssl.SSLHandshakeException e) {
+      log.log(Level.WARNING, "Handshake Error " + e.toString() + " syncing " + path + " removing Base-URL", e);
+      JOptionPane.showMessageDialog(TerraMaster.frame, "Sync can fail if Java older than 8u101 and 7u111 with https hosts.\r\n" + filebaseUrl.getUrl().toExternalForm(),
+          "SSL Error", JOptionPane.ERROR_MESSAGE);
+      markBad(filebaseUrl, e);
+    } catch (SocketException e) {
+      log.log(Level.WARNING, "Connect Error " + e.toString() + " syncing with "
+          + baseUrl.getUrl().toExternalForm() + path.replace("\\", "/") + " removing Base-URL", e);
+      markBad(filebaseUrl, e);
+    }
+  }
   
   /**
    * 
@@ -599,7 +602,7 @@ public class HTTPTerraSync extends Thread implements TileService {
     return file.exists() ? new String(readFile(file)) : "";
   }
 
-  private long getDirIndexAge(String path) throws IOException {
+  private long getDirIndexAge(String path) {
     File file = new File(new File(localBaseDir, path), DIRINDEX_FILENAME);
     return file.exists() ? (System.currentTimeMillis() - file.lastModified()) : (Long.MAX_VALUE);
   }
@@ -632,14 +635,15 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private byte[] calcSHA1(File file) throws NoSuchAlgorithmException, IOException {
     MessageDigest digest = MessageDigest.getInstance("SHA-1");
-    InputStream fis = new FileInputStream(file);
-    int n = 0;
-    byte[] buffer = new byte[8192];
-    while (n != -1) {
-      n = fis.read(buffer);
-      if (n > 0) {
-        digest.update(buffer, 0, n);
-      }
+    try(InputStream fis = new FileInputStream(file)){
+      int n = 0;
+      byte[] buffer = new byte[8192];
+      while (n != -1) {
+        n = fis.read(buffer);
+        if (n > 0) {
+          digest.update(buffer, 0, n);
+        }
+      }      
     }
     return digest.digest();
   }
@@ -658,12 +662,10 @@ public class HTTPTerraSync extends Thread implements TileService {
     try (InputStream fis = new FileInputStream(file)) {
       int n = 0;
       byte[] buffer = new byte[8192];
-      int off = 0;
       while (n != -1) {
         n = fis.read(buffer);
         if (n > 0) {
           bos.write(buffer, 0, n);
-          off += n;
         }
       }
     }
@@ -672,10 +674,11 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private void writeFile(File file, String remoteDirIndex) throws IOException {
     file.getParentFile().mkdirs();
-    FileOutputStream fos = new FileOutputStream(file);
-    fos.write(remoteDirIndex.getBytes());
-    fos.flush();
-    fos.close();
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      fos.write(remoteDirIndex.getBytes());
+      fos.flush();
+      fos.close();
+    }
   }
 
   /**
@@ -696,6 +699,7 @@ public class HTTPTerraSync extends Thread implements TileService {
           try {
             Thread.sleep(1200);
           } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
           }
           TerraMaster.frame.progressBar.setMaximum(0);
           TerraMaster.frame.progressBar.setVisible(false);
