@@ -160,16 +160,7 @@ public class HTTPTerraSync extends Thread implements TileService {
       TileData d = TerraMaster.mapScenery.remove(n);
       if (d == null)
         continue;
-      if (d.terrain) {
-        deltree(d.dir_terr);
-      }
-
-      if (d.objects) {
-        deltree(d.dir_obj);
-      }
-      if (d.buildings) {
-        deltree(d.dir_buildings);
-      }
+      d.delete();
 
       synchronized (syncList) {
         syncList.remove(n);
@@ -177,24 +168,6 @@ public class HTTPTerraSync extends Thread implements TileService {
     }
   }
 
-  private void deltree(File d) {
-    if (!d.exists())
-      return;
-    for (File f : d.listFiles()) {
-      if (f.isDirectory())
-        deltree(f);
-      try {
-        f.delete();
-      } catch (SecurityException x) {
-        log.log(Level.WARNING, "Deltree", x);
-      }
-    }
-    try {
-      d.delete();
-    } catch (SecurityException x) {
-      log.log(Level.WARNING, "Deltree", x);
-    }
-  }
 
   @Override
   public void run() {

@@ -64,16 +64,13 @@ public class TerraMaster {
     }
     switch (type) {
     case TERRAIN:
-      t.terrain = true;
-      t.dir_terr = i;
+      t.setDirTerrain(i);
       break;
     case OBJECTS:
-      t.objects = true;
-      t.dir_obj = i;
+      t.setDirObjects(i);
       break;
     case BUILDINGS:
-      t.buildings = true;
-      t.dir_buildings = i;
+      t.setDirBuildings(i);
       break;
     }
     map.put(n, t);

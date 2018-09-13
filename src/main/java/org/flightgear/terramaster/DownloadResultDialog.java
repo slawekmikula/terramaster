@@ -6,6 +6,8 @@ import java.awt.SystemColor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -21,6 +23,7 @@ import javax.swing.text.html.StyleSheet;
 import org.flightgear.terramaster.dns.WeightedUrl;
 
 public class DownloadResultDialog extends JDialog {
+  private static Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
 
   private final JPanel contentPanel = new JPanel();
   private ArrayList<Exception> exceptions = new ArrayList<>();
@@ -34,7 +37,7 @@ public class DownloadResultDialog extends JDialog {
       dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
       dialog.setVisible(true);
     } catch (Exception e) {
-      e.printStackTrace();
+      log.log(Level.WARNING, e.toString(), e);
     }
   }
 
@@ -50,43 +53,33 @@ public class DownloadResultDialog extends JDialog {
     contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
     getContentPane().add(contentPanel, BorderLayout.CENTER);
     contentPanel.setLayout(new BorderLayout(0, 0));
-    {
-      JEditorPane jEditorPane = new JEditorPane();
-      jEditorPane.setBackground(SystemColor.control);
-      jEditorPane.setEditable(false);
-      jEditorPane.addHyperlinkListener(e -> {
-        if (e.getEventType() == EventType.ACTIVATED) {
-          new ExceptionDialog(exceptions.get(Integer.parseInt(e.getURL().getHost()))).setVisible(true);
-        }
-      });
-      HTMLEditorKit kit = new HTMLEditorKit();
-      cssStyling(kit);
-      jEditorPane.setEditorKit(kit);
-      Document doc = kit.createDefaultDocument();
-      jEditorPane.setDocument(doc);
-      jEditorPane.setText(getHTML(downloadStats));
-      jEditorPane.setCaretPosition(0);
-      JScrollPane scrollPane = new JScrollPane(jEditorPane);
-      contentPanel.add(scrollPane, BorderLayout.CENTER);
-    }
-    {
-      JPanel buttonPane = new JPanel();
-      getContentPane().add(buttonPane, BorderLayout.SOUTH);
-      buttonPane.setLayout(new BorderLayout(0, 0));
-      {
-        JPanel panel = new JPanel();
-        buttonPane.add(panel, BorderLayout.NORTH);
-        {
-          JButton okButton = new JButton("OK");
-          okButton.addActionListener(ae -> {
-            setVisible(false);
-          });
-
-          panel.add(okButton);
-          getRootPane().setDefaultButton(okButton);
-        }
+    JEditorPane jEditorPane = new JEditorPane();
+    jEditorPane.setBackground(SystemColor.control);
+    jEditorPane.setEditable(false);
+    jEditorPane.addHyperlinkListener(e -> {
+      if (e.getEventType() == EventType.ACTIVATED) {
+        new ExceptionDialog(exceptions.get(Integer.parseInt(e.getURL().getHost()))).setVisible(true);
       }
-    }
+    });
+    HTMLEditorKit kit = new HTMLEditorKit();
+    cssStyling(kit);
+    jEditorPane.setEditorKit(kit);
+    Document doc = kit.createDefaultDocument();
+    jEditorPane.setDocument(doc);
+    jEditorPane.setText(getHTML(downloadStats));
+    jEditorPane.setCaretPosition(0);
+    JScrollPane scrollPane = new JScrollPane(jEditorPane);
+    contentPanel.add(scrollPane, BorderLayout.CENTER);
+    JPanel buttonPane = new JPanel();
+    getContentPane().add(buttonPane, BorderLayout.SOUTH);
+    buttonPane.setLayout(new BorderLayout(0, 0));
+    JPanel panel = new JPanel();
+    buttonPane.add(panel, BorderLayout.NORTH);
+    JButton okButton = new JButton("OK");
+    okButton.addActionListener(ae -> setVisible(false));
+
+    panel.add(okButton);
+    getRootPane().setDefaultButton(okButton);
   }
 
   public void cssStyling(HTMLEditorKit kit) {
@@ -118,10 +111,6 @@ public class DownloadResultDialog extends JDialog {
             entry.getValue().getException().toString()));
         exceptions.add(entry.getValue().getException());
       }
-      // if (entry.getValue().getException() != null) {
-      // HtmlExceptionFormatter hef = new HtmlExceptionFormatter();
-      // hef.formatMessage(sb, entry.getValue().getException());
-      // }
     }
     sb.append("</HTML>");
     return sb.toString();

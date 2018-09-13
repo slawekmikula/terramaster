@@ -3,6 +3,7 @@ package org.flightgear.terramaster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.logging.Logger;
 
@@ -13,12 +14,12 @@ import java.util.logging.Logger;
  */
 
 public class FGMap extends Observable implements AirportResult {
-  Logger LOG = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
+  Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
   private HashMap<String, Airport> map;
   private List<Airport> searchResult = new ArrayList<>();
 
   public FGMap() {
-    map = new HashMap<String, Airport>();
+    map = new HashMap<>();
   }
 
   public void addAirport(Airport apt) {
@@ -31,7 +32,7 @@ public class FGMap extends Observable implements AirportResult {
     }
   }
 
-  public HashMap<String, Airport> getAirportMap() {
+  public Map<String, Airport> getAirportMap() {
     return (HashMap<String, Airport>) map.clone();
   }
 

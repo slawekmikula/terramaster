@@ -152,7 +152,7 @@ public class TileName implements Comparable<TileName> {
 
   public static int getTileIndex(Point2D.Double p) {
     double lon = p.x;
-    //FIXME Lats are always wrong way around
+    //FIXME Lats are always with the wrong sign. Negative is towards North
     double lat = -p.y; 
     double baseY = Math.floor(lat);
     int y = (int)((lat - baseY) * 8);

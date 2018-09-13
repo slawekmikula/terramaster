@@ -26,7 +26,6 @@ import java.awt.event.ActionEvent;
 public class ExceptionDialog extends JDialog {
 
   private final JPanel contentPanel = new JPanel();
-  private ArrayList<Exception> exceptions = new ArrayList<>();
 
   /**
    * Launch the application.

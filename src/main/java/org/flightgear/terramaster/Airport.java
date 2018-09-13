@@ -1,7 +1,9 @@
 package org.flightgear.terramaster;
 
 public class Airport {
-	String name, code, tilename = "";
+	String name = "";
+	String code = "";
+	String tilename = "";
 	double lat;
 	double lon;
 	private double maxLat = 0;

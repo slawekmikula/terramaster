@@ -75,9 +75,9 @@ public class WeightedUrl implements Serializable {
     }
     this.weight = Integer.parseInt(weight);
   }
+  
 
   public URL getUrl() {
-    // TODO Auto-generated method stub
     return url;
   }
 
