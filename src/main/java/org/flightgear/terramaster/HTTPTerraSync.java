@@ -676,8 +676,6 @@ public class HTTPTerraSync extends Thread implements TileService {
     file.getParentFile().mkdirs();
     try (FileOutputStream fos = new FileOutputStream(file)) {
       fos.write(remoteDirIndex.getBytes());
-      fos.flush();
-      fos.close();
     }
   }
 

@@ -63,9 +63,9 @@ public class MapFrame extends JFrame {
     @Override
     public void update(Observable o, Object arg) {
       if (o instanceof FGMap) {
-        FGMap map = (FGMap) o;
+        FGMap observedMap = (FGMap) o;
         searchBar.removeAllItems();
-        for (Airport airport : map.getSearchResult()) {
+        for (Airport airport : observedMap.getSearchResult()) {
           searchBar.addItem(airport);          
         }
       }
@@ -133,9 +133,9 @@ public class MapFrame extends JFrame {
         FlightPlan fp = new FlightPlan();
         fp.setVisible(true);
         repaint();
-      } else if (a.equals("MODELS")) {
+      } else if (a.equals(TerraSyncDirectoryTypes.MODELS.name())) {
         Collection<TileName> set = new ArrayList<TileName>();
-        set.add(new TileName("MODELS"));
+        set.add(new TileName(TerraSyncDirectoryTypes.MODELS.name()));
         TerraMaster.svn.sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 1);
         progressBar.setVisible(true);
@@ -192,7 +192,6 @@ public class MapFrame extends JFrame {
     }
   }
 
-  String title;
   MapPanel map;
   JComboBox searchBar;
   JLabel tileName;
@@ -201,7 +200,7 @@ public class MapFrame extends JFrame {
   JFileChooser fc = new JFileChooser();
   JProgressBar progressBar;
   private JPanel panel;
-  Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
+  static Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
   private JButton butInfo;
   private JButton butSyncOld;
   private JButton addFlightplan;
@@ -213,7 +212,6 @@ public class MapFrame extends JFrame {
     try {
       MFAdapter ad = new MFAdapter();
 
-      this.title = title;
       setTitle(title);
       getContentPane().addComponentListener(ad);
 

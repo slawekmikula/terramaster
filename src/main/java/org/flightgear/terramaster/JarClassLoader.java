@@ -342,6 +342,7 @@ public class JarClassLoader extends ClassLoader {
         
         checkShading();
         Runtime.getRuntime().addShutdownHook(new Thread() {
+          @Override
             public void run() {
                 shutdown();
             }
@@ -440,10 +441,9 @@ public class JarClassLoader extends ClassLoader {
             fileTmp.deleteOnExit();
             chmod777(fileTmp); // Unix - allow temp file deletion by any user
             byte[] a_by = inf.getJarBytes();
-            BufferedOutputStream os = new BufferedOutputStream(
-                                      new FileOutputStream(fileTmp));
-            os.write(a_by);
-            os.close();
+            try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(fileTmp))) {
+              os.write(a_by);
+            }
             return fileTmp;
         } catch (IOException e) {
             throw new JarClassLoaderException(String.format(
@@ -661,10 +661,8 @@ public class JarClassLoader extends ClassLoader {
      * @param fileCfg file with temporary files list.
      */
     private void deleteOldTemp(File fileCfg) {
-        BufferedReader reader = null;
-        try {
-            int count = 0;
-            reader = new BufferedReader(new FileReader(fileCfg));
+        int count = 0;
+        try(BufferedReader reader = new BufferedReader(new FileReader(fileCfg))){
             String sLine;
             while ((sLine = reader.readLine()) != null) {
                 File file = new File(sLine);
@@ -682,10 +680,6 @@ public class JarClassLoader extends ClassLoader {
                     count, fileCfg.getAbsolutePath());
         } catch (IOException e) {
             // Ignore. This file may not exist.
-        } finally {
-            if (reader != null) {
-                try { reader.close(); } catch (IOException e) { }
-            }
         }
     } // deleteOldTemp()
 
@@ -1131,10 +1125,10 @@ public class JarClassLoader extends ClassLoader {
     }
 
     private void log(LogLevel level, LogArea area, String sMsg, Object ... obj) {
-        if (level.ordinal() <= logLevel.ordinal()) {
-            if (hsLogArea.contains(LogArea.ALL) || hsLogArea.contains(area)) {
+        if (level.ordinal() <= logLevel.ordinal() &&
+            hsLogArea.contains(LogArea.ALL) || hsLogArea.contains(area)) {
                 logger.printf("JarClassLoader-" + level + ": " + sMsg + "\n", obj);
-            }
+            
         }
         if (!bLogConsole && level == LogLevel.ERROR) { // repeat to console
             System.out.printf("JarClassLoader-" + level + ": " + sMsg + "\n", obj);
