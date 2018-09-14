@@ -52,8 +52,8 @@ public class FlightgearNAPTRQuery {
 
   private String[] versions;
   private static final String TERRASYNC_SERVERS_FILE = "nameservers.bin";
-  
-  public class HealthStats{
+
+  public class HealthStats {
 
     private String host;
     public int totalRequests;
@@ -70,10 +70,9 @@ public class FlightgearNAPTRQuery {
       return "HealthStats [host=" + host + ", totalRequests=" + totalRequests + ", errors=" + errors + ", success="
           + success + ", empty=" + empty + "]";
     }
-    
-    
+
   }
-    
+
   private HashMap<String, HealthStats> stats = new HashMap<>();
 
   public synchronized HashMap<String, HealthStats> getStats() {
@@ -94,19 +93,21 @@ public class FlightgearNAPTRQuery {
     if (urls != null && !urls.isEmpty())
       return urls;
     int index, len = 0, rcode, count = 0;
-    boolean isZone = false, isNS = false, isPlain = false;
+    boolean isZone = false;
+    boolean isNS = false;
+    boolean isPlain = false;
     String queryName = null;
     String fileName = null;
     InetAddress server;
     // Get the system dns
 
     List<String> nameservers = getNameservers();
-    
+
     Collections.sort(nameservers, new Comparator<String>() {
 
       @Override
       public int compare(String o1, String o2) {
-        return Integer.compare(stats.get(o1).errors, stats.get(o2).errors) ;
+        return Integer.compare(stats.get(o1).errors, stats.get(o2).errors);
       }
     });
 
@@ -217,9 +218,8 @@ public class FlightgearNAPTRQuery {
               // Retrieve the URLs
               urls = getUrls(hostRecords, sceneryType, qName);
               setVersions(getSceneryTypes(hostRecords));
-            }
-            else {
-              stats.get(serverName).empty++;              
+            } else {
+              stats.get(serverName).empty++;
             }
             if (!urls.isEmpty()) {
               // We have some servers so we can return
@@ -436,25 +436,23 @@ public class FlightgearNAPTRQuery {
 
   public List<String> getNameservers() {
     ResolverConfiguration config = sun.net.dns.ResolverConfiguration.open();
-    
+
     Field[] f = config.getClass().getDeclaredFields();
-   
-    List<String> nameservers = config.nameservers();    
-    
-    if( Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GOOGLE, "false")) || 
-        Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GCA, "false")))
-    {
+
+    List<String> nameservers = config.nameservers();
+
+    if (Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GOOGLE, "false"))
+        || Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GCA, "false"))) {
       nameservers.clear();
-      if(Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GOOGLE, "false")))
+      if (Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GOOGLE, "false")))
         // Add google
         nameservers.add(0, "8.8.8.8");
-      if(Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GCA, "false")))
+      if (Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GCA, "false")))
         // Add GCA DNS
-        nameservers.add(0, "9.9.9.9");        
+        nameservers.add(0, "9.9.9.9");
     }
     for (String string : nameservers) {
-      if(!stats.containsKey(string))
-      {
+      if (!stats.containsKey(string)) {
         stats.put(string, new HealthStats(string));
       }
     }
@@ -511,11 +509,9 @@ public class FlightgearNAPTRQuery {
   }
 
   private void readData() {
-    try {
-      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(TERRASYNC_SERVERS_FILE));
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(TERRASYNC_SERVERS_FILE))) {
       urls = (List<WeightedUrl>) ois.readObject();
       versions = (String[]) ois.readObject();
-      ois.close();
     } catch (IOException e1) {
       log.log(Level.WARNING, e1.toString(), e1);
     } catch (ClassNotFoundException e) {
@@ -524,12 +520,10 @@ public class FlightgearNAPTRQuery {
   }
 
   private void storeData() {
-    try {
-      ObjectOutputStream ois = new ObjectOutputStream(new FileOutputStream(TERRASYNC_SERVERS_FILE));
+    try (ObjectOutputStream ois = new ObjectOutputStream(new FileOutputStream(TERRASYNC_SERVERS_FILE))) {
       ois.writeObject(urls);
       ois.writeObject(versions);
       ois.flush();
-      ois.close();
     } catch (IOException e1) {
       log.log(Level.WARNING, e1.toString(), e1);
     }
