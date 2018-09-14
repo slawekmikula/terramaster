@@ -1,9 +1,11 @@
 package org.flightgear.terramaster;
 
+import java.awt.Polygon;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.awt.Polygon;
 
 /**
  * The data associated with a tile.
@@ -40,21 +42,21 @@ public class TileData {
     }
   }
 
-  private void deltree(File d) {
-    if (!d.exists())
+  private void deltree(File dir) {
+    if (!dir.exists())
       return;
-    for (File f : d.listFiles()) {
+    for (File f : dir.listFiles()) {
       if (f.isDirectory())
         deltree(f);
-      try {
-        f.delete();
-      } catch (SecurityException x) {
+      try {        
+        Files.delete(f.toPath());
+      } catch (SecurityException | IOException x) {
         log.log(Level.WARNING, "Deltree", x);
       }
     }
     try {
-      d.delete();
-    } catch (SecurityException x) {
+      Files.delete(dir.toPath());
+    } catch (SecurityException | IOException x) {
       log.log(Level.WARNING, "Deltree", x);
     }
   }

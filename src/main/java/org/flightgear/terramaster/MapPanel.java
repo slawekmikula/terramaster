@@ -93,11 +93,12 @@ class MapPanel extends JPanel {
     }
 
     public String toString() {
-      return new String(d + " " + p);
+      return d + " " + p;
     }
   }
 
   class SimpleMouseHandler extends MouseAdapter {
+    @Override
     public void mouseClicked(MouseEvent e) {
       TileName t = TileName.getTile(screen2geo(e.getPoint()));
       projectionLatitude = Math.toRadians(-t.getLat());
@@ -106,6 +107,7 @@ class MapPanel extends JPanel {
       mapFrame.repaint();
     }
 
+    @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
       int n = e.getWheelRotation();
       fromMetres -= n;
@@ -127,6 +129,7 @@ class MapPanel extends JPanel {
       requestFocus();
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
       switch (e.getButton()) {
       case MouseEvent.BUTTON3:
@@ -270,7 +273,8 @@ class MapPanel extends JPanel {
 
   private ArrayList<MapPoly> continents;  
   private ArrayList<MapPoly> borders; 
-  BufferedImage map, grat;
+  BufferedImage map;
+  BufferedImage grat;
   double sc;
   MapFrame mapFrame;
   AffineTransform affine;
@@ -311,18 +315,6 @@ class MapPanel extends JPanel {
     tm.setReshowDelay(0);
     addKeyListener(new MapKeyAdapter());
     setFocusable(true);
-    addFocusListener(new FocusListener() {
-
-      @Override
-      public void focusLost(FocusEvent e) {
-        // System.out.println(e);
-      }
-
-      @Override
-      public void focusGained(FocusEvent e) {
-        // System.out.println(e);
-      }
-    });
   }
 
   /**
@@ -350,7 +342,6 @@ class MapPanel extends JPanel {
 
   private void setOrtho() {
     pj = new OrthographicAzimuthalProjection();
-    // System.out.println(pj.getPROJ4Description());
     mapRadius = HALFPI - 0.1;
     isWinkel = false;
 
@@ -365,9 +356,9 @@ class MapPanel extends JPanel {
     pj.initialize();
 
     double r = pj.getEquatorRadius();
-    int w = getWidth();
-    int h = getHeight();
-    int i = (h < w ? h : w); // the lesser dimension
+    double w = getWidth();
+    double h = getHeight();
+    double i = (h < w ? h : w); // the lesser dimension
     sc = i / r / 2;
     affine = new AffineTransform();
     affine.translate(w / 2, h / 2);
@@ -517,7 +508,6 @@ class MapPanel extends JPanel {
    */
   private void boxSelection(Point2D.Double p1, Point2D.Double p2) {
     if (p1 == null || p2 == null) {
-      // selection = false;
       dragbox = null;
       return;
     }
@@ -615,8 +605,12 @@ class MapPanel extends JPanel {
   void drawGraticule(Graphics g, int sp) {
     int x, y;
     Point2D.Double p = new Point2D.Double();
-    double l, r, t, b;
-    int x4[] = new int[4], y4[] = new int[4];
+    double l;
+    double r;
+    double t;
+    double b;
+    int[] x4 = new int[4];
+    int[] y4 = new int[4];
 
     x = -180;
     while (x < 180) {
