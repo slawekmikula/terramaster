@@ -79,7 +79,8 @@ public class TileName implements Comparable<TileName>, Serializable {
 
   /** W and S are negative */
   public static String computeTileName(int lat, int lon) {
-    char ew = 'e', ns = 'n';
+    char ew = 'e';
+    char ns = 'n';
 
     if (lon < 0) {
       lon = -lon;
@@ -192,7 +193,7 @@ public class TileName implements Comparable<TileName>, Serializable {
       return 8;
     if (Math.abs(p.y) <= 90)
       return 360;
-    return 0;
+    return 0.125;
   }
 
   @Override

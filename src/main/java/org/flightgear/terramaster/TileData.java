@@ -24,18 +24,6 @@ public class TileData {
   private File dirObjects = null;
   private File dirBuildings = null;
 
-  public synchronized File getDirTerrain() {
-    return dirTerrain;
-  }
-
-  public synchronized File getDirObjects() {
-    return dirObjects;
-  }
-
-  public synchronized File getDirBuildings() {
-    return dirBuildings;
-  }
-
   public TileData() {
   }
 
@@ -88,14 +76,28 @@ public class TileData {
     dirTerrain = i;
   }
 
+  public File getDirTerrain() {
+    return dirTerrain;
+  }
+
   public void setDirObjects(File i) {
     objects = i!= null && i.exists();
     dirObjects = i;
   }
 
+  public File getDirObjects() {
+    return dirObjects;
+  }
+
+
   public void setDirBuildings(File i) {
     buildings = i!= null && i.exists();
     dirBuildings = i;
   }
+
+  public File getDirBuildings() {
+    return dirBuildings;
+  }
+
 
 }
