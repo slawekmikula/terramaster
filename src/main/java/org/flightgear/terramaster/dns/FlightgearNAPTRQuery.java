@@ -48,7 +48,7 @@ public class FlightgearNAPTRQuery {
 
   Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
 
-  private List<WeightedUrl> urls = new ArrayList<>();
+  private ArrayList<WeightedUrl> urls = new ArrayList<>();
 
   private String[] versions;
   private static final String TERRASYNC_SERVERS_FILE = "nameservers.bin";
@@ -510,7 +510,7 @@ public class FlightgearNAPTRQuery {
 
   private void readData() {
     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(TERRASYNC_SERVERS_FILE))) {
-      urls = (List<WeightedUrl>) ois.readObject();
+      urls = (ArrayList<WeightedUrl>) ois.readObject();
       versions = (String[]) ois.readObject();
     } catch (IOException e1) {
       log.log(Level.WARNING, e1.toString(), e1);

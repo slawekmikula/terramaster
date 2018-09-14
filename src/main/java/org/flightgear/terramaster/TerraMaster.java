@@ -93,7 +93,7 @@ public class TerraMaster {
     TerraSyncDirectoryTypes[] types = { TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.OBJECTS,
         TerraSyncDirectoryTypes.BUILDINGS };
     Pattern patt = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
-    Map<TileName, TileData> map = new HashMap<TileName, TileData>(180 * 90);
+    Map<TileName, TileData> map = new HashMap<>(180 * 90);
 
     for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
       File d = new File(path + File.separator + terraSyncDirectoryType.dirname);
@@ -115,9 +115,9 @@ public class TerraMaster {
   void createAndShowGUI() {
     // find our jar
     java.net.URL url = getClass().getClassLoader().getResource("maps/gshhs_l.b");
-    log.fine("getResource: " + url);
+    log.fine(()->"getResource: " + url);
     if (url == null) {
-      JOptionPane.showMessageDialog(null, "Couldn't load resources", "ERROR", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Couldn\'t load resources", "ERROR", JOptionPane.ERROR_MESSAGE);
       return;
     }
 
