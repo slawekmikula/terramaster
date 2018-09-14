@@ -268,8 +268,8 @@ class MapPanel extends JPanel {
     }
   }
 
-  private ArrayList<MapPoly> poly; // continents
-  private ArrayList<MapPoly> borders; // borders
+  private ArrayList<MapPoly> continents;  
+  private ArrayList<MapPoly> borders; 
   BufferedImage map, grat;
   double sc;
   MapFrame mapFrame;
@@ -282,15 +282,16 @@ class MapPanel extends JPanel {
       totalFalseNorthing = 0, // 3e-4,
       mapRadius = HALFPI;
   double fromMetres = 1;
-  public final static int NORTH_POLE = 1;
-  public final static int SOUTH_POLE = 2;
-  public final static int EQUATOR = 3;
-  public final static int OBLIQUE = 4;
-  final static double EPS10 = 1e-10;
-  final static double HALFPI = Math.PI / 2;
-  final static double TWOPI = Math.PI * 2.0;
+  public static final int NORTH_POLE = 1;
+  public static final int SOUTH_POLE = 2;
+  public static final int EQUATOR = 3;
+  public static final int OBLIQUE = 4;
+  static final double EPS10 = 1e-10;
+  static final double HALFPI = Math.PI / 2;
+  static final double TWOPI = Math.PI * 2.0;
+  static final Color sea = new Color(0, 0, 64);
+  static final Color land = new Color(64, 128, 0);
 
-  private boolean selection = false;
   private Collection<TileName> selectionSet = new LinkedHashSet<TileName>();
   private int[] dragbox;
   private BufferedImage offScreen;
@@ -300,11 +301,7 @@ class MapPanel extends JPanel {
     MPAdapter ad = new MPAdapter();
     addComponentListener(ad);
 
-    poly = new ArrayList<MapPoly>();
-    // map = new BufferedImage(1600, 800, BufferedImage.TYPE_INT_RGB);
-    // grat = new BufferedImage(1600, 800, BufferedImage.TYPE_4BYTE_ABGR);
-
-    // setOrtho();
+    continents = new ArrayList<MapPoly>();
     setWinkel();
 
     setToolTipText("Hover for tile info");
@@ -499,7 +496,7 @@ class MapPanel extends JPanel {
   }
 
   public int polyCount() {
-    return poly.size();
+    return continents.size();
   }
 
   /**
@@ -530,13 +527,11 @@ class MapPanel extends JPanel {
     dragbox[1] = (int) -Math.ceil(p1.y);
     dragbox[2] = (int) Math.floor(p2.x);
     dragbox[3] = (int) -Math.ceil(p2.y);
-    selection = true;
   }
 
   public void setSelection(Collection<TileName> selectionSet) {
     this.selectionSet.clear();
     this.selectionSet.addAll(selectionSet);
-    selection = true;
   }
 
   /**
@@ -546,7 +541,7 @@ class MapPanel extends JPanel {
    */
 
   Collection<TileName> getSelection() {
-    Collection<TileName> selSet = new LinkedHashSet<TileName>(selectionSet);
+    Collection<TileName> selSet = new LinkedHashSet<>(selectionSet);
 
     if (dragbox != null) {
       int l = dragbox[0];
@@ -589,7 +584,7 @@ class MapPanel extends JPanel {
 
     g.setColor(Color.red);
     for (TileName t : a) {
-      Polygon p = box1x1(t.getLon(), t.getLat());
+      Polygon p = getBox(t.getLon(), t.getLat());
       if (p != null)
         g.drawPolygon(p);
     }
@@ -604,7 +599,7 @@ class MapPanel extends JPanel {
 
     g.setColor(Color.cyan);
     for (TileName t : a) {
-      Polygon p = box1x1(t.getLon(), t.getLat());
+      Polygon p = getBox(t.getLon(), t.getLat());
       if (p != null)
         g.drawPolygon(p);
     }
@@ -657,12 +652,17 @@ class MapPanel extends JPanel {
   /**
    * Returns a box that is paintable w and s are negative
    */
-  Polygon box1x1(int x, int y) {
-    double l, r, t, b;
-    int x4[] = new int[4], y4[] = new int[4];
+  Polygon getBox(int x, int y) {
+    double l;
+    double r;
+    double t;
+    double b;
+    int[] x4 = new int[4];
+    int[] y4 = new int[4];
     Point2D.Double p = new Point2D.Double();
 
-    double inc = 1 - (fromMetres < 16 ? 0.02 : 0.01);
+    
+    double inc = 1;
     l = Math.toRadians(x);
     b = Math.toRadians(-y);
     r = Math.toRadians((double) x + inc);
@@ -697,10 +697,6 @@ class MapPanel extends JPanel {
     Graphics2D g = (Graphics2D) g0;
 
     g.setBackground(Color.black);
-    // g.clearRect(0, 0, 1600, 800);
-    // g.setTransform(affine);
-
-    // g.setColor(grey);
     g.setColor(Color.gray);
     drawGraticule(g, 10);
 
@@ -719,18 +715,15 @@ class MapPanel extends JPanel {
         lon = m.group(1).equals("w") ? -lon : lon;
         lat = m.group(3).equals("s") ? -lat : lat;
 
-        Polygon poly = box1x1(lon, lat);
+        Polygon poly = getBox(lon, lat);
         TileData t = TerraMaster.mapScenery.get(n);
         t.poly = poly;
         if (poly != null) {
           if (t.isTerrain() && t.isObjects())
-            // g.setColor(green);
             g.setColor(Color.green);
           else
-            // g.setColor(amber);
             g.setColor(Color.yellow);
           g.drawPolygon(poly);
-          // g.fillPolygon(poly);
         }
       }
     }
@@ -795,7 +788,6 @@ class MapPanel extends JPanel {
    */
   void showLandmass_rect(Graphics g) {
     Graphics2D g2 = (Graphics2D) g;
-    Color sea = new Color(0, 0, 64), land = new Color(64, 128, 0);
     Rectangle r = g2.getClipBounds();
 
     g2.setColor(land);
@@ -806,7 +798,7 @@ class MapPanel extends JPanel {
     Point2D.Double p1 = screen2geo(new Point(r.x, r.y));
     Point2D.Double p2 = screen2geo(new Point(r.x + r.width, r.y + r.height));
 
-    for (MapPoly s : poly) {
+    for (MapPoly s : continents) {
       int a1;
       int a2;
       if (p1 != null && p2 != null) {
@@ -836,7 +828,7 @@ class MapPanel extends JPanel {
     g2.setBackground(sea);
     g2.clearRect(r.x, r.y, r.width, r.height);
     g2.setTransform(affine);
-    for (MapPoly s : poly) {
+    for (MapPoly s : continents) {
       if (s.gshhsHeader.getNumPoints() > 20 / Math.pow(2, fromMetres / 4)) {
         MapPoly d = convertPoly(s);
         g2.setColor(s.level % 2 == 1 ? land : sea);
@@ -921,7 +913,7 @@ class MapPanel extends JPanel {
   }
 
   void passPolys(ArrayList<MapPoly> p) {
-    poly = p;
+    continents = p;
   }
 
   void passBorders(ArrayList<MapPoly> p) {

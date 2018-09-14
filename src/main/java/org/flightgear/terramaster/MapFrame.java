@@ -134,7 +134,7 @@ public class MapFrame extends JFrame {
         fp.setVisible(true);
         repaint();
       } else if (a.equals(TerraSyncDirectoryTypes.MODELS.name())) {
-        Collection<TileName> set = new ArrayList<TileName>();
+        Collection<TileName> set = new ArrayList<>();
         set.add(new TileName(TerraSyncDirectoryTypes.MODELS.name()));
         TerraMaster.svn.sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 1);

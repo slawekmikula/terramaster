@@ -2,6 +2,7 @@ package org.flightgear.terramaster;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
  * methods for converting between lat,lon and "e000s00" formats.
  */
 
-public class TileName implements Comparable<TileName> {
+public class TileName implements Comparable<TileName>, Serializable {
   private int lat;
   private int lon;
   /** String representing this tile. */
