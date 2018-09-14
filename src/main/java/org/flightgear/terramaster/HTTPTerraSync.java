@@ -13,15 +13,14 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,7 +54,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   private boolean noquit = true;
 
   private List<WeightedUrl> urls = new ArrayList<>();
-  Random rand = new Random();
+  SecureRandom rand = new SecureRandom();
   private File localBaseDir;
 
   private HttpURLConnection httpConn;
@@ -354,7 +353,8 @@ public class HTTPTerraSync extends Thread implements TileService {
     }
     // Now choose a random item
     int randomIndex = -1;
-    double random = Math.random() * totalWeight;
+   
+    double random = rand.nextDouble() * totalWeight;
     for (int i = 0; i < urls.size(); ++i) {
       random -= urls.get(i).getWeight();
       if (random <= 0.0d) {

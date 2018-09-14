@@ -152,7 +152,7 @@ public class TerraMaster {
         try {
           props.store(new FileWriter("terramaster.properties"), null);
         } catch (Exception x) {
-          log.log(Level.WARNING, "Couldn't store settings", e);
+          log.log(Level.WARNING, "Couldn\'t store settings", e);
           JOptionPane.showMessageDialog(frame, "Couldn't store Properties " + x.toString(), "Error",
               JOptionPane.ERROR_MESSAGE);
         }
