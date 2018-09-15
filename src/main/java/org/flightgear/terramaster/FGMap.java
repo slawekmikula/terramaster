@@ -17,8 +17,10 @@ public class FGMap extends Observable implements AirportResult {
   Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
   private HashMap<String, Airport> map;
   private List<Airport> searchResult = new ArrayList<>();
+  private TerraMaster terraMaster;
 
-  public FGMap() {
+  public FGMap(TerraMaster terraMaster) {
+    this.terraMaster = terraMaster;
     map = new HashMap<>();
   }
 
@@ -48,11 +50,16 @@ public class FGMap extends Observable implements AirportResult {
   public void done() {
     setChanged();
     notifyObservers();
-    TerraMaster.frame.repaint();
+    terraMaster.frame.repaint();
   }
 
   @Override
   public void clearLastResult() {
     searchResult.clear();
+  }
+
+  @Override
+  public MapFrame getMapFrame() {
+    return terraMaster.frame;
   }
 }

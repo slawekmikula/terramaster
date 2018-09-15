@@ -292,8 +292,8 @@ public class HTTPTerraSync extends Thread implements TileService {
       return findAirports(new File(localBaseDir, TerraSyncDirectoryTypes.TERRAIN + File.separator + path));
 
     } catch (Exception e) {
-      log.log(Level.SEVERE, "Can't sync tile " + path, e);
-      JOptionPane.showMessageDialog(TerraMaster.frame,
+      log.log(Level.SEVERE, "Can\'t sync tile " + path, e);
+      JOptionPane.showMessageDialog(terraMaster.frame,
           "Can't sync tile " + path + System.lineSeparator() + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     return new HashSet<>();
@@ -442,7 +442,7 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private void syncModels() {
     if (localBaseDir == null) {
-      JOptionPane.showMessageDialog(TerraMaster.frame, "TerraSync path not set");
+      JOptionPane.showMessageDialog(terraMaster.frame, "TerraSync path not set");
     }
 
     try {
@@ -525,13 +525,13 @@ public class HTTPTerraSync extends Thread implements TileService {
         }
         if (models == TerraSyncDirectoryTypes.OBJECTS || models == TerraSyncDirectoryTypes.TERRAIN
             || models == TerraSyncDirectoryTypes.BUILDINGS)
-          TerraMaster.addScnMapTile(terraMaster.mapScenery, new File(localBaseDir, path), models);
+          terraMaster.addScnMapTile(terraMaster.mapScenery, new File(localBaseDir, path), models);
 
         storeDirIndex(path, remoteDirIndex);
         return updates;
       } catch (javax.net.ssl.SSLHandshakeException e) {
         log.log(Level.WARNING, "Handshake Error " + e.toString() + " syncing " + path, e);
-        JOptionPane.showMessageDialog(TerraMaster.frame, "Sync can fail if Java older than 8u101 and 7u111 with https hosts.\r\n" + baseUrl.getUrl().toExternalForm(),
+        JOptionPane.showMessageDialog(terraMaster.frame, "Sync can fail if Java older than 8u101 and 7u111 with https hosts.\r\n" + baseUrl.getUrl().toExternalForm(),
             "SSL Error", JOptionPane.ERROR_MESSAGE);
         markBad(baseUrl,e);
       } catch (SocketException e) {
@@ -559,7 +559,7 @@ public class HTTPTerraSync extends Thread implements TileService {
       downloadFile(localFile, filebaseUrl,  path.replace("\\", "/") + "/" +  splitLine[1]);
     } catch (javax.net.ssl.SSLHandshakeException e) {
       log.log(Level.WARNING, "Handshake Error " + e.toString() + " syncing " + path + " removing Base-URL", e);
-      JOptionPane.showMessageDialog(TerraMaster.frame, "Sync can fail if Java older than 8u101 and 7u111 with https hosts.\r\n" + filebaseUrl.getUrl().toExternalForm(),
+      JOptionPane.showMessageDialog(terraMaster.frame, "Sync can fail if Java older than 8u101 and 7u111 with https hosts.\r\n" + filebaseUrl.getUrl().toExternalForm(),
           "SSL Error", JOptionPane.ERROR_MESSAGE);
       markBad(filebaseUrl, e);
     } catch (SocketException e) {
@@ -696,20 +696,20 @@ public class HTTPTerraSync extends Thread implements TileService {
       public void run() {
         switch (action) {
         case RESET: // reset progressBar
-          TerraMaster.frame.butStop.setEnabled(false);
+          terraMaster.frame.butStop.setEnabled(false);
           try {
             Thread.sleep(1200);
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
           }
-          TerraMaster.frame.progressBar.setMaximum(0);
-          TerraMaster.frame.progressBar.setVisible(false);
+          terraMaster.frame.progressBar.setMaximum(0);
+          terraMaster.frame.progressBar.setVisible(false);
           break;
         case UPDATE: // update progressBar
-          TerraMaster.frame.progressUpdate(num);
+          terraMaster.frame.progressUpdate(num);
           break;
         case EXTEND: // progressBar maximum++
-          TerraMaster.frame.progressBar.setMaximum(TerraMaster.frame.progressBar.getMaximum() + num);
+          terraMaster.frame.progressBar.setMaximum(terraMaster.frame.progressBar.getMaximum() + num);
           break;
         }
       }
@@ -725,10 +725,10 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   @Override
   public void restoreSettings() {
-    terrain = Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "true"));
-    objects = Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "true"));
-    buildings = Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false"));
-    maxAge = Long.parseLong(TerraMaster.props.getProperty(TerraMasterProperties.MAX_TILE_AGE, "0"));
+    terrain = Boolean.parseBoolean(terraMaster.props.getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "true"));
+    objects = Boolean.parseBoolean(terraMaster.props.getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "true"));
+    buildings = Boolean.parseBoolean(terraMaster.props.getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false"));
+    maxAge = Long.parseLong(terraMaster.props.getProperty(TerraMasterProperties.MAX_TILE_AGE, "0"));
 
   }
 

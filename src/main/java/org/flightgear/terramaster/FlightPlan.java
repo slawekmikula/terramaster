@@ -22,13 +22,16 @@ public class FlightPlan extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private JComboBox<Airport> txtDeparture;
 	private JComboBox<Airport> txtArrival;
+  private TerraMaster terraMaster;
 
 	/**
 	 * Create the dialog.
+	 * @param terraMaster 
 	 */
-	public FlightPlan() {
+	public FlightPlan(TerraMaster terraMaster) {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setTitle("Flightplan");
+		this.terraMaster = terraMaster; 
 		setBounds(100, 100, 446, 162);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -67,6 +70,11 @@ public class FlightPlan extends JDialog {
 
           @Override
           public void clearLastResult() {
+            //Last result isn't cached
+          }
+          @Override
+          public MapFrame getMapFrame() {
+            return terraMaster.frame;
           }
 				});
 				w.execute();
@@ -121,6 +129,11 @@ public class FlightPlan extends JDialog {
           @Override
           public void clearLastResult() {
           }
+
+          @Override
+          public MapFrame getMapFrame() {
+            return terraMaster.frame;
+          }
 				});
 				w.execute();
 			}
@@ -156,8 +169,8 @@ public class FlightPlan extends JDialog {
 						Airport selectedDeparture = (Airport) txtDeparture.getSelectedItem();
 						Airport selectedArrival = (Airport) txtArrival.getSelectedItem();
 						ArrayList<TileName> tiles = findAllTiles(selectedDeparture, selectedArrival);
-						TerraMaster.frame.map.setSelection(tiles);
-						TerraMaster.frame.map.repaint();
+						terraMaster.frame.map.setSelection(tiles);
+						terraMaster.frame.map.repaint();
 						setVisible(false);
 					}
 

@@ -1,5 +1,7 @@
 package org.flightgear.terramaster;
 
+import java.awt.Frame;
+
 /**
  * Callback for the WebWorker
  * {@link WebWorker}
@@ -13,6 +15,7 @@ public interface AirportResult {
 	void addAirport(Airport result);
 
 	void done();
-
+  
+	MapFrame getMapFrame(); 
 
 }

@@ -351,20 +351,20 @@ public class SettingsDialog extends JDialog {
   private void saveValues() {
     try {
       terraMaster.mapScenery = TerraMaster.newScnMap(txtScenerypath.getText());
-      TerraMaster.frame.map.repaint();
-      TerraMaster.props.setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
-      TerraMaster.props.setProperty(TerraMasterProperties.SERVER_TYPE,
+      terraMaster.frame.map.repaint();
+      terraMaster.props.setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
+      terraMaster.props.setProperty(TerraMasterProperties.SERVER_TYPE,
           (String) cmbSceneryVersion.getSelectedItem());
-      TerraMaster.svn.setScnPath(new File(txtScenerypath.getText()));
-      TerraMaster.svn.setTypes(chckbxTerrain.isSelected(), chckbxObjects.isSelected(),
+      terraMaster.svn.setScnPath(new File(txtScenerypath.getText()));
+      terraMaster.svn.setTypes(chckbxTerrain.isSelected(), chckbxObjects.isSelected(),
           chckbxBuildings.isSelected());
-      TerraMaster.props.setProperty(TerraSyncDirectoryTypes.TERRAIN.name(),
+      terraMaster.props.setProperty(TerraSyncDirectoryTypes.TERRAIN.name(),
           Boolean.toString(chckbxTerrain.isSelected()));
-      TerraMaster.props.setProperty(TerraSyncDirectoryTypes.OBJECTS.name(),
+      terraMaster.props.setProperty(TerraSyncDirectoryTypes.OBJECTS.name(),
           Boolean.toString(chckbxObjects.isSelected()));
-      TerraMaster.props.setProperty(TerraSyncDirectoryTypes.BUILDINGS.name(),
+      terraMaster.props.setProperty(TerraSyncDirectoryTypes.BUILDINGS.name(),
           Boolean.toString(chckbxBuildings.isSelected()));
-      TerraMaster.props.setProperty(TerraMasterProperties.MAX_TILE_AGE, "" + (Integer.parseInt(tileage.getText()) * 24 * 3600));
+      terraMaster.props.setProperty(TerraMasterProperties.MAX_TILE_AGE, "" + (Integer.parseInt(tileage.getText()) * 24 * 3600));
       TerraMaster.props.setProperty(TerraMasterProperties.SCENERY_VERSION, cmbSceneryVersion.getSelectedItem().toString());
       TerraMaster.props.setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.toString(checkBoxGoogle.isSelected()));
       TerraMaster.props.setProperty(TerraMasterProperties.DNS_GCA, Boolean.toString(checkBoxGCA.isSelected()));

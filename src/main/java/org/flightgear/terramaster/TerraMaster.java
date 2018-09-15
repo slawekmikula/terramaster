@@ -44,10 +44,8 @@ import org.flightgear.terramaster.gshhs.MapPoly;
 public class TerraMaster {
   public static final String LOGGER_CATEGORY = "org.flightgear";
   Logger log = Logger.getLogger(LOGGER_CATEGORY);
-  public static ArrayList<MapPoly> polys;
-  public static ArrayList<MapPoly> borders;
 
-  static MapFrame frame;
+  MapFrame frame;
 
   public Map<TileName, TileData> mapScenery;
 
@@ -145,10 +143,8 @@ public class TerraMaster {
      * worker_polys.execute(); worker_borders = new Worker<ArrayList<MapPoly>,
      * Void>("wdb_borders_l.b"); worker_borders.execute();
      */
-    polys = new GshhsReader().newPolyList("maps/gshhs_l.b");
-    borders = new GshhsReader().newPolyList("maps/wdb_borders_l.b");
-    frame.passPolys(polys);
-    frame.passBorders(borders);
+    frame.passPolys(new GshhsReader().newPolyList("maps/gshhs_l.b"));
+    frame.passBorders(new GshhsReader().newPolyList("maps/wdb_borders_l.b"));
     frame.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
@@ -190,7 +186,6 @@ public class TerraMaster {
     readMetaINF();
     // Logger.getGlobal().setLevel(Level.ALL);
 
-    fgmap = new FGMap(); // handles webqueries
 
     try {
       props.load(new FileReader("terramaster.properties"));
@@ -212,6 +207,7 @@ public class TerraMaster {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         TerraMaster tm = new TerraMaster();
+        fgmap = new FGMap(tm); // handles webqueries
         tm.setTileService();
 
         tm.createAndShowGUI();

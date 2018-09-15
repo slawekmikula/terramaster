@@ -130,7 +130,7 @@ public class MapFrame extends JFrame {
         map.clearSelection();
         repaint();
       } else if (a.equals(FLIGHTPLAN)) {
-        FlightPlan fp = new FlightPlan();
+        FlightPlan fp = new FlightPlan(terraMaster);
         fp.setVisible(true);
         repaint();
       } else if (a.equals(TerraSyncDirectoryTypes.MODELS.name())) {

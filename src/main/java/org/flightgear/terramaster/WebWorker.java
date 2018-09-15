@@ -41,6 +41,7 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
   JOBTYPES jobType;
   AirportResult callback;
   private String searchString;
+  private Object terraMaster;
 
   private enum JOBTYPES {
     SEARCH, BROWSE
@@ -133,7 +134,7 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
 
     } catch (Exception e) {
       log.log(Level.WARNING, e.toString(), e);
-      JOptionPane.showMessageDialog(TerraMaster.frame, "Can't query Airports " + e.toString(), "Error",
+      JOptionPane.showMessageDialog(callback.getMapFrame(), "Can't query Airports " + e.toString(), "Error",
           JOptionPane.ERROR_MESSAGE);
     }
 
@@ -177,7 +178,7 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
       String url = String.format("http://mpmap02.flightgear.org/fg_nav_xml.cgi?ne=%s&sw=%s&apt_code", ne, sw);
       try {
         currentResult.addAll(webquery(new URL(url)));
-        SwingUtilities.invokeLater(() -> TerraMaster.frame.repaint());
+        SwingUtilities.invokeLater(() -> callback.getMapFrame().repaint());
       } catch (MalformedURLException e) {
         log.severe(String.format("Error: Malformed URL: %s%n", url));
       }
