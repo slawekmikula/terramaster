@@ -44,16 +44,19 @@ import org.flightgear.terramaster.gshhs.MapPoly;
 public class TerraMaster {
   public static final String LOGGER_CATEGORY = "org.flightgear";
   Logger log = Logger.getLogger(LOGGER_CATEGORY);
-  public static ArrayList<MapPoly> polys, borders;
+  public static ArrayList<MapPoly> polys;
+  public static ArrayList<MapPoly> borders;
 
   static MapFrame frame;
 
-  public static Map<TileName, TileData> mapScenery;
+  public Map<TileName, TileData> mapScenery;
 
   /** The service getting the tiles */
   public static TileService svn;
   public static FGMap fgmap;
   public static Properties props = new Properties();
+  private static Logger LOG = Logger.getLogger(TerraMaster.class.getCanonicalName());
+
 
   public static void addScnMapTile(Map<TileName, TileData> map, File i, TerraSyncDirectoryTypes type) {
     TileName n = TileName.getTile(i.getName());
@@ -115,7 +118,7 @@ public class TerraMaster {
   void createAndShowGUI() {
     // find our jar
     java.net.URL url = getClass().getClassLoader().getResource("maps/gshhs_l.b");
-    log.fine(()->"getResource: " + url);
+    log.log(Level.FINE, "getResource: {0}", url);
     if (url == null) {
       JOptionPane.showMessageDialog(null, "Couldn\'t load resources", "ERROR", JOptionPane.ERROR_MESSAGE);
       return;
@@ -129,7 +132,7 @@ public class TerraMaster {
       mapScenery = new HashMap<TileName, TileData>();
     }
 
-    frame = new MapFrame("TerraMaster");
+    frame = new MapFrame(this, "TerraMaster");
     frame.restoreSettings();
     // frame.setLocationRelativeTo(null);
     frame.setVisible(true);
@@ -145,10 +148,11 @@ public class TerraMaster {
     frame.passPolys(polys);
     frame.passBorders(borders);
     frame.addWindowListener(new WindowAdapter() {
+      @Override
       public void windowClosing(WindowEvent e) {
         svn.quit();
         frame.storeSettings();
-        props.setProperty("LogLevel", log.getParent().getLevel().getName());
+        props.setProperty(TerraMasterProperties.LOG_LEVEL, log.getParent().getLevel().getName());
         try {
           props.store(new FileWriter("terramaster.properties"), null);
         } catch (Exception x) {
@@ -188,9 +192,9 @@ public class TerraMaster {
 
     try {
       props.load(new FileReader("terramaster.properties"));
-      if (props.getProperty("LogLevel") != null) {
+      if (props.getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
         Logger.getGlobal().getParent().setLevel(Level.INFO);
-        Logger.getLogger(TerraMaster.LOGGER_CATEGORY).setLevel(Level.parse(props.getProperty("LogLevel")));
+        Logger.getLogger(TerraMaster.LOGGER_CATEGORY).setLevel(Level.parse(props.getProperty(TerraMasterProperties.LOG_LEVEL)));
         Logger.getGlobal().getParent().setLevel(Level.INFO);
       } else {
         Logger.getGlobal().getParent().setLevel(Level.INFO);
@@ -202,16 +206,18 @@ public class TerraMaster {
     }
     LOG.info("Starting TerraMaster " + props.getProperty("version"));
 
-    setTileService();
 
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
-        new TerraMaster().createAndShowGUI();
+        TerraMaster tm = new TerraMaster();
+        tm.setTileService();
+
+        tm.createAndShowGUI();
       }
     });
-    if (props.getProperty("LogLevel") != null) {
+    if (props.getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
 
-      Level newLevel = Level.parse(props.getProperty("LogLevel"));
+      Level newLevel = Level.parse(props.getProperty(TerraMasterProperties.LOG_LEVEL));
       LOG.getParent().setLevel(newLevel);
       LogManager manager = LogManager.getLogManager();
       Enumeration<String> loggers = manager.getLoggerNames();
@@ -228,33 +234,34 @@ public class TerraMaster {
   }
 
   private static void readMetaINF() {
-    Logger LOG = Logger.getLogger(TerraMaster.class.getCanonicalName());
     try {
       Enumeration<URL> resources = TerraMaster.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
       while (resources.hasMoreElements()) {
-        try {
-          Manifest manifest = new Manifest(resources.nextElement().openStream());
-          // check that this is your manifest and do what you need or
-          // get
-          // the next one
-          if ("TerraMasterLauncher".equals(manifest.getMainAttributes().getValue("Main-Class"))) {
-            for (Entry<Object, Object> entry : manifest.getMainAttributes().entrySet()) {
-              LOG.finest(entry.getKey() + "\t:\t" + entry.getValue());
-            }
-          }
-        } catch (IOException E) {
-          // handle
-        }
+        readManifest(resources.nextElement());
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.log(Level.SEVERE, e.toString(), e);
     }
   }
 
-  public static void setTileService() {
-    String server_type = props.getProperty(TerraMasterProperties.SERVER_TYPE);
+  public static void readManifest(URL resource) {
+    try {
+      Manifest manifest = new Manifest(resource.openStream());
+      // check that this is your manifest and do what you need or
+      // get the next one
+      if ("TerraMasterLauncher".equals(manifest.getMainAttributes().getValue("Main-Class"))) {
+        for (Entry<Object, Object> entry : manifest.getMainAttributes().entrySet()) {
+          LOG.finest(entry.getKey() + "\t:\t" + entry.getValue());
+        }
+      }
+    } catch (IOException e) {
+      LOG.log(Level.WARNING, e.toString(), e);
+    }
+  }
+
+  public void setTileService() {
     if (svn == null) {
-      svn = new HTTPTerraSync();
+      svn = new HTTPTerraSync(this);
       svn.start();
     }
     svn.restoreSettings();

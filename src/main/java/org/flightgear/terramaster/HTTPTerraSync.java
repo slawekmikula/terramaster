@@ -73,10 +73,13 @@ public class HTTPTerraSync extends Thread implements TileService {
 
  
   private HashMap<WeightedUrl, TileResult> downloadStats = new HashMap<>(); 
-  private HashMap<WeightedUrl, TileResult> badUrls = new HashMap<>(); 
+  private HashMap<WeightedUrl, TileResult> badUrls = new HashMap<>();
 
-  public HTTPTerraSync() {
+  private TerraMaster terraMaster; 
+
+  public HTTPTerraSync(TerraMaster terraMaster) {
     super("HTTPTerraSync");
+    this.terraMaster = terraMaster;
   }
 
   @Override
@@ -155,7 +158,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   @Override
   public void delete(Collection<TileName> selection) {
     for (TileName n : selection) {
-      TileData d = TerraMaster.mapScenery.remove(n);
+      TileData d = terraMaster.mapScenery.remove(n);
       if (d == null)
         continue;
       d.delete();
@@ -522,7 +525,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         }
         if (models == TerraSyncDirectoryTypes.OBJECTS || models == TerraSyncDirectoryTypes.TERRAIN
             || models == TerraSyncDirectoryTypes.BUILDINGS)
-          TerraMaster.addScnMapTile(TerraMaster.mapScenery, new File(localBaseDir, path), models);
+          TerraMaster.addScnMapTile(terraMaster.mapScenery, new File(localBaseDir, path), models);
 
         storeDirIndex(path, remoteDirIndex);
         return updates;

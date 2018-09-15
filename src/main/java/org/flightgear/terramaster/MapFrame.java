@@ -122,8 +122,8 @@ public class MapFrame extends JFrame {
         map.clearSelection();
         repaint();
       } else if (a.equals(SYNC_OLD)) {
-        Collection<TileName> set = TerraMaster.mapScenery.keySet();
-        TerraMaster.svn.sync(set, true);
+        Collection<TileName> set = terraMaster.mapScenery.keySet();
+        terraMaster.svn.sync(set, true);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
         butStop.setEnabled(true);
@@ -136,14 +136,14 @@ public class MapFrame extends JFrame {
       } else if (a.equals(TerraSyncDirectoryTypes.MODELS.name())) {
         Collection<TileName> set = new ArrayList<>();
         set.add(new TileName(TerraSyncDirectoryTypes.MODELS.name()));
-        TerraMaster.svn.sync(set, false);
+        terraMaster.svn.sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 1);
         progressBar.setVisible(true);
         butStop.setEnabled(true);
       } else
 
       if (a.equals("DELETE")) {
-        TerraMaster.svn.delete(map.getSelection());
+        terraMaster.svn.delete(map.getSelection());
         map.clearSelection();
         repaint();
       } else
@@ -155,17 +155,17 @@ public class MapFrame extends JFrame {
       } else
 
       if (a.equals("STOP")) {
-        TerraMaster.svn.cancel();
+        terraMaster.svn.cancel();
         // repaint();
       } else
 
       if (a.equals("CLEAR")) {
-        TerraMaster.fgmap.clearAirports();
+        terraMaster.fgmap.clearAirports();
         repaint();
       } else
 
       if (a.equals(PREFS)) {
-        SettingsDialog settingsDialog = new SettingsDialog();
+        SettingsDialog settingsDialog = new SettingsDialog(terraMaster);
         settingsDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         settingsDialog.setVisible(true);
@@ -175,7 +175,7 @@ public class MapFrame extends JFrame {
       if (a.equals("SEARCH")) {
         Object selectedItem = searchBar.getSelectedItem();
         if (selectedItem instanceof String) {
-          new WebWorker((String) selectedItem, TerraMaster.fgmap).execute();
+          new WebWorker((String) selectedItem, terraMaster.fgmap).execute();
         } else if (selectedItem instanceof Airport) {
           setProjection(((Airport)selectedItem).lat, ((Airport)selectedItem).lon);
           repaint();
@@ -184,7 +184,7 @@ public class MapFrame extends JFrame {
 
       if (a.equals("BROWSE")) {
         Collection<TileName> sel = map.getSelection();
-        new WebWorker(sel, TerraMaster.fgmap).execute();
+        new WebWorker(sel, terraMaster.fgmap).execute();
       } else {
 
       }
@@ -206,8 +206,10 @@ public class MapFrame extends JFrame {
   private JButton addFlightplan;
   private JPanel bottomPanel;
   JTextField tileindex;
+  private TerraMaster terraMaster;
 
-  public MapFrame(String title) {
+  public MapFrame(TerraMaster terraMaster, String title) {
+    this.terraMaster = terraMaster;
     setIconImage(Toolkit.getDefaultToolkit().getImage("TerraMaster logo cropped.ico"));
     try {
       MFAdapter ad = new MFAdapter();
@@ -408,7 +410,7 @@ public class MapFrame extends JFrame {
       progressBar.setStringPainted(true);
       progressBar.setMaximum(0);
 
-      map = new MapPanel();
+      map = new MapPanel(terraMaster);
       addKeyListener(new KeyAdapter() {
 
         @Override
@@ -526,14 +528,14 @@ public class MapFrame extends JFrame {
   @Override
   public void setVisible(boolean b) {
     super.setVisible(b);
-    if (b && TerraMaster.mapScenery == null) {
-      // FIXME Logging
+    if (b && terraMaster.mapScenery == null) {
+      
       JOptionPane.showMessageDialog(this,
           "Scenery folder not found. Click the gear icon and select the folder containing your scenery files.",
           "Warning", JOptionPane.WARNING_MESSAGE);
-    } else if (b && TerraMaster.mapScenery.isEmpty()) {
-      // FIXME Logging
+    } else if (b && terraMaster.mapScenery.isEmpty()) {
       JOptionPane.showMessageDialog(this, "Scenery folder is empty.", "Warning", JOptionPane.WARNING_MESSAGE);
+      log.warning("Scenery folder empty.");
     }
   }
 

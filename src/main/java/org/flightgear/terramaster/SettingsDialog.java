@@ -51,6 +51,7 @@ public class SettingsDialog extends JDialog {
   private JTextField tileage;
   private JCheckBox checkBoxGoogle;
   private JCheckBox checkBoxGCA;
+  private TerraMaster terraMaster;
 
   {
     levels.addElement(Level.ALL);
@@ -63,8 +64,10 @@ public class SettingsDialog extends JDialog {
 
   /**
    * Create the dialog.
+   * @param terraMaster 
    */
-  public SettingsDialog() {
+  public SettingsDialog(TerraMaster terraMaster) {
+    this.terraMaster = terraMaster;
     setTitle("Settings");
     setModal(true);
     setBounds(100, 100, 466, 327);
@@ -347,7 +350,7 @@ public class SettingsDialog extends JDialog {
 
   private void saveValues() {
     try {
-      TerraMaster.mapScenery = TerraMaster.newScnMap(txtScenerypath.getText());
+      terraMaster.mapScenery = TerraMaster.newScnMap(txtScenerypath.getText());
       TerraMaster.frame.map.repaint();
       TerraMaster.props.setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
       TerraMaster.props.setProperty(TerraMasterProperties.SERVER_TYPE,
@@ -365,7 +368,7 @@ public class SettingsDialog extends JDialog {
       TerraMaster.props.setProperty(TerraMasterProperties.SCENERY_VERSION, cmbSceneryVersion.getSelectedItem().toString());
       TerraMaster.props.setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.toString(checkBoxGoogle.isSelected()));
       TerraMaster.props.setProperty(TerraMasterProperties.DNS_GCA, Boolean.toString(checkBoxGCA.isSelected()));
-      TerraMaster.setTileService();
+      terraMaster.setTileService();
     } catch (Exception x) {
       log.log(Level.WARNING, x.toString(), x);
     }

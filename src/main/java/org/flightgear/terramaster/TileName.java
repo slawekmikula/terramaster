@@ -3,6 +3,7 @@ package org.flightgear.terramaster;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,11 +19,11 @@ public class TileName implements Comparable<TileName>, Serializable {
   /** String representing this tile. */
   private String name;
 
-  private static Hashtable<String, TileName> tilenameMap;
+  private static HashMap<String, TileName> tilenameMap;
 
   /** creates a hashtable of all possible 1x1 tiles in the world */
   static {
-    tilenameMap = new Hashtable<String, TileName>();
+    tilenameMap = new HashMap<>();
 
     for (int x = -180; x < 180; ++x) {
       for (int y = -90; y < 90; ++y) {

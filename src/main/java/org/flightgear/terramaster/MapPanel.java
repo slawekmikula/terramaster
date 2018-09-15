@@ -45,7 +45,7 @@ import com.jhlabs.map.proj.WinkelTripelProjection;
  *
  */
 
-class MapPanel extends JPanel {
+public class MapPanel extends JPanel {
 
   /**
    * 
@@ -300,8 +300,10 @@ class MapPanel extends JPanel {
   private int[] dragbox;
   private BufferedImage offScreen;
   private TileName cursor;
+  private TerraMaster terraMaster;
 
-  public MapPanel() {
+  public MapPanel(TerraMaster terraMaster) {
+    this.terraMaster = terraMaster;
     MPAdapter ad = new MPAdapter();
     addComponentListener(ad);
 
@@ -444,10 +446,10 @@ class MapPanel extends JPanel {
       txt = t.getName();
 
     // Is it downloaded?
-    if (TerraMaster.mapScenery.containsKey(t)) {
+    if (terraMaster.mapScenery.containsKey(t)) {
       // list Terr, Obj, airports
 
-      TileData d = TerraMaster.mapScenery.get(t);
+      TileData d = terraMaster.mapScenery.get(t);
       txt = "<html>" + txt;
 
       if (d.isTerrain()) {
@@ -694,9 +696,9 @@ class MapPanel extends JPanel {
     g.setColor(Color.gray);
     drawGraticule(g, 10);
 
-    if (TerraMaster.mapScenery == null)
+    if (terraMaster.mapScenery == null)
       return;
-    Set<TileName> keys = TerraMaster.mapScenery.keySet();
+    Set<TileName> keys = terraMaster.mapScenery.keySet();
     Pattern p = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
 
     for (TileName n : keys) {
@@ -710,7 +712,7 @@ class MapPanel extends JPanel {
         lat = m.group(3).equals("s") ? -lat : lat;
 
         Polygon poly = getBox(lon, lat);
-        TileData t = TerraMaster.mapScenery.get(n);
+        TileData t = terraMaster.mapScenery.get(n);
         t.poly = poly;
         if (poly != null) {
           if (t.isTerrain() && t.isObjects())
