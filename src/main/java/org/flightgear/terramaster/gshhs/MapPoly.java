@@ -6,7 +6,15 @@ import java.io.IOException;
 
 public class MapPoly extends Polygon {
 
-  public transient GshhsHeader gshhsHeader;
+  private transient GshhsHeader gshhsHeader;
+  public synchronized GshhsHeader getGshhsHeader() {
+    return gshhsHeader;
+  }
+
+  public synchronized void setGshhsHeader(GshhsHeader gshhsHeader) {
+    this.gshhsHeader = gshhsHeader;
+  }
+
   public byte level;
 
   public MapPoly() {
@@ -32,6 +40,10 @@ public class MapPoly extends Polygon {
         x -= 36000;
       addPoint((int) x, (int) y);
     }
+  }
+
+  public double getNumPoints() {
+    return gshhsHeader.getNumPoints();
   }
 
 }

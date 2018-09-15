@@ -47,7 +47,7 @@ public class TerraMaster {
 
   MapFrame frame;
 
-  public Map<TileName, TileData> mapScenery;
+  private Map<TileName, TileData> mapScenery;
 
   /** The service getting the tiles */
   public static TileService svn;
@@ -127,9 +127,9 @@ public class TerraMaster {
     String path = props.getProperty(TerraMasterProperties.SCENERY_PATH);
     if (path != null) {
       svn.setScnPath(new File(path));
-      mapScenery = newScnMap(path);
+      setMapScenery(newScnMap(path));
     } else {
-      mapScenery = new HashMap<TileName, TileData>();
+      setMapScenery(new HashMap<TileName, TileData>());
     }
 
     frame = new MapFrame(this, "TerraMaster");
@@ -273,6 +273,14 @@ public class TerraMaster {
     catch (Exception e) {
       
     }
+  }
+
+  public Map<TileName, TileData> getMapScenery() {
+    return mapScenery;
+  }
+
+  public void setMapScenery(Map<TileName, TileData> mapScenery) {
+    this.mapScenery = mapScenery;
   }
 
 }

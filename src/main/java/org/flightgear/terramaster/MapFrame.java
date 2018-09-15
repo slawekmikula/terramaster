@@ -122,7 +122,7 @@ public class MapFrame extends JFrame {
         map.clearSelection();
         repaint();
       } else if (a.equals(SYNC_OLD)) {
-        Collection<TileName> set = terraMaster.mapScenery.keySet();
+        Collection<TileName> set = terraMaster.getMapScenery().keySet();
         terraMaster.svn.sync(set, true);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
@@ -528,12 +528,12 @@ public class MapFrame extends JFrame {
   @Override
   public void setVisible(boolean b) {
     super.setVisible(b);
-    if (b && terraMaster.mapScenery == null) {
+    if (b && terraMaster.getMapScenery() == null) {
       
       JOptionPane.showMessageDialog(this,
           "Scenery folder not found. Click the gear icon and select the folder containing your scenery files.",
           "Warning", JOptionPane.WARNING_MESSAGE);
-    } else if (b && terraMaster.mapScenery.isEmpty()) {
+    } else if (b && terraMaster.getMapScenery().isEmpty()) {
       JOptionPane.showMessageDialog(this, "Scenery folder is empty.", "Warning", JOptionPane.WARNING_MESSAGE);
       log.warning("Scenery folder empty.");
     }

@@ -158,7 +158,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   @Override
   public void delete(Collection<TileName> selection) {
     for (TileName n : selection) {
-      TileData d = terraMaster.mapScenery.remove(n);
+      TileData d = terraMaster.getMapScenery().remove(n);
       if (d == null)
         continue;
       d.delete();
@@ -525,7 +525,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         }
         if (models == TerraSyncDirectoryTypes.OBJECTS || models == TerraSyncDirectoryTypes.TERRAIN
             || models == TerraSyncDirectoryTypes.BUILDINGS)
-          terraMaster.addScnMapTile(terraMaster.mapScenery, new File(localBaseDir, path), models);
+          terraMaster.addScnMapTile(terraMaster.getMapScenery(), new File(localBaseDir, path), models);
 
         storeDirIndex(path, remoteDirIndex);
         return updates;

@@ -448,10 +448,10 @@ public class MapPanel extends JPanel {
       txt = t.getName();
 
     // Is it downloaded?
-    if (terraMaster.mapScenery.containsKey(t)) {
+    if (terraMaster.getMapScenery().containsKey(t)) {
       // list Terr, Obj, airports
 
-      TileData d = terraMaster.mapScenery.get(t);
+      TileData d = terraMaster.getMapScenery().get(t);
       txt = "<html>" + txt;
 
       if (d.isTerrain()) {
@@ -698,9 +698,9 @@ public class MapPanel extends JPanel {
     g.setColor(Color.gray);
     drawGraticule(g, 10);
 
-    if (terraMaster.mapScenery == null)
+    if (terraMaster.getMapScenery() == null)
       return;
-    Set<TileName> keys = terraMaster.mapScenery.keySet();
+    Set<TileName> keys = terraMaster.getMapScenery().keySet();
     Pattern p = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
 
     for (TileName n : keys) {
@@ -714,7 +714,7 @@ public class MapPanel extends JPanel {
         lat = m.group(3).equals("s") ? -lat : lat;
 
         Polygon poly = getBox(lon, lat);
-        TileData t = terraMaster.mapScenery.get(n);
+        TileData t = terraMaster.getMapScenery().get(n);
         t.poly = poly;
         if (poly != null) {
           if (t.isTerrain() && t.isObjects())
@@ -800,8 +800,8 @@ public class MapPanel extends JPanel {
       int a1;
       int a2;
       if (p1 != null && p2 != null) {
-        a1 = abrl(s.gshhsHeader.getWest(), s.gshhsHeader.getNorth(), p1, p2);
-        a2 = abrl(s.gshhsHeader.getEast(), s.gshhsHeader.getSouth(), p1, p2);
+        a1 = abrl(s.getGshhsHeader().getWest(), s.getGshhsHeader().getNorth(), p1, p2);
+        a2 = abrl(s.getGshhsHeader().getEast(), s.getGshhsHeader().getSouth(), p1, p2);
         if (a1 != a2 || (a1 & a2) == 0) {
           MapPoly d = convertPoly(s);
           g2.setColor(s.level % 2 == 1 ? land : sea);
@@ -827,7 +827,7 @@ public class MapPanel extends JPanel {
     g2.clearRect(r.x, r.y, r.width, r.height);
     g2.setTransform(affine);
     for (MapPoly s : continents) {
-      if (s.gshhsHeader.getNumPoints() > 20 / Math.pow(2, fromMetres / 4)) {
+      if (s.getNumPoints() > 20 / Math.pow(2, fromMetres / 4)) {
         MapPoly d = convertPoly(s);
         g2.setColor(s.level % 2 == 1 ? land : sea);
         if (d.npoints != 0)
