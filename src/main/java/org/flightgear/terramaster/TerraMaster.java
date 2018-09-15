@@ -75,6 +75,8 @@ public class TerraMaster {
     case BUILDINGS:
       t.setDirBuildings(i);
       break;
+    case MODELS:
+      throw new IllegalArgumentException("Models not supported");
     }
     map.put(n, t);
   }
@@ -156,7 +158,7 @@ public class TerraMaster {
         try {
           props.store(new FileWriter("terramaster.properties"), null);
         } catch (Exception x) {
-          log.log(Level.WARNING, "Couldn\'t store settings", e);
+          log.log(Level.WARNING, "Couldn\'t store settings {0}", x);
           JOptionPane.showMessageDialog(frame, "Couldn't store Properties " + x.toString(), "Error",
               JOptionPane.ERROR_MESSAGE);
         }

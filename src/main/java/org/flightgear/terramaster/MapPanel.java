@@ -66,11 +66,11 @@ public class MapPanel extends JPanel {
     @Override
     public void keyPressed(KeyEvent e) {
       if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-        selstart = cursor;
+        selstart = cursorTilename;
         selectionSet.clear();
       } else if (e.isShiftDown()) {
         keyEvent(e);
-        boxSelection(selstart, cursor);
+        boxSelection(selstart, cursorTilename);
         repaint();
       } else {
         keyEvent(e);
@@ -233,7 +233,7 @@ public class MapPanel extends JPanel {
         return;
 
       TileName tile = TileName.getTile(p2);
-      cursor = tile;
+      cursorTilename = tile;
       String txt = tile.getName();
       mapFrame.tileName.setText(txt);
 
@@ -273,8 +273,8 @@ public class MapPanel extends JPanel {
 
   private ArrayList<MapPoly> continents;  
   private ArrayList<MapPoly> borders; 
-  BufferedImage map;
-  BufferedImage grat;
+  transient BufferedImage map;
+  transient BufferedImage grat;
   double sc;
   MapFrame mapFrame;
   AffineTransform affine;
@@ -282,9 +282,11 @@ public class MapPanel extends JPanel {
   boolean isWinkel = true;
 
   Projection pj;
-  double projectionLatitude = -Math.toRadians(-30), projectionLongitude = Math.toRadians(145), totalFalseEasting = 0,
-      totalFalseNorthing = 0, // 3e-4,
-      mapRadius = HALFPI;
+  double projectionLatitude = -Math.toRadians(-30);
+  double projectionLongitude = Math.toRadians(145);
+  double totalFalseEasting = 0;
+  double totalFalseNorthing = 0; // 3e-4,
+  double mapRadius = HALFPI;
   double fromMetres = 1;
   public static final int NORTH_POLE = 1;
   public static final int SOUTH_POLE = 2;
@@ -298,8 +300,8 @@ public class MapPanel extends JPanel {
 
   private Collection<TileName> selectionSet = new LinkedHashSet<TileName>();
   private int[] dragbox;
-  private BufferedImage offScreen;
-  private TileName cursor;
+  private transient BufferedImage offScreen;
+  private TileName cursorTilename;
   private TerraMaster terraMaster;
 
   public MapPanel(TerraMaster terraMaster) {
@@ -388,9 +390,9 @@ public class MapPanel extends JPanel {
     pj.initialize();
 
     double r = pj.getEquatorRadius();
-    int w = getWidth();
-    int h = getHeight();
-    int i = (h < w ? h : w); // the lesser dimension
+    double w = getWidth();
+    double h = getHeight();
+    double i = (h < w ? h : w); // the lesser dimension
     sc = i / r / 2;
     affine = new AffineTransform();
     affine.translate(w / 2, h / 2);
@@ -956,21 +958,21 @@ public class MapPanel extends JPanel {
   }
 
   public void keyEvent(KeyEvent e) {
-    if (cursor == null)
+    if (cursorTilename == null)
       return;
     TileName newSelection = null;
     switch (e.getKeyCode()) {
     case KeyEvent.VK_LEFT:
-      newSelection = cursor.getNeighbour(-1, 0);
+      newSelection = cursorTilename.getNeighbour(-1, 0);
       break;
     case KeyEvent.VK_RIGHT:
-      newSelection = cursor.getNeighbour(1, 0);
+      newSelection = cursorTilename.getNeighbour(1, 0);
       break;
     case KeyEvent.VK_UP:
-      newSelection = cursor.getNeighbour(0, 1);
+      newSelection = cursorTilename.getNeighbour(0, 1);
       break;
     case KeyEvent.VK_DOWN:
-      newSelection = cursor.getNeighbour(0, -1);
+      newSelection = cursorTilename.getNeighbour(0, -1);
       break;
     case KeyEvent.VK_ADD:
     case KeyEvent.VK_PLUS:
@@ -991,7 +993,7 @@ public class MapPanel extends JPanel {
         selectionSet.clear();
         selectionSet.add(newSelection);
       }
-      cursor = newSelection;
+      cursorTilename = newSelection;
     }
     repaint();
 
