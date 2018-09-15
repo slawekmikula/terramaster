@@ -34,4 +34,10 @@ public class TestTilename {
     assertEquals(2860241, result);
   }
 
+  @Test
+  public void test4() {
+    java.awt.geom.Point2D.Double d = new java.awt.geom.Point2D.Double(-7.5, 10);
+    int result = TileName.getTileIndex(d);
+    assertEquals(2823172, result);
+  }
 }
