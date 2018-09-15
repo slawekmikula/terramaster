@@ -13,15 +13,12 @@ package org.flightgear.terramaster;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +36,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.flightgear.terramaster.gshhs.GshhsReader;
-import org.flightgear.terramaster.gshhs.MapPoly;
 
 public class TerraMaster {
   public static final String LOGGER_CATEGORY = "org.flightgear";
@@ -50,10 +46,10 @@ public class TerraMaster {
   private Map<TileName, TileData> mapScenery;
 
   /** The service getting the tiles */
-  public static TileService svn;
+  public TileService svn;
   public static FGMap fgmap;
   public static Properties props = new Properties();
-  private static Logger LOG = Logger.getLogger(TerraMaster.class.getCanonicalName());
+  private static Logger staticLogger = Logger.getLogger(TerraMaster.class.getCanonicalName());
 
 
   public static void addScnMapTile(Map<TileName, TileData> map, File i, TerraSyncDirectoryTypes type) {
@@ -100,7 +96,7 @@ public class TerraMaster {
 
     for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
       File d = new File(path + File.separator + terraSyncDirectoryType.dirname);
-      File list[] = d.listFiles();
+      File[] list = d.listFiles();
       if (list != null) {
         // list of 10x10 dirs
         for (File f : list) {
@@ -134,7 +130,6 @@ public class TerraMaster {
 
     frame = new MapFrame(this, "TerraMaster");
     frame.restoreSettings();
-    // frame.setLocationRelativeTo(null);
     frame.setVisible(true);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -163,7 +158,7 @@ public class TerraMaster {
     });
   }
 
-  public static void main(String args[]) {
+  public static void main(String[] args) {
     try {
       InputStream resourceAsStream = TerraMaster.class.getClassLoader()
           .getResourceAsStream("terramaster.logging.properties");
@@ -177,14 +172,12 @@ public class TerraMaster {
     } catch (SecurityException | IOException e1) {
       e1.printStackTrace();
     }
-    Logger LOG = Logger.getLogger(TerraMaster.class.getCanonicalName());
     try {
       loadVersion();
     } catch (IOException e) {
-      LOG.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
+      staticLogger.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
     }
     readMetaINF();
-    // Logger.getGlobal().setLevel(Level.ALL);
 
 
     try {
@@ -199,9 +192,9 @@ public class TerraMaster {
         Logger.getGlobal().getParent().setLevel(Level.INFO);
       }
     } catch (IOException e) {
-      LOG.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
+      staticLogger.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
     }
-    LOG.info("Starting TerraMaster " + props.getProperty("version"));
+    staticLogger.info("Starting TerraMaster " + props.getProperty("version"));
 
 
     SwingUtilities.invokeLater(new Runnable() {
@@ -216,11 +209,11 @@ public class TerraMaster {
     if (props.getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
 
       Level newLevel = Level.parse(props.getProperty(TerraMasterProperties.LOG_LEVEL));
-      LOG.getParent().setLevel(newLevel);
+      staticLogger.getParent().setLevel(newLevel);
       LogManager manager = LogManager.getLogManager();
       Enumeration<String> loggers = manager.getLoggerNames();
       while (loggers.hasMoreElements()) {
-        String logger = (String) loggers.nextElement();
+        String logger = loggers.nextElement();
         Logger logger2 = manager.getLogger(logger);
         if (logger2 != null && logger2.getLevel() != null) {
           logger2.setLevel(newLevel);
@@ -238,7 +231,7 @@ public class TerraMaster {
         readManifest(resources.nextElement());
       }
     } catch (IOException e) {
-      LOG.log(Level.SEVERE, e.toString(), e);
+      staticLogger.log(Level.SEVERE, e.toString(), e);
     }
   }
 
@@ -249,11 +242,11 @@ public class TerraMaster {
       // get the next one
       if ("TerraMasterLauncher".equals(manifest.getMainAttributes().getValue("Main-Class"))) {
         for (Entry<Object, Object> entry : manifest.getMainAttributes().entrySet()) {
-          LOG.finest(entry.getKey() + "\t:\t" + entry.getValue());
+          staticLogger.finest(entry.getKey() + "\t:\t" + entry.getValue());
         }
       }
     } catch (IOException e) {
-      LOG.log(Level.WARNING, e.toString(), e);
+      staticLogger.log(Level.WARNING, e.toString(), e);
     }
   }
 

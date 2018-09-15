@@ -585,9 +585,9 @@ public class MapPanel extends JPanel {
   }
 
   void showSyncList(Graphics g) {
-    if (TerraMaster.svn == null)
+    if (terraMaster.svn == null)
       return;
-    Collection<TileName> a = TerraMaster.svn.getSyncList();
+    Collection<TileName> a = terraMaster.svn.getSyncList();
     if (a == null)
       return;
 

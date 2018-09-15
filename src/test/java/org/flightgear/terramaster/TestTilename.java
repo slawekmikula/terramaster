@@ -40,4 +40,18 @@ public class TestTilename {
     int result = TileName.getTileIndex(d);
     assertEquals(2823172, result);
   }
+  
+  @Test
+  public void test5() {
+    java.awt.geom.Point2D.Double d = new java.awt.geom.Point2D.Double(-7.5, 10);
+    TileName tileName = new TileName(10, 3);
+    assertEquals("e003n10", tileName.getName());
+  }
+
+  @Test
+  public void test6() {
+    java.awt.geom.Point2D.Double d = new java.awt.geom.Point2D.Double(-7.5, 10);
+    TileName tileName = new TileName(10, 3).getNeighbour(1, 1);
+    assertEquals("e004n11", tileName.getName());
+  }
 }

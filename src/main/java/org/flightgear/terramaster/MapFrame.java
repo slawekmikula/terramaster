@@ -2,6 +2,7 @@ package org.flightgear.terramaster;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,12 +14,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -27,8 +24,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -42,12 +41,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
 
-import org.flightgear.terramaster.MapFrame.SearchbarObserver;
 import org.flightgear.terramaster.gshhs.MapPoly;
-
-import javax.swing.Icon;
-import javax.swing.JComboBox;
-import java.awt.FlowLayout;
 
 public class MapFrame extends JFrame {
 
@@ -115,7 +109,7 @@ public class MapFrame extends JFrame {
 
       if (a.equals(SYNC)) {
         Collection<TileName> set = map.getSelection();
-        TerraMaster.svn.sync(set, false);
+        terraMaster.svn.sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
         butStop.setEnabled(true);
