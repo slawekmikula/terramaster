@@ -480,6 +480,10 @@ public class MapPanel extends JPanel {
         txt += " +Obj";
       if (d.isBuildings())
         txt += " +Bui";
+      if (d.isPylons())
+        txt += " +Py";
+      if (d.isRoads())
+        txt += " +Rd";
       if (str.length() > 0)
         txt += "<br>" + str;
 
@@ -822,7 +826,9 @@ public class MapPanel extends JPanel {
    */
   void showLandmass(Graphics g) {
     Graphics2D g2 = (Graphics2D) g;
-    Color sea = new Color(0, 0, 64), land = new Color(64, 128, 0), border = new Color(128, 192, 128);
+    Color sea = new Color(0, 0, 64);
+    Color land = new Color(64, 128, 0);
+    Color border = new Color(128, 192, 128);
     Rectangle r = g2.getClipBounds();
 
     g2.setColor(land);

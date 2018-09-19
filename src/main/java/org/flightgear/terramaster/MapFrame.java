@@ -60,7 +60,7 @@ public class MapFrame extends JFrame {
         FGMap observedMap = (FGMap) o;
         searchBar.removeAllItems();
         for (Airport airport : observedMap.getSearchResult()) {
-          searchBar.addItem(airport);          
+          searchBar.addItem(airport);
         }
       }
     }
@@ -108,8 +108,11 @@ public class MapFrame extends JFrame {
       String a = e.getActionCommand();
 
       if (a.equals(SYNC)) {
-        Collection<Syncable> set = new ArrayList<>();  
-        map.getSelection().forEach(i->set.add(i));
+        Collection<Syncable> set = new ArrayList<>();
+        map.getSelection().forEach(i -> {
+          i.setTypes(getSyncTypes());
+          set.add(i);
+        });
         terraMaster.svn.sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
@@ -117,9 +120,12 @@ public class MapFrame extends JFrame {
         map.clearSelection();
         repaint();
       } else if (a.equals(SYNC_OLD)) {
-        
-        Collection<Syncable> set = new ArrayList<>();  
-        terraMaster.getMapScenery().keySet().forEach(i->set.add(i));
+
+        Collection<Syncable> set = new ArrayList<>();
+        map.getSelection().forEach(i -> {
+          i.setTypes(getSyncTypes());
+          set.add(i);
+        });
         terraMaster.svn.sync(set, true);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
@@ -174,7 +180,7 @@ public class MapFrame extends JFrame {
         if (selectedItem instanceof String) {
           new WebWorker((String) selectedItem, terraMaster.fgmap).execute();
         } else if (selectedItem instanceof Airport) {
-          setProjection(((Airport)selectedItem).lat, ((Airport)selectedItem).lon);
+          setProjection(((Airport) selectedItem).lat, ((Airport) selectedItem).lon);
           repaint();
         }
       } else
@@ -186,6 +192,20 @@ public class MapFrame extends JFrame {
 
       }
 
+    }
+
+    private TerraSyncDirectoryTypes[] getSyncTypes() {
+      ArrayList<TerraSyncDirectoryTypes> types = new ArrayList<>();
+
+      TerraSyncDirectoryTypes[] enumConstants = TerraSyncDirectoryTypes.class.getEnumConstants();
+      for (TerraSyncDirectoryTypes terraSyncDirectoryType : enumConstants) {
+        if (terraSyncDirectoryType.isTile()) {
+          if (Boolean.parseBoolean(terraMaster.props.getProperty(terraSyncDirectoryType.name(), "false"))) {
+            types.add(terraSyncDirectoryType);
+          }
+        }
+      }
+      return types.toArray(new TerraSyncDirectoryTypes[types.size()]);
     }
   }
 
@@ -423,11 +443,11 @@ public class MapFrame extends JFrame {
         }
       });
       getContentPane().add(map, BorderLayout.CENTER);
-      
+
       bottomPanel = new JPanel();
       getContentPane().add(bottomPanel, BorderLayout.SOUTH);
       bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-      
+
       tileindex = new JTextField();
       tileindex.setEditable(false);
       tileindex.setFont(new Font("Tahoma", Font.PLAIN, 10));
@@ -474,15 +494,15 @@ public class MapFrame extends JFrame {
     map.fromMetres = Double.parseDouble(TerraMaster.props.getProperty(TerraMasterProperties.FROM_METRES, "1"));
     map.setFromMetres();
   }
-  
+
   /**
    * Set the projection center to the lat/lon in degrees
+   * 
    * @param lat
    * @param lon
    */
 
-  public void setProjection(double lat, double lon)
-  {
+  public void setProjection(double lat, double lon) {
     map.projectionLatitude = -Math.toRadians(lat);
 
     map.projectionLongitude = Math.toRadians(lon);
@@ -490,8 +510,7 @@ public class MapFrame extends JFrame {
     map.pj.setProjectionLongitude(map.projectionLongitude);
     map.pj.initialize();
   }
-  
-  
+
   public void storeSettings() {
     TerraMaster.props.setProperty(TerraMasterProperties.GEOMETRY,
         String.format("%dx%d%+d%+d", getWidth(), getHeight(), getX(), getY()));
@@ -526,7 +545,7 @@ public class MapFrame extends JFrame {
   public void setVisible(boolean b) {
     super.setVisible(b);
     if (b && terraMaster.getMapScenery() == null) {
-      
+
       JOptionPane.showMessageDialog(this,
           "Scenery folder not found. Click the gear icon and select the folder containing your scenery files.",
           "Warning", JOptionPane.WARNING_MESSAGE);

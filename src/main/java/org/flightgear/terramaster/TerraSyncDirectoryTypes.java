@@ -9,13 +9,19 @@ import java.io.File;
 
 public enum TerraSyncDirectoryTypes {
 
-  TERRAIN("Terrain", 0), OBJECTS("Objects", 1), MODELS("Models",
-      2), AIRPORTS("Airports", 3), BUILDINGS("Buildings", 4);
+  TERRAIN("Terrain", 0, true), OBJECTS("Objects", 1, true), MODELS("Models",
+      2, true), AIRPORTS("Airports", 3, false), BUILDINGS("Buildings", 4, false), PYLONS("Pylons", 4, false), ROADS("Roads", 4, false);
 
   String dirname = null;
+  private boolean tile;
   
-  TerraSyncDirectoryTypes(String name, int index) {
+  public synchronized boolean isTile() {
+    return tile;
+  }
+
+  TerraSyncDirectoryTypes(String name, int index, boolean tile) {
     this.dirname = name + File.separator;
+    this.tile = tile;
   }
 
 }

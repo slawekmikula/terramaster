@@ -13,10 +13,7 @@ import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -45,10 +42,9 @@ public class TestHTTPTerraSync {
 
   @Test
   public void testModels() throws InterruptedException {
-
     Collection<Syncable> m = new ArrayList<>();
     m.add(new ModelsSync());
-    ts.sync(m, false);
+    ts.sync(m, true);
     verify(tm.frame.progressBar, timeout(400000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());
     ts.quit();
@@ -58,24 +54,16 @@ public class TestHTTPTerraSync {
     assertEquals(true, f.exists());
   }
 
-  @Ignore
-  @Test
-  public void testAirports() throws InterruptedException {
-    Collection<Syncable> m = new ArrayList<>();
-    m.add(new AirportsSync());
-    ts.sync(m, false);
-    verify(tm.frame.progressBar, timeout(400000).times(1)).setVisible(false);
-    assertEquals(0, ts.getSyncList().size());
-    ts.quit();
-    Thread.sleep(1000);
-    assertEquals(false, ts.isAlive());
-  }
-
   @Test
   public void testTile() throws InterruptedException {
     Collection<Syncable> m = new ArrayList<>();
-    m.add(new TileName("w006n56"));
-    ts.sync(m, false);
+    Collection<TileName> tl = new ArrayList<>();
+    TileName t = new TileName("w006n56");
+    t.setTypes(new TerraSyncDirectoryTypes[] {TerraSyncDirectoryTypes.BUILDINGS, TerraSyncDirectoryTypes.OBJECTS, TerraSyncDirectoryTypes.ROADS, TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.PYLONS});
+    tl.add(t);
+    ts.delete(tl);
+    m.add(t);
+    ts.sync(m, true);
     // there must be exactly 1 call
     verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());

@@ -1,10 +1,18 @@
 package org.flightgear.terramaster;
 
+import java.io.File;
+
 public class AirportsSync implements Syncable {
+
+  private String icaoPart;
+
+  public AirportsSync(String icaoPart) {
+    this.icaoPart = icaoPart;
+  }
 
   @Override
   public String buildPath() {
-    return "";
+    return icaoPart.charAt(0) + File.separator + icaoPart.charAt(1) + File.separator +icaoPart.charAt(2);
   }
 
   @Override

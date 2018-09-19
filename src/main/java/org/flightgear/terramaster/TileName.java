@@ -19,6 +19,7 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
   private int lon;
   /** String representing this tile. */
   private String name;
+  private TerraSyncDirectoryTypes[] types;
 
   private static HashMap<String, TileName> tilenameMap;
 
@@ -93,7 +94,10 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
     return String.format("%c%03d%c%02d", ew, lon, ns, lat);
   }
 
-  // returns ICAO code from "ICAO.btg.gz", or null
+  /**
+   * Returns ICAO code from "ICAO.btg.gz", or null
+   */
+  
   public static String getAirportCode(String n) {
     Pattern p = Pattern.compile("([A-Z0-9]{1,4}).btg.gz");
     Matcher m = p.matcher(n);
@@ -199,10 +203,13 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
   public String toString() {
     return getName();
   }
+  
+  public void setTypes(TerraSyncDirectoryTypes[] t) {
+    this.types = t;
+  }
 
   @Override
   public TerraSyncDirectoryTypes[] getTypes() {
-    ArrayList<TerraSyncDirectoryTypes> types = new ArrayList<>();
-    return new TerraSyncDirectoryTypes[]{TerraSyncDirectoryTypes.BUILDINGS, TerraSyncDirectoryTypes.OBJECTS, TerraSyncDirectoryTypes.TERRAIN};
+    return types;
   }
 }
