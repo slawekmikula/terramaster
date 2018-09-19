@@ -258,10 +258,10 @@ public class MapPanel extends JPanel {
   class MPAdapter extends ComponentAdapter {
     @Override
     public void componentResized(ComponentEvent e) {
-      int w = getWidth();
-      int h = getHeight();
+      double w = getWidth();
+      double h = getHeight();
       double r = pj.getEquatorRadius();
-      int i = (h < w ? h : w); // the lesser dimension
+      double i = (h < w ? h : w); // the lesser dimension
 
       sc = i / r / 2;
       affine = new AffineTransform();
@@ -309,7 +309,7 @@ public class MapPanel extends JPanel {
     MPAdapter ad = new MPAdapter();
     addComponentListener(ad);
 
-    continents = new ArrayList<MapPoly>();
+    continents = new ArrayList<>();
     setWinkel();
 
     setToolTipText("Hover for tile info");
@@ -589,9 +589,9 @@ public class MapPanel extends JPanel {
   }
 
   void showSyncList(Graphics g) {
-    if (terraMaster.svn == null)
+    if (terraMaster.getTileService() == null)
       return;
-    Collection<Syncable> a = terraMaster.svn.getSyncList();
+    Collection<Syncable> a = terraMaster.getTileService().getSyncList();
     if (a == null)
       return;
 
@@ -740,10 +740,10 @@ public class MapPanel extends JPanel {
    * @param g0
    */
   void showAirports(Graphics g0) {
-    if (TerraMaster.fgmap == null)
+    if (terraMaster.fgmap == null)
       return;
     Graphics2D g = (Graphics2D) g0.create();
-    Map<String, Airport> apts = TerraMaster.fgmap.getAirportMap();
+    Map<String, Airport> apts = terraMaster.fgmap.getAirportMap();
     Point2D.Double p = new Point2D.Double();
     Point p2 = new Point();
 

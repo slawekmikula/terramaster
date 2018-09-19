@@ -49,10 +49,15 @@ public class TerraMaster {
   private Map<TileName, TileData> mapScenery;
 
   /** The service getting the tiles */
-  public TileService svn;
-  public static FGMap fgmap;
+  private TileService tileService;
+
+  public FGMap fgmap;
   public static Properties props = new Properties();
   private static Logger staticLogger = Logger.getLogger(TerraMaster.class.getCanonicalName());
+  
+  public TerraMaster() {
+    fgmap = new FGMap(this); // handles webqueries
+  }
 
 
   public void addScnMapTile(Map<TileName, TileData> map, File i, TerraSyncDirectoryTypes type) {
@@ -125,7 +130,7 @@ public class TerraMaster {
 
     String path = props.getProperty(TerraMasterProperties.SCENERY_PATH);
     if (path != null) {
-      svn.setScnPath(new File(path));
+      tileService.setScnPath(new File(path));
       setMapScenery(newScnMap(path));
     } else {
       setMapScenery(new HashMap<TileName, TileData>());
@@ -146,7 +151,7 @@ public class TerraMaster {
     frame.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        svn.quit();
+        tileService.quit();
         frame.storeSettings();
         props.setProperty(TerraMasterProperties.LOG_LEVEL, log.getParent().getLevel().getName());
         try {
@@ -203,7 +208,6 @@ public class TerraMaster {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         TerraMaster tm = new TerraMaster();
-        fgmap = new FGMap(tm); // handles webqueries
         tm.setTileService();
 
         tm.createAndShowGUI();
@@ -254,12 +258,17 @@ public class TerraMaster {
   }
 
   public void setTileService() {
-    if (svn == null) {
-      svn = new HTTPTerraSync(this);
-      svn.start();
+    if (tileService == null) {
+      tileService = new HTTPTerraSync(this);
+      tileService.start();
     }
-    svn.restoreSettings();
+    tileService.restoreSettings();
   }
+  
+  public synchronized TileService getTileService() {
+    return tileService;
+  }
+
 
   private static void loadVersion() throws IOException {
     try (InputStream is = TerraMaster.class

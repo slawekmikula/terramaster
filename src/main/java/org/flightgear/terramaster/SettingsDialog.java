@@ -355,8 +355,8 @@ public class SettingsDialog extends JDialog {
       terraMaster.props.setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
       terraMaster.props.setProperty(TerraMasterProperties.SERVER_TYPE,
           (String) cmbSceneryVersion.getSelectedItem());
-      terraMaster.svn.setScnPath(new File(txtScenerypath.getText()));
-      terraMaster.svn.setTypes(chckbxTerrain.isSelected(), chckbxObjects.isSelected(),
+      terraMaster.getTileService().setScnPath(new File(txtScenerypath.getText()));
+      terraMaster.getTileService().setTypes(chckbxTerrain.isSelected(), chckbxObjects.isSelected(),
           chckbxBuildings.isSelected());
       terraMaster.props.setProperty(TerraSyncDirectoryTypes.TERRAIN.name(),
           Boolean.toString(chckbxTerrain.isSelected()));

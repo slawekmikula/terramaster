@@ -113,7 +113,7 @@ public class MapFrame extends JFrame {
           i.setTypes(getSyncTypes());
           set.add(i);
         });
-        terraMaster.svn.sync(set, false);
+        terraMaster.getTileService().sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
         butStop.setEnabled(true);
@@ -126,7 +126,7 @@ public class MapFrame extends JFrame {
           i.setTypes(getSyncTypes());
           set.add(i);
         });
-        terraMaster.svn.sync(set, true);
+        terraMaster.getTileService().sync(set, true);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
         butStop.setEnabled(true);
@@ -139,27 +139,25 @@ public class MapFrame extends JFrame {
       } else if (a.equals(TerraSyncDirectoryTypes.MODELS.name())) {
         Collection<Syncable> set = new ArrayList<>();
         set.add(new ModelsSync());
-        terraMaster.svn.sync(set, false);
+        terraMaster.getTileService().sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 1);
         progressBar.setVisible(true);
         butStop.setEnabled(true);
       } else
 
       if (a.equals("DELETE")) {
-        terraMaster.svn.delete(map.getSelection());
+        terraMaster.getTileService().delete(map.getSelection());
         map.clearSelection();
         repaint();
       } else
 
       if (a.equals("RESET")) {
         map.toggleProj();
-        // map.clearSelection();
         repaint();
       } else
 
       if (a.equals("STOP")) {
-        terraMaster.svn.cancel();
-        // repaint();
+        terraMaster.getTileService().cancel();
       } else
 
       if (a.equals("CLEAR")) {
@@ -397,7 +395,7 @@ public class MapFrame extends JFrame {
       searchBar.addActionListener(ad);
       searchBar.setActionCommand("SEARCH");
       searchBar.setToolTipText("Search for airport by name or code");
-      TerraMaster.fgmap.addObserver(new SearchbarObserver());
+      terraMaster.fgmap.addObserver(new SearchbarObserver());
 
       butInfo = new JButton(new ImageIcon(getClass().getClassLoader().getResource("Question.png")));
       butInfo.addActionListener(new ActionListener() {
