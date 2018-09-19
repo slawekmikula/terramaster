@@ -350,7 +350,7 @@ public class SettingsDialog extends JDialog {
 
   private void saveValues() {
     try {
-      terraMaster.setMapScenery(TerraMaster.newScnMap(txtScenerypath.getText()));
+      terraMaster.setMapScenery(terraMaster.newScnMap(txtScenerypath.getText()));
       terraMaster.frame.map.repaint();
       terraMaster.props.setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
       terraMaster.props.setProperty(TerraMasterProperties.SERVER_TYPE,

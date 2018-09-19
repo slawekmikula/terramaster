@@ -13,10 +13,10 @@ public interface TileService {
 	
 
 	/**Add the tiles to the queue*/
-	void sync(Collection<TileName> set, boolean ageCheck);
+	void sync(Collection<Syncable> set, boolean ageCheck);
 
 	/***/
-	Collection<TileName> getSyncList();
+	Collection<Syncable> getSyncList();
 
 	void quit();
 

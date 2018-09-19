@@ -35,6 +35,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.flightgear.terramaster.dns.FlightgearNAPTRQuery;
+import org.flightgear.terramaster.dns.FlightgearNAPTRQuery.HealthStats;
+import org.flightgear.terramaster.dns.WeightedUrl;
 import org.flightgear.terramaster.gshhs.GshhsReader;
 
 public class TerraMaster {
@@ -52,7 +55,7 @@ public class TerraMaster {
   private static Logger staticLogger = Logger.getLogger(TerraMaster.class.getCanonicalName());
 
 
-  public static void addScnMapTile(Map<TileName, TileData> map, File i, TerraSyncDirectoryTypes type) {
+  public void addScnMapTile(Map<TileName, TileData> map, File i, TerraSyncDirectoryTypes type) {
     TileName n = TileName.getTile(i.getName());
     TileData t = map.get(n);
     if (t == null) {
@@ -76,7 +79,7 @@ public class TerraMaster {
   }
 
   // given a 10x10 dir, add the 1x1 tiles within to the HashMap
-  static void buildScnMap(File dir, Map<TileName, TileData> map, TerraSyncDirectoryTypes type) {
+   void buildScnMap(File dir, Map<TileName, TileData> map, TerraSyncDirectoryTypes type) {
     File tiles[] = dir.listFiles();
     Pattern p = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
 
@@ -88,7 +91,7 @@ public class TerraMaster {
   }
 
   // builds a HashMap of /Terrain and /Objects
-  static Map<TileName, TileData> newScnMap(String path) {
+  Map<TileName, TileData> newScnMap(String path) {
     TerraSyncDirectoryTypes[] types = { TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.OBJECTS,
         TerraSyncDirectoryTypes.BUILDINGS };
     Pattern patt = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
@@ -274,6 +277,33 @@ public class TerraMaster {
 
   public void setMapScenery(Map<TileName, TileData> mapScenery) {
     this.mapScenery = mapScenery;
+  }
+
+  void showDnsStats(FlightgearNAPTRQuery flightgearNAPTRQuery) {
+    int errors = 0;
+    for (Entry<String, HealthStats> entry : flightgearNAPTRQuery.getStats().entrySet()) {
+      HealthStats stats = entry.getValue();
+      log.fine(stats.toString());
+      errors += stats.errors;
+    }
+    if (errors > 0) {
+      JOptionPane.showMessageDialog(null,
+          "There where errors in DNS queries. Consider enabling 8.8.8.8 or 9.9.9.9 in settings", "DNS Error",
+          JOptionPane.WARNING_MESSAGE);
+    }
+  }
+
+  /**
+   * @param completeStats 
+   * 
+   */
+  public void showStats(HashMap<WeightedUrl, TileResult> completeStats) {
+    try {
+      
+      new DownloadResultDialog(completeStats).setVisible(true);
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "Error showing stats ", e);
+    }
   }
 
 }

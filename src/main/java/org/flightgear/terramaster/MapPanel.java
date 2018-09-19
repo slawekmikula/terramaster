@@ -587,15 +587,18 @@ public class MapPanel extends JPanel {
   void showSyncList(Graphics g) {
     if (terraMaster.svn == null)
       return;
-    Collection<TileName> a = terraMaster.svn.getSyncList();
+    Collection<Syncable> a = terraMaster.svn.getSyncList();
     if (a == null)
       return;
 
     g.setColor(Color.cyan);
-    for (TileName t : a) {
-      Polygon p = getBox(t.getLon(), t.getLat());
-      if (p != null)
-        g.drawPolygon(p);
+    for (Syncable s : a) {
+      if (s instanceof TileName) {
+        TileName t = (TileName) s;
+        Polygon p = getBox(t.getLon(), t.getLat());
+        if (p != null)
+          g.drawPolygon(p);        
+      }
     }
   }
 

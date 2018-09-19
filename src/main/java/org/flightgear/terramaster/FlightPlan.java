@@ -22,7 +22,7 @@ public class FlightPlan extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private JComboBox<Airport> txtDeparture;
 	private JComboBox<Airport> txtArrival;
-  private TerraMaster terraMaster;
+  private transient TerraMaster terraMaster;
 
 	/**
 	 * Create the dialog.
@@ -128,6 +128,7 @@ public class FlightPlan extends JDialog {
 
           @Override
           public void clearLastResult() {
+            //not required 
           }
 
           @Override
@@ -190,7 +191,6 @@ public class FlightPlan extends JDialog {
 							angle = Math.toRadians(CoordinateCalculation.greatCircleBearing(newLat, newLon, selectedArrival.lat, selectedArrival.lon));
 							double newDistance = CoordinateCalculation.greatCircleDistance(newLat,
 									newLon, selectedArrival.lat, selectedArrival.lon);
-//							System.out.println(dx + "\t" + dy  + "\t" + Math.toDegrees(angle) + "\t" + newDistance);
 							if( newDistance < 10)
 								break;
 							TileName tile = TileName.getTile(TileName.computeTileName(
@@ -210,11 +210,7 @@ public class FlightPlan extends JDialog {
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						setVisible(false);
-					}
-				});
+				cancelButton.addActionListener(e->setVisible(false));
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}

@@ -108,7 +108,8 @@ public class MapFrame extends JFrame {
       String a = e.getActionCommand();
 
       if (a.equals(SYNC)) {
-        Collection<TileName> set = map.getSelection();
+        Collection<Syncable> set = new ArrayList<>();  
+        map.getSelection().forEach(i->set.add(i));
         terraMaster.svn.sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
@@ -116,7 +117,9 @@ public class MapFrame extends JFrame {
         map.clearSelection();
         repaint();
       } else if (a.equals(SYNC_OLD)) {
-        Collection<TileName> set = terraMaster.getMapScenery().keySet();
+        
+        Collection<Syncable> set = new ArrayList<>();  
+        terraMaster.getMapScenery().keySet().forEach(i->set.add(i));
         terraMaster.svn.sync(set, true);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
@@ -128,8 +131,8 @@ public class MapFrame extends JFrame {
         fp.setVisible(true);
         repaint();
       } else if (a.equals(TerraSyncDirectoryTypes.MODELS.name())) {
-        Collection<TileName> set = new ArrayList<>();
-        set.add(new TileName(TerraSyncDirectoryTypes.MODELS.name()));
+        Collection<Syncable> set = new ArrayList<>();
+        set.add(new ModelsSync());
         terraMaster.svn.sync(set, false);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 1);
         progressBar.setVisible(true);

@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +27,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.flightgear.terramaster.dns.FlightgearNAPTRQuery;
-import org.flightgear.terramaster.dns.FlightgearNAPTRQuery.HealthStats;
 import org.flightgear.terramaster.dns.WeightedUrl;
 
 /**
@@ -49,7 +47,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   private static final int RESET = 1;
   private static final int UPDATE = 2;
   private static final int EXTEND = 3;
-  private LinkedList<TileName> syncList = new LinkedList<>();
+  private LinkedList<Syncable> syncList = new LinkedList<>();
   private boolean cancelFlag = false;
   private boolean noquit = true;
 
@@ -88,16 +86,16 @@ public class HTTPTerraSync extends Thread implements TileService {
   }
 
   @Override
-  public void sync(Collection<TileName> set, boolean ageCheck) {
+  public void sync(Collection<Syncable> set, boolean ageCheck) {
 
     this.ageCheck = ageCheck;
-    for (TileName tileName : set) {
+    for (Syncable tileName : set) {
       if (tileName == null)
         continue;
       synchronized (syncList) {
         syncList.add(tileName);
         cancelFlag = false;
-        syncList.sort((TileName o1, TileName o2) -> o1.getName().compareTo(o2.getName()));
+        syncList.sort((Syncable o1, Syncable o2) -> o1.getName().compareTo(o2.getName()));
       }
       log.finest("Added " + tileName.getName() + " to queue");
     }
@@ -111,7 +109,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   }
 
   @Override
-  public Collection<TileName> getSyncList() {
+  public Collection<Syncable> getSyncList() {
     return syncList;
   }
 
@@ -120,6 +118,9 @@ public class HTTPTerraSync extends Thread implements TileService {
     cancelFlag = true;
     synchronized (syncList) {
       syncList.clear();
+    }
+    synchronized (mutex) {
+      mutex.notifyAll();            
     }
     (new Thread() {
       @Override
@@ -173,7 +174,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   @Override
   public void run() {
     try {
-      while (noquit) {
+      while (!cancelFlag) {
         synchronized (mutex) {
           mutex.wait();
         }
@@ -199,27 +200,20 @@ public class HTTPTerraSync extends Thread implements TileService {
       downloadStats.clear();
       badUrls.clear();
       urls.forEach(element-> downloadStats.put(element, new TileResult(element)));
-      final TileName n;
+      final Syncable n;
       synchronized (syncList) {
         if (syncList.isEmpty())
           continue;
         n = syncList.getFirst();
       }
-
-      String name = n.getName();
-      if (name.startsWith("MODELS")) {
-        int i = name.indexOf('-');
-        if (i > -1)
-          syncDirectory(name.substring(i + 1), false, TerraSyncDirectoryTypes.MODELS);
-        else
-          syncModels();
-      } else {
-        String path = n.buildPath();
-        if (path != null) {
-          // Updating Terrain/Objects/Buildings
-          apt.addAll(syncTile(path));
-        }
+      
+      TerraSyncDirectoryTypes[] types = n.getTypes();
+      for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
+        int updates = syncDirectory(terraSyncDirectoryType.dirname + n.buildPath(), false,
+            terraSyncDirectoryType);
+        invokeLater(UPDATE, DIR_SIZE - updates); // update progressBar        
       }
+
 
       synchronized (syncList) {
         syncList.remove(n);
@@ -229,39 +223,14 @@ public class HTTPTerraSync extends Thread implements TileService {
       syncAirports(apt.toArray(new String[0]));
     }
 
-    showDnsStats(flightgearNAPTRQuery);
-    showStats();
+    terraMaster.showDnsStats(flightgearNAPTRQuery);
+    HashMap<WeightedUrl, TileResult> completeStats = new HashMap<>();
+    completeStats.putAll(downloadStats);
+    completeStats.putAll(badUrls);
+    
+    terraMaster.showStats(completeStats);          
     // syncList is now empty
     invokeLater(RESET, 0); // reset progressBar
-  }
-
-  private void showDnsStats(FlightgearNAPTRQuery flightgearNAPTRQuery) {
-    int errors = 0;
-    for (Entry<String, HealthStats> entry : flightgearNAPTRQuery.getStats().entrySet()) {
-      HealthStats stats = entry.getValue();
-      log.fine(stats.toString());
-      errors += stats.errors;
-    }
-    if (errors > 0) {
-      JOptionPane.showMessageDialog(null,
-          "There where errors in DNS queries. Consider enabling 8.8.8.8 or 9.9.9.9 in settings", "DNS Error",
-          JOptionPane.WARNING_MESSAGE);
-    }
-  }
-
-  /**
-   * 
-   */
-  private void showStats() {
-    try {
-      
-      HashMap<WeightedUrl, TileResult> completeStats = new HashMap<>();
-      completeStats.putAll(downloadStats);
-      completeStats.putAll(badUrls);
-      new DownloadResultDialog(completeStats).setVisible(true);
-    } catch (Exception e) {
-      log.log(Level.SEVERE, "Error showing stats ", e);
-    }
   }
 
   /**

@@ -24,15 +24,20 @@ public class Airport {
 		return tilename;
 	}
 
+	/**
+	 * Performs the finding of a center of an airport from all the runway ends. 
+	 * @param sLat
+	 * @param sLon
+	 */
 	public void updatePosition(String sLat, String sLon) {
-		double lat = Double.parseDouble(sLat);
-		double lon = Double.parseDouble(sLon);
+		double newLat = Double.parseDouble(sLat);
+		double newLon = Double.parseDouble(sLon);
 
-		maxLat = maxLat!=0?Math.max(maxLat, lat):lat;
-		maxLon = maxLon!=0?Math.max(maxLon, lon):lon;
+		maxLat = maxLat!=0?Math.max(maxLat, newLat):newLat;
+		maxLon = maxLon!=0?Math.max(maxLon, newLon):newLon;
 
-		minLat = Math.min(minLat, lat);
-		minLon = Math.min(minLon, lon);
+		minLat = Math.min(minLat, newLat);
+		minLon = Math.min(minLon, newLon);
 		this.lat = (maxLat - minLat) + minLat; 
 		this.lon = (maxLon - minLon) + minLon; 
 	}
