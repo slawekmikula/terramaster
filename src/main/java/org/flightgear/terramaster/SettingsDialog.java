@@ -52,6 +52,8 @@ public class SettingsDialog extends JDialog {
   private JCheckBox checkBoxGoogle;
   private JCheckBox checkBoxGCA;
   private TerraMaster terraMaster;
+  private JCheckBox chckbxRoads;
+  private JCheckBox chckbxPylons;
 
   {
     levels.addElement(Level.ALL);
@@ -216,7 +218,7 @@ public class SettingsDialog extends JDialog {
       gbc_panel.gridx = 1;
       gbc_panel.gridy = 2;
       contentPanel.add(panel, gbc_panel);
-      panel.setLayout(new GridLayout(3, 1, 0, 0));
+      panel.setLayout(new GridLayout(3, 2, 0, 0));
       {
         chckbxTerrain = new JCheckBox("Terrain");
         panel.add(chckbxTerrain);
@@ -224,16 +226,28 @@ public class SettingsDialog extends JDialog {
             Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "false")));
       }
       {
-        chckbxObjects = new JCheckBox("Objects");
-        panel.add(chckbxObjects);
-        chckbxObjects.setSelected(
-            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "false")));
+        chckbxPylons = new JCheckBox("Pylons");
+        panel.add(chckbxPylons);
+        chckbxPylons.setSelected(
+            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.PYLONS.name(), "false")));      
       }
       {
         chckbxBuildings = new JCheckBox("Buildings");
         panel.add(chckbxBuildings);
         chckbxBuildings.setSelected(
             Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false")));
+      }
+      {
+        chckbxRoads = new JCheckBox("Roads");
+        panel.add(chckbxRoads);
+        chckbxRoads.setSelected(
+            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.ROADS.name(), "false")));      
+      }
+      {
+        chckbxObjects = new JCheckBox("Objects");
+        panel.add(chckbxObjects);
+        chckbxObjects.setSelected(
+            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "false")));
       }
     }
     {
@@ -364,6 +378,10 @@ public class SettingsDialog extends JDialog {
           Boolean.toString(chckbxObjects.isSelected()));
       terraMaster.props.setProperty(TerraSyncDirectoryTypes.BUILDINGS.name(),
           Boolean.toString(chckbxBuildings.isSelected()));
+      terraMaster.props.setProperty(TerraSyncDirectoryTypes.PYLONS.name(),
+          Boolean.toString(chckbxPylons.isSelected()));
+      terraMaster.props.setProperty(TerraSyncDirectoryTypes.ROADS.name(),
+          Boolean.toString(chckbxRoads.isSelected()));
       terraMaster.props.setProperty(TerraMasterProperties.MAX_TILE_AGE, "" + (Integer.parseInt(tileage.getText()) * 24 * 3600));
       TerraMaster.props.setProperty(TerraMasterProperties.SCENERY_VERSION, cmbSceneryVersion.getSelectedItem().toString());
       TerraMaster.props.setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.toString(checkBoxGoogle.isSelected()));
