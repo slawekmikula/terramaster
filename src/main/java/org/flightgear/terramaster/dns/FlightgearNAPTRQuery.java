@@ -441,13 +441,13 @@ public class FlightgearNAPTRQuery {
 
     List<String> nameservers = config.nameservers();
 
-    if (Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GOOGLE, "false"))
-        || Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GCA, "false"))) {
+    if (Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false"))
+        || Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false"))) {
       nameservers.clear();
-      if (Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GOOGLE, "false")))
+      if (Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false")))
         // Add google
         nameservers.add(0, "8.8.8.8");
-      if (Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GCA, "false")))
+      if (Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false")))
         // Add GCA DNS
         nameservers.add(0, "9.9.9.9");
     }

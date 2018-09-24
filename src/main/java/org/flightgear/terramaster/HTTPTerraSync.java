@@ -196,7 +196,7 @@ public class HTTPTerraSync extends Thread implements TileService {
     FlightgearNAPTRQuery flightgearNAPTRQuery = new FlightgearNAPTRQuery();
     while (!syncList.isEmpty()) {
       urls = flightgearNAPTRQuery
-          .queryDNSServer(TerraMaster.props.getProperty(TerraMasterProperties.SCENERY_VERSION, "ws20"));
+          .queryDNSServer(TerraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, "ws20"));
       downloadStats.clear();
       badUrls.clear();
       urls.forEach(element-> downloadStats.put(element, new TileResult(element)));
@@ -631,10 +631,10 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   @Override
   public void restoreSettings() {
-    terrain = Boolean.parseBoolean(terraMaster.props.getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "true"));
-    objects = Boolean.parseBoolean(terraMaster.props.getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "true"));
-    buildings = Boolean.parseBoolean(terraMaster.props.getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false"));
-    maxAge = Long.parseLong(terraMaster.props.getProperty(TerraMasterProperties.MAX_TILE_AGE, "0"));
+    terrain = Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "true"));
+    objects = Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "true"));
+    buildings = Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false"));
+    maxAge = Long.parseLong(terraMaster.getProps().getProperty(TerraMasterProperties.MAX_TILE_AGE, "0"));
 
   }
 

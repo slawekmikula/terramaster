@@ -33,9 +33,9 @@ public class TestHTTPTerraSync {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
-    tm.props.setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
-    tm.props.setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
-    tm.props.setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
+    tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
+    tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
+    tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
     tm.log =   Logger.getAnonymousLogger();
 
     ts = new HTTPTerraSync(tm);

@@ -740,10 +740,10 @@ public class MapPanel extends JPanel {
    * @param g0
    */
   void showAirports(Graphics g0) {
-    if (terraMaster.fgmap == null)
+    if (terraMaster.getFgmap() == null)
       return;
     Graphics2D g = (Graphics2D) g0.create();
-    Map<String, Airport> apts = terraMaster.fgmap.getAirportMap();
+    Map<String, Airport> apts = terraMaster.getFgmap().getAirportMap();
     Point2D.Double p = new Point2D.Double();
     Point p2 = new Point();
 

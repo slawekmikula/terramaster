@@ -51,12 +51,12 @@ public class TerraMaster {
   /** The service getting the tiles */
   private TileService tileService;
 
-  public FGMap fgmap;
-  public static Properties props = new Properties();
+  private FGMap fgmap;
+  private static Properties props = new Properties();
   private static Logger staticLogger = Logger.getLogger(TerraMaster.class.getCanonicalName());
   
   public TerraMaster() {
-    fgmap = new FGMap(this); // handles webqueries
+    setFgmap(new FGMap(this)); // handles webqueries
   }
 
 
@@ -128,7 +128,7 @@ public class TerraMaster {
       return;
     }
 
-    String path = props.getProperty(TerraMasterProperties.SCENERY_PATH);
+    String path = getProps().getProperty(TerraMasterProperties.SCENERY_PATH);
     if (path != null) {
       tileService.setScnPath(new File(path));
       setMapScenery(newScnMap(path));
@@ -153,9 +153,9 @@ public class TerraMaster {
       public void windowClosing(WindowEvent e) {
         tileService.quit();
         frame.storeSettings();
-        props.setProperty(TerraMasterProperties.LOG_LEVEL, log.getParent().getLevel().getName());
+        getProps().setProperty(TerraMasterProperties.LOG_LEVEL, log.getParent().getLevel().getName());
         try {
-          props.store(new FileWriter("terramaster.properties"), null);
+          getProps().store(new FileWriter("terramaster.properties"), null);
         } catch (Exception x) {
           log.log(Level.WARNING, "Couldn\'t store settings {0}", x);
           JOptionPane.showMessageDialog(frame, "Couldn't store Properties " + x.toString(), "Error",
@@ -189,10 +189,10 @@ public class TerraMaster {
 
 
     try {
-      props.load(new FileReader("terramaster.properties"));
-      if (props.getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
+      getProps().load(new FileReader("terramaster.properties"));
+      if (getProps().getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
         Logger.getGlobal().getParent().setLevel(Level.INFO);
-        Logger.getLogger(TerraMaster.LOGGER_CATEGORY).setLevel(Level.parse(props.getProperty(TerraMasterProperties.LOG_LEVEL)));
+        Logger.getLogger(TerraMaster.LOGGER_CATEGORY).setLevel(Level.parse(getProps().getProperty(TerraMasterProperties.LOG_LEVEL)));
         Logger.getGlobal().getParent().setLevel(Level.INFO);
       } else {
         Logger.getGlobal().getParent().setLevel(Level.INFO);
@@ -202,7 +202,7 @@ public class TerraMaster {
     } catch (IOException e) {
       staticLogger.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
     }
-    staticLogger.info("Starting TerraMaster " + props.getProperty("version"));
+    staticLogger.info("Starting TerraMaster " + getProps().getProperty("version"));
 
 
     SwingUtilities.invokeLater(new Runnable() {
@@ -213,9 +213,9 @@ public class TerraMaster {
         tm.createAndShowGUI();
       }
     });
-    if (props.getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
+    if (getProps().getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
 
-      Level newLevel = Level.parse(props.getProperty(TerraMasterProperties.LOG_LEVEL));
+      Level newLevel = Level.parse(getProps().getProperty(TerraMasterProperties.LOG_LEVEL));
       staticLogger.getParent().setLevel(newLevel);
       LogManager manager = LogManager.getLogManager();
       Enumeration<String> loggers = manager.getLoggerNames();
@@ -270,10 +270,30 @@ public class TerraMaster {
   }
 
 
+  public FGMap getFgmap() {
+    return fgmap;
+  }
+
+
+  public void setFgmap(FGMap fgmap) {
+    this.fgmap = fgmap;
+  }
+
+
+  public static Properties getProps() {
+    return props;
+  }
+
+
+  public static void setProps(Properties props) {
+    TerraMaster.props = props;
+  }
+
+
   private static void loadVersion() throws IOException {
     try (InputStream is = TerraMaster.class
         .getResourceAsStream("/META-INF/maven/org.flightgear/terramaster/pom.properties")) {
-      props.load(is);
+      getProps().load(is);
     }
     catch (Exception e) {
       

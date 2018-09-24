@@ -39,10 +39,10 @@ public class TestMapPanel {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
-    tm.props.setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
-    tm.props.setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
-    tm.props.setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
-    tm.fgmap = new FGMap(tm);
+    tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
+    tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
+    tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
+    tm.setFgmap(new FGMap(tm));
     tm.log =   Logger.getAnonymousLogger();
     BufferedImage offScreen = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
 

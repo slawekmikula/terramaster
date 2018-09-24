@@ -24,7 +24,7 @@ public class TestNAPTRQuery {
 
   @Test
   public void testGet() {
-    TerraMaster.props = new Properties();
+    TerraMaster.setProps(new Properties());
     FlightgearNAPTRQuery q = new FlightgearNAPTRQuery();
     List<WeightedUrl> server = q.queryDNSServer("ws20");
     assertNotNull(server);
@@ -33,8 +33,8 @@ public class TestNAPTRQuery {
 
   @Test
   public void testGoogle() {
-    TerraMaster.props = new Properties();
-    TerraMaster.props.setProperty(TerraMasterProperties.DNS_GOOGLE, "true");    
+    TerraMaster.setProps(new Properties());
+    TerraMaster.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, "true");    
     FlightgearNAPTRQuery q = new FlightgearNAPTRQuery();
     List<WeightedUrl> server = q.queryDNSServer("ws20");
     assertNotNull(server);
@@ -43,8 +43,8 @@ public class TestNAPTRQuery {
 
   @Test
   public void testGCA() {
-    TerraMaster.props = new Properties();
-    TerraMaster.props.setProperty(TerraMasterProperties.DNS_GCA, "true");    
+    TerraMaster.setProps(new Properties());
+    TerraMaster.getProps().setProperty(TerraMasterProperties.DNS_GCA, "true");    
     FlightgearNAPTRQuery q = new FlightgearNAPTRQuery();
     List<WeightedUrl> server = q.queryDNSServer("ws20");
     assertNotNull(server);
@@ -53,7 +53,7 @@ public class TestNAPTRQuery {
 
   @Test
   public void testReadWrite() {
-    TerraMaster.props = new Properties();
+    TerraMaster.setProps(new Properties());
     FlightgearNAPTRQuery q = new FlightgearNAPTRQuery();
     List<WeightedUrl> server = q.queryDNSServer("ws20");
     assertNotNull(server);
@@ -66,7 +66,7 @@ public class TestNAPTRQuery {
 
   @Test
   public void testOutage() {
-    TerraMaster.props = new Properties();
+    TerraMaster.setProps(new Properties());
     FlightgearNAPTRQuery q = new FlightgearNAPTRQuery();
     List<WeightedUrl> server = q.queryDNSServer("ws20");
     assertNotNull(server);

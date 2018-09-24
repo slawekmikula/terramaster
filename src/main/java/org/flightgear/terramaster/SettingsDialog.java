@@ -103,7 +103,7 @@ public class SettingsDialog extends JDialog {
         contentPanel.add(txtScenerypath, gbc_txtScenerypath);
         txtScenerypath.setColumns(10);
       }
-      txtScenerypath.setText((String) TerraMaster.props.get(TerraMasterProperties.SCENERY_PATH));
+      txtScenerypath.setText((String) TerraMaster.getProps().get(TerraMasterProperties.SCENERY_PATH));
     }
     final JButton selectDirectoryButton = new JButton("...");
     selectDirectoryButton.addActionListener(new ActionListener() {
@@ -165,7 +165,7 @@ public class SettingsDialog extends JDialog {
     {
       {
         cmbSceneryVersion = new JComboBox();
-        cmbSceneryVersion.setSelectedItem(TerraMaster.props.getProperty(TerraMasterProperties.SERVER_TYPE));
+        cmbSceneryVersion.setSelectedItem(TerraMaster.getProps().getProperty(TerraMasterProperties.SERVER_TYPE));
         GridBagConstraints gbc_cmbSceneryVersion = new GridBagConstraints();
         gbc_cmbSceneryVersion.insets = new Insets(0, 0, 5, 5);
         gbc_cmbSceneryVersion.fill = GridBagConstraints.HORIZONTAL;
@@ -177,7 +177,7 @@ public class SettingsDialog extends JDialog {
           @Override
           public void run() {
             FlightgearNAPTRQuery query = new FlightgearNAPTRQuery();
-            query.queryDNSServer(TerraMaster.props.getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
+            query.queryDNSServer(TerraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
             
             for (String version : query.getVersions()) {
               cmbSceneryVersion.addItem(version);              
@@ -223,31 +223,31 @@ public class SettingsDialog extends JDialog {
         chckbxTerrain = new JCheckBox("Terrain");
         panel.add(chckbxTerrain);
         chckbxTerrain.setSelected(
-            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "false")));
+            Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "false")));
       }
       {
         chckbxPylons = new JCheckBox("Pylons");
         panel.add(chckbxPylons);
         chckbxPylons.setSelected(
-            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.PYLONS.name(), "false")));      
+            Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraSyncDirectoryTypes.PYLONS.name(), "false")));      
       }
       {
         chckbxBuildings = new JCheckBox("Buildings");
         panel.add(chckbxBuildings);
         chckbxBuildings.setSelected(
-            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false")));
+            Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false")));
       }
       {
         chckbxRoads = new JCheckBox("Roads");
         panel.add(chckbxRoads);
         chckbxRoads.setSelected(
-            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.ROADS.name(), "false")));      
+            Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraSyncDirectoryTypes.ROADS.name(), "false")));      
       }
       {
         chckbxObjects = new JCheckBox("Objects");
         panel.add(chckbxObjects);
         chckbxObjects.setSelected(
-            Boolean.parseBoolean(TerraMaster.props.getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "false")));
+            Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "false")));
       }
     }
     {
@@ -355,37 +355,37 @@ public class SettingsDialog extends JDialog {
       root = root.getParent();
 
     cmbLogLevel.setSelectedItem(root.getLevel());
-    tileage.setText("" + (Integer.parseInt(TerraMaster.props.getProperty(TerraMasterProperties.MAX_TILE_AGE, "100")) / (24 * 3600)));
-    cmbSceneryVersion.addItem(TerraMaster.props.getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
-    cmbSceneryVersion.setSelectedItem(TerraMaster.props.getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
-    checkBoxGoogle.setSelected(Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GOOGLE, "false")));
-    checkBoxGCA.setSelected(Boolean.parseBoolean(TerraMaster.props.getProperty(TerraMasterProperties.DNS_GCA, "false")));
+    tileage.setText("" + (Integer.parseInt(TerraMaster.getProps().getProperty(TerraMasterProperties.MAX_TILE_AGE, "100")) / (24 * 3600)));
+    cmbSceneryVersion.addItem(TerraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
+    cmbSceneryVersion.setSelectedItem(TerraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
+    checkBoxGoogle.setSelected(Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false")));
+    checkBoxGCA.setSelected(Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false")));
   }
 
   private void saveValues() {
     try {
       terraMaster.setMapScenery(terraMaster.newScnMap(txtScenerypath.getText()));
       terraMaster.frame.map.repaint();
-      terraMaster.props.setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
-      terraMaster.props.setProperty(TerraMasterProperties.SERVER_TYPE,
+      terraMaster.getProps().setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
+      terraMaster.getProps().setProperty(TerraMasterProperties.SERVER_TYPE,
           (String) cmbSceneryVersion.getSelectedItem());
       terraMaster.getTileService().setScnPath(new File(txtScenerypath.getText()));
       terraMaster.getTileService().setTypes(chckbxTerrain.isSelected(), chckbxObjects.isSelected(),
           chckbxBuildings.isSelected());
-      terraMaster.props.setProperty(TerraSyncDirectoryTypes.TERRAIN.name(),
+      terraMaster.getProps().setProperty(TerraSyncDirectoryTypes.TERRAIN.name(),
           Boolean.toString(chckbxTerrain.isSelected()));
-      terraMaster.props.setProperty(TerraSyncDirectoryTypes.OBJECTS.name(),
+      terraMaster.getProps().setProperty(TerraSyncDirectoryTypes.OBJECTS.name(),
           Boolean.toString(chckbxObjects.isSelected()));
-      terraMaster.props.setProperty(TerraSyncDirectoryTypes.BUILDINGS.name(),
+      terraMaster.getProps().setProperty(TerraSyncDirectoryTypes.BUILDINGS.name(),
           Boolean.toString(chckbxBuildings.isSelected()));
-      terraMaster.props.setProperty(TerraSyncDirectoryTypes.PYLONS.name(),
+      terraMaster.getProps().setProperty(TerraSyncDirectoryTypes.PYLONS.name(),
           Boolean.toString(chckbxPylons.isSelected()));
-      terraMaster.props.setProperty(TerraSyncDirectoryTypes.ROADS.name(),
+      terraMaster.getProps().setProperty(TerraSyncDirectoryTypes.ROADS.name(),
           Boolean.toString(chckbxRoads.isSelected()));
-      terraMaster.props.setProperty(TerraMasterProperties.MAX_TILE_AGE, "" + (Integer.parseInt(tileage.getText()) * 24 * 3600));
-      TerraMaster.props.setProperty(TerraMasterProperties.SCENERY_VERSION, cmbSceneryVersion.getSelectedItem().toString());
-      TerraMaster.props.setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.toString(checkBoxGoogle.isSelected()));
-      TerraMaster.props.setProperty(TerraMasterProperties.DNS_GCA, Boolean.toString(checkBoxGCA.isSelected()));
+      terraMaster.getProps().setProperty(TerraMasterProperties.MAX_TILE_AGE, "" + (Integer.parseInt(tileage.getText()) * 24 * 3600));
+      TerraMaster.getProps().setProperty(TerraMasterProperties.SCENERY_VERSION, cmbSceneryVersion.getSelectedItem().toString());
+      TerraMaster.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.toString(checkBoxGoogle.isSelected()));
+      TerraMaster.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.toString(checkBoxGCA.isSelected()));
       terraMaster.setTileService();
     } catch (Exception x) {
       log.log(Level.WARNING, x.toString(), x);
