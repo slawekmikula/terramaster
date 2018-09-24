@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
@@ -35,6 +36,8 @@ public class TestHTTPTerraSync {
     tm.props.setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.props.setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.props.setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
+    tm.log =   Logger.getAnonymousLogger();
+
     ts = new HTTPTerraSync(tm);
     ts.start();
   }
