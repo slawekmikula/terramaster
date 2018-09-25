@@ -46,6 +46,9 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
@@ -268,9 +271,9 @@ public class JarClassLoader extends ClassLoader {
         super(parent);
         initLogger();
 
-        hmClass = new HashMap<String, Class<?>>();
-        lstJarFile = new ArrayList<JarFileInfo>();
-        hsDeleteOnExit = new HashSet<File>();
+        hmClass = new HashMap<>();
+        lstJarFile = new ArrayList<>();
+        hsDeleteOnExit = new HashSet<>();
 
         // Prepare common for all protocols 
         String sUrlTopJar = null;
@@ -505,7 +508,7 @@ public class JarClassLoader extends ClassLoader {
     } // findJarEntry()
 
     private List<JarEntryInfo> findJarEntries(String sName) {
-        List<JarEntryInfo> lst = new ArrayList<JarEntryInfo>();
+        List<JarEntryInfo> lst = new ArrayList<>();
         for (JarFileInfo jarFileInfo : lstJarFile) {
             JarFile jarFile = jarFileInfo.jarFile;
             JarEntry jarEntry = jarFile.getJarEntry(sName);
@@ -571,9 +574,9 @@ public class JarClassLoader extends ClassLoader {
         if (inf != null) {
             jarSimpleName = inf.jarFileInfo.simpleName;
             definePackage(sClassName, inf);
-            byte[] a_by = inf.getJarBytes();
+            byte[] data = inf.getJarBytes();
             try {
-                c = defineClass(sClassName, a_by, 0, a_by.length, inf.jarFileInfo.pd);
+                c = defineClass(sClassName, data, 0, data.length, inf.jarFileInfo.pd);
             } catch (ClassFormatError e) {
                 throw new JarClassLoaderException(null, e);
             }
@@ -592,7 +595,7 @@ public class JarClassLoader extends ClassLoader {
             // Do not waste time if no logging.
             return;
         }
-        Map<String, JarFileInfo> hm = new HashMap<String, JarFileInfo>();
+        Map<String, JarFileInfo> hm = new HashMap<>();
         for (JarFileInfo jarFileInfo : lstJarFile) {
             JarFile jarFile = jarFileInfo.jarFile;
             Enumeration<JarEntry> en = jarFile.entries();
@@ -640,8 +643,13 @@ public class JarClassLoader extends ClassLoader {
                 // Ignore. In the worst case temp files will accumulate.
             }
             File file = jarFileInfo.fileDeleteOnExit;
-            if (file != null  &&  !file.delete()) {
-                hsDeleteOnExit.add(file);
+            Path p = file.toPath();
+            try {
+              if (file != null  &&  !Files.deleteIfExists(p)) {
+                  hsDeleteOnExit.add(file);
+              }
+            } catch (IOException e) {
+              e.printStackTrace(logger);
             }
         }
         // Private configuration file with failed to delete temporary files:
