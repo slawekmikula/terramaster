@@ -59,12 +59,6 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private boolean ageCheck;
 
-  private boolean terrain;
-
-  private boolean objects;
-
-  private boolean buildings;
-
   private long maxAge;
 
   private Object mutex = new Object();
@@ -190,7 +184,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   }
 
   private void sync() {
-    int tilesize = (terrain ? DIR_SIZE : 0) + (objects ? DIR_SIZE : 0) + (buildings ? 2000 : 0);
+    int tilesize = 10000;
     // update progressbar
     invokeLater(EXTEND, syncList.size() * tilesize + AIRPORT_MAX); // update
     FlightgearNAPTRQuery flightgearNAPTRQuery = new FlightgearNAPTRQuery();
@@ -433,7 +427,8 @@ public class HTTPTerraSync extends Thread implements TileService {
           sync(sync, false);
         }
 
-        storeDirIndex(path, remoteDirIndex);
+        if(!remoteDirIndex.isEmpty())
+          storeDirIndex(path, remoteDirIndex);
         return updates;
       } catch (javax.net.ssl.SSLHandshakeException e) {
         log.log(Level.WARNING, "Handshake Error " + e.toString() + " syncing " + path, e);
@@ -623,17 +618,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   }
 
   @Override
-  public void setTypes(boolean t, boolean o, boolean b) {
-    terrain = t;
-    objects = o;
-    buildings = b;
-  }
-
-  @Override
   public void restoreSettings() {
-    terrain = Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.TERRAIN.name(), "true"));
-    objects = Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.OBJECTS.name(), "true"));
-    buildings = Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false"));
     maxAge = Long.parseLong(terraMaster.getProps().getProperty(TerraMasterProperties.MAX_TILE_AGE, "0"));
 
   }

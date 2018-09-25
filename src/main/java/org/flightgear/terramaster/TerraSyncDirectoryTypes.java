@@ -10,7 +10,7 @@ import java.io.File;
 public enum TerraSyncDirectoryTypes {
 
   TERRAIN("Terrain", 0, true), OBJECTS("Objects", 1, true), MODELS("Models",
-      2, true), AIRPORTS("Airports", 3, false), BUILDINGS("Buildings", 4, false), PYLONS("Pylons", 4, false), ROADS("Roads", 4, false);
+      2, true), AIRPORTS("Airports", 3, false), BUILDINGS("Buildings", 4, false), PYLONS("Pylons", 4, true), ROADS("Roads", 4, true);
 
   String dirname = null;
   private boolean tile;
