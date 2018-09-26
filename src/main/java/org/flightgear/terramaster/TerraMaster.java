@@ -77,6 +77,12 @@ public class TerraMaster {
     case BUILDINGS:
       t.setDirBuildings(i);
       break;
+    case PYLONS:
+      t.setDirPylons(i);
+      break;
+    case ROADS:
+      t.setDirRoads(i);
+      break;
     case MODELS:
       throw new IllegalArgumentException("Models not supported");
     }
