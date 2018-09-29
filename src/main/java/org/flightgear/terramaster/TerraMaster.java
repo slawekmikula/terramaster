@@ -84,6 +84,7 @@ public class TerraMaster {
       t.setDirRoads(i);
       break;
     case MODELS:
+    case AIRPORTS:
       throw new IllegalArgumentException("Models not supported");
     }
     map.put(n, t);
@@ -302,7 +303,7 @@ public class TerraMaster {
       getProps().load(is);
     }
     catch (Exception e) {
-      
+      staticLogger.log(Level.WARNING, e.toString(), e);
     }
   }
 

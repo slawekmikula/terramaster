@@ -20,7 +20,7 @@ public enum TerraSyncDirectoryTypes {
   }
 
   TerraSyncDirectoryTypes(String name, int index, boolean tile) {
-    this.dirname = name + File.separator;
+    this.dirname = name + "/";
     this.tile = tile;
   }
 
