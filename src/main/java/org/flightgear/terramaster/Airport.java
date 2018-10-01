@@ -8,8 +8,8 @@ public class Airport {
 	double lon;
 	private double maxLat = 0;
 	private double maxLon = 0;
-	private double minLon = 0;
-	private double minLat = 0;
+	private double minLon = Double.MAX_VALUE;
+	private double minLat = Double.MAX_VALUE;
 
 	public Airport(String code, String name) {
 		this.code = code;
@@ -38,7 +38,9 @@ public class Airport {
 
 		minLat = Math.min(minLat, newLat);
 		minLon = Math.min(minLon, newLon);
-		this.lat = (maxLat - minLat) + minLat; 
-		this.lon = (maxLon - minLon) + minLon; 
+		this.lat = (maxLat - minLat)/2 + minLat; 
+		this.lon = (maxLon - minLon)/2 + minLon; 
+		java.awt.geom.Point2D.Double p = new java.awt.geom.Point2D.Double(lon, -lat);
+    tilename = TileName.computeTileName(p );
 	}
 }
