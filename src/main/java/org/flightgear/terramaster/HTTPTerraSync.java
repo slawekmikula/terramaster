@@ -23,8 +23,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import javax.swing.JOptionPane;
@@ -181,7 +184,9 @@ public class HTTPTerraSync extends Thread implements TileService {
       while (!quitFlag) {
         synchronized (mutex) {
           if (syncList.isEmpty())
-            mutex.wait();
+            mutex.wait(2000);
+          if (syncList.isEmpty())
+            continue;
         }
         // Woke up
         sync();
@@ -380,7 +385,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         }
 
         if (type.isTile())
-          terraMaster.addScnMapTile(terraMaster.getMapScenery(), new File(localBaseDir, path), type);
+          addScnMapTile(terraMaster.getMapScenery(), new File(localBaseDir, path), type);
         if (type == TerraSyncDirectoryTypes.TERRAIN) {
           HashSet<String> airports = findAirports(new File(path));
           ArrayList<Syncable> sync = new ArrayList<>();
@@ -692,6 +697,74 @@ public class HTTPTerraSync extends Thread implements TileService {
   public void restoreSettings() {
     maxAge = Long.parseLong(terraMaster.getProps().getProperty(TerraMasterProperties.MAX_TILE_AGE, "0"));
 
+  }
+
+  public void addScnMapTile(Map<TileName, TileData> map, File i, TerraSyncDirectoryTypes type) {
+    TileName n = TileName.getTile(i.getName());
+    TileData t = map.get(n);
+    if (t == null) {
+      // make a new TileData
+      t = new TileData();
+    }
+    switch (type) {
+    case TERRAIN:
+      t.setDirTerrain(i);
+      break;
+    case OBJECTS:
+      t.setDirObjects(i);
+      break;
+    case BUILDINGS:
+      t.setDirBuildings(i);
+      break;
+    case PYLONS:
+      t.setDirPylons(i);
+      break;
+    case ROADS:
+      t.setDirRoads(i);
+      break;
+    case MODELS:
+    case AIRPORTS:
+      throw new IllegalArgumentException("Models not supported");
+    }
+    map.put(n, t);
+  }
+
+  // given a 10x10 dir, add the 1x1 tiles within to the HashMap
+   void buildScnMap(File dir, Map<TileName, TileData> map, TerraSyncDirectoryTypes type) {
+    File tiles[] = dir.listFiles();
+    Pattern p = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
+
+    for (File f : tiles) {
+      Matcher m = p.matcher(f.getName());
+      if (m.matches())
+        addScnMapTile(map, f, type);
+    }
+  }
+
+  /**
+   *  builds a HashMap of /Terrain and /Objects
+   */
+  public Map<TileName, TileData> newScnMap(String path) {
+    TerraSyncDirectoryTypes[] types = { TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.OBJECTS,
+        TerraSyncDirectoryTypes.BUILDINGS };
+    Pattern patt = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
+    Map<TileName, TileData> map = new HashMap<>(180 * 90);
+
+    for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
+      File d = new File(path + File.separator + terraSyncDirectoryType.dirname);
+      File[] list = d.listFiles();
+      if (list != null) {
+        // list of 10x10 dirs
+        for (File f : list) {
+          Matcher m = patt.matcher(f.getName());
+          if (m.matches()) {
+            // now look inside this dir
+            buildScnMap(f, map, terraSyncDirectoryType);
+          }
+        }
+      }
+    }
+    return map;
   }
 
 }

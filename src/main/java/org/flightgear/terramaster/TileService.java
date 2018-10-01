@@ -2,6 +2,7 @@ package org.flightgear.terramaster;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 
 public interface TileService {
 
@@ -27,4 +28,6 @@ public interface TileService {
 	void restoreSettings();
 
   void wakeUp();
+
+  Map<TileName, TileData> newScnMap(String path);
 }

@@ -202,6 +202,37 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
     return getName();
   }
   
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + lat;
+    result = prime * result + lon;
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (!(obj instanceof TileName))
+      return false;
+    TileName other = (TileName) obj;
+    if (lat != other.lat)
+      return false;
+    if (lon != other.lon)
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
+      return false;
+    return true;
+  }
+
   public void setTypes(TerraSyncDirectoryTypes[] t) {
     this.types = t;
   }
@@ -210,4 +241,6 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
   public TerraSyncDirectoryTypes[] getTypes() {
     return types;
   }
+  
+  
 }

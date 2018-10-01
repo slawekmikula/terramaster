@@ -60,71 +60,6 @@ public class TerraMaster {
   }
 
 
-  public void addScnMapTile(Map<TileName, TileData> map, File i, TerraSyncDirectoryTypes type) {
-    TileName n = TileName.getTile(i.getName());
-    TileData t = map.get(n);
-    if (t == null) {
-      // make a new TileData
-      t = new TileData();
-    }
-    switch (type) {
-    case TERRAIN:
-      t.setDirTerrain(i);
-      break;
-    case OBJECTS:
-      t.setDirObjects(i);
-      break;
-    case BUILDINGS:
-      t.setDirBuildings(i);
-      break;
-    case PYLONS:
-      t.setDirPylons(i);
-      break;
-    case ROADS:
-      t.setDirRoads(i);
-      break;
-    case MODELS:
-    case AIRPORTS:
-      throw new IllegalArgumentException("Models not supported");
-    }
-    map.put(n, t);
-  }
-
-  // given a 10x10 dir, add the 1x1 tiles within to the HashMap
-   void buildScnMap(File dir, Map<TileName, TileData> map, TerraSyncDirectoryTypes type) {
-    File tiles[] = dir.listFiles();
-    Pattern p = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
-
-    for (File f : tiles) {
-      Matcher m = p.matcher(f.getName());
-      if (m.matches())
-        addScnMapTile(map, f, type);
-    }
-  }
-
-  // builds a HashMap of /Terrain and /Objects
-  Map<TileName, TileData> newScnMap(String path) {
-    TerraSyncDirectoryTypes[] types = { TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.OBJECTS,
-        TerraSyncDirectoryTypes.BUILDINGS };
-    Pattern patt = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
-    Map<TileName, TileData> map = new HashMap<>(180 * 90);
-
-    for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
-      File d = new File(path + File.separator + terraSyncDirectoryType.dirname);
-      File[] list = d.listFiles();
-      if (list != null) {
-        // list of 10x10 dirs
-        for (File f : list) {
-          Matcher m = patt.matcher(f.getName());
-          if (m.matches()) {
-            // now look inside this dir
-            buildScnMap(f, map, terraSyncDirectoryType);
-          }
-        }
-      }
-    }
-    return map;
-  }
 
   void createAndShowGUI() {
     // find our jar
@@ -138,7 +73,7 @@ public class TerraMaster {
     String path = getProps().getProperty(TerraMasterProperties.SCENERY_PATH);
     if (path != null) {
       tileService.setScnPath(new File(path));
-      setMapScenery(newScnMap(path));
+      setMapScenery(tileService.newScnMap(path));
     } else {
       setMapScenery(new HashMap<TileName, TileData>());
     }

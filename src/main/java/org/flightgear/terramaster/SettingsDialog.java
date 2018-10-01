@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -37,7 +38,7 @@ import java.beans.PropertyChangeEvent;
 
 public class SettingsDialog extends JDialog {
 
-  Logger log = Logger.getLogger(getClass().getName());
+  transient Logger log = Logger.getLogger(getClass().getName());
   private final JPanel contentPanel = new JPanel();
   private JTextField txtScenerypath;
   private JComboBox cmbSceneryVersion;
@@ -45,7 +46,7 @@ public class SettingsDialog extends JDialog {
   private JCheckBox chckbxTerrain;
   private JCheckBox chckbxObjects;
   private JCheckBox chckbxBuildings;
-  private Vector<Level> levels = new Vector<Level>();
+  private ArrayList<Level> levels = new ArrayList<>();
   private JComboBox<Level> cmbLogLevel;
   private Logger root;
   private JTextField tileage;
@@ -56,12 +57,12 @@ public class SettingsDialog extends JDialog {
   private JCheckBox chckbxPylons;
 
   {
-    levels.addElement(Level.ALL);
-    levels.addElement(Level.FINEST);
-    levels.addElement(Level.FINER);
-    levels.addElement(Level.INFO);
-    levels.addElement(Level.WARNING);
-    levels.addElement(Level.SEVERE);
+    levels.add(Level.ALL);
+    levels.add(Level.FINEST);
+    levels.add(Level.FINER);
+    levels.add(Level.INFO);
+    levels.add(Level.WARNING);
+    levels.add(Level.SEVERE);
   }
 
   /**
@@ -283,7 +284,7 @@ public class SettingsDialog extends JDialog {
           }
         }
       });
-      cmbLogLevel.setModel(new DefaultComboBoxModel(levels));
+      cmbLogLevel.setModel(new DefaultComboBoxModel<Level>(levels.toArray(new Level[levels.size()])));
       GridBagConstraints gbc_cmbLogLevel = new GridBagConstraints();
       gbc_cmbLogLevel.insets = new Insets(0, 0, 5, 5);
       gbc_cmbLogLevel.fill = GridBagConstraints.HORIZONTAL;
@@ -364,7 +365,7 @@ public class SettingsDialog extends JDialog {
 
   private void saveValues() {
     try {
-      terraMaster.setMapScenery(terraMaster.newScnMap(txtScenerypath.getText()));
+      terraMaster.setMapScenery(terraMaster.getTileService().newScnMap(txtScenerypath.getText()));
       terraMaster.frame.map.repaint();
       terraMaster.getProps().setProperty(TerraMasterProperties.SCENERY_PATH, txtScenerypath.getText());
       terraMaster.getProps().setProperty(TerraMasterProperties.SERVER_TYPE,

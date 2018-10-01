@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +39,8 @@ public class TestHTTPTerraSync2 {
   private JProgressBar mockProgress;
   private HTTPTerraSync ts;
   File scnDir = null;
+  private Map<TileName, TileData> mapScenery = new HashMap<>();
+  
 
   @Before
   public void initMocks() throws IOException {
@@ -48,6 +52,8 @@ public class TestHTTPTerraSync2 {
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
+    doReturn(mapScenery).when(tm).getMapScenery();
+    System.out.println(tm.getMapScenery().getClass().getName());
     tm.log =   Logger.getAnonymousLogger();
     scnDir = Files.createTempDirectory("").toFile();
 
@@ -105,18 +111,21 @@ public class TestHTTPTerraSync2 {
     w.setUrl(new URL("http://localhost:1181/"));
     ArrayList<WeightedUrl> urls = new ArrayList<>();
     urls.add(w);
+    // Disable DNS lookup
     doReturn(urls).when(ts.flightgearNAPTRQuery).queryDNSServer("ws20");
-    // when(ts.flightgearNAPTRQuery.queryDNSServer("ws20")).thenReturn(urls);
     ts.sync(m, true);
     // there must be exactly 1 call
     verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());
+    File f = new File(scnDir, "Objects/w010n50/w001n53/2941888.stg");
+    assertEquals(true, f.exists());
+    ts.delete(tl);
+    assertEquals(false, f.exists());
+    
     ts.quit();
     await().atMost(10, TimeUnit.SECONDS).until(() -> ts.isAlive() == false);
     assertEquals(false, ts.isAlive());
 
-    File f = new File(scnDir, "Objects/w010n50/w001n53/2941888.stg");
-    assertEquals(true, f.exists());
   }
 
   @Test
