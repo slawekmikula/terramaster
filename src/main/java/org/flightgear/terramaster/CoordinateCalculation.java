@@ -1,5 +1,8 @@
 package org.flightgear.terramaster;
 
+import java.util.ArrayList;
+import java.util.TreeSet;
+
 public class CoordinateCalculation {
 	
 	/**Radius in km*/
@@ -53,4 +56,33 @@ public class CoordinateCalculation {
 
 		return (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
 	}
+
+    public static ArrayList<TileName> findAllTiles(double departureLat, double departureLon, double arrivalLat, double arrivalLon) {
+  	double distance = CoordinateCalculation.greatCircleDistance(departureLat,
+  			departureLon, arrivalLat, arrivalLon);
+  	TreeSet<TileName> tiles = new TreeSet<>();
+  	double angle = Math.toRadians(CoordinateCalculation.greatCircleBearing(departureLat,
+  			departureLon, arrivalLat, arrivalLon));
+  	double newLat = departureLat;
+  	double newLon = departureLon;						
+  	for (double i = 0; i < distance; i += 0.1) {
+  		double dx = Math.cos(angle)/10;
+  		double dy = Math.sin(angle)/10;
+  		newLat += dx;
+  		newLon += dy;
+  		angle = Math.toRadians(CoordinateCalculation.greatCircleBearing(newLat, newLon, arrivalLat, arrivalLon));
+  		double newDistance = CoordinateCalculation.greatCircleDistance(newLat,
+  				newLon, arrivalLat, arrivalLon);
+  		if( newDistance < 10)
+  			break;
+  		TileName tile = TileName.getTile(TileName.computeTileName(
+  				(int) newLat, (int) newLon));
+  		if (tile != null) {
+  			tiles.add(tile);
+  		}
+  	}
+  	ArrayList<TileName> ret = new ArrayList<>();
+  	ret.addAll(tiles);
+  	return ret;
+  }
 }

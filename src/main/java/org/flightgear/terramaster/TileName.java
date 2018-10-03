@@ -17,6 +17,8 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
   private int lon;
   /** String representing this tile. */
   private String name;
+  
+  /**The types being synced. Not part of HashCode/Equals!*/
   private TerraSyncDirectoryTypes[] types;
 
   private static HashMap<String, TileName> tilenameMap;

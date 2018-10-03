@@ -2,6 +2,8 @@ package org.flightgear.terramaster;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.flightgear.terramaster.CoordinateCalculation;
 import org.junit.Test;
 
@@ -39,4 +41,22 @@ public class TestCoordinates {
 		double dist = CoordinateCalculation.greatCircleDistance(40.777244, -73.872608, 51.423889, 12.236389);
 		assertEquals(6353.295, dist, 2);
 	}
+	
+	@Test
+	public void testFlightplan() {
+	  ArrayList<TileName> allTiles = CoordinateCalculation.findAllTiles(55, 10.5, 55, 11.5);
+	  assertEquals(2, allTiles.size());
+	}
+
+	@Test
+  public void testFlightplan2() {
+    ArrayList<TileName> allTiles = CoordinateCalculation.findAllTiles(-0.5, 10.5, +1.5, 10.5);
+    assertEquals(2, allTiles.size());
+  }
+
+	@Test
+  public void testFlightplan3() {
+    ArrayList<TileName> allTiles = CoordinateCalculation.findAllTiles(-0.5, -179.5, -0.5, +179.5);
+    assertEquals(2, allTiles.size());
+  }
 }

@@ -8,7 +8,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -19,7 +18,24 @@ import javax.swing.border.EmptyBorder;
 
 public class FlightPlan extends JDialog {
 
-	private final JPanel contentPanel = new JPanel();
+	private final class OkActionListner implements ActionListener {
+    private final TerraMaster terraMaster;
+
+    private OkActionListner(TerraMaster terraMaster) {
+      this.terraMaster = terraMaster;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+    	Airport selectedDeparture = (Airport) txtDeparture.getSelectedItem();
+    	Airport selectedArrival = (Airport) txtArrival.getSelectedItem();
+    	ArrayList<TileName> tiles = CoordinateCalculation.findAllTiles(selectedDeparture.lat, selectedDeparture.lon, selectedArrival.lat, selectedArrival.lon);
+    	terraMaster.frame.map.setSelection(tiles);
+    	terraMaster.frame.map.repaint();
+    	setVisible(false);
+    }
+  }
+
+  private final JPanel contentPanel = new JPanel();
 	private JComboBox<Airport> txtDeparture;
 	private JComboBox<Airport> txtArrival;
   private transient TerraMaster terraMaster;
@@ -165,45 +181,7 @@ public class FlightPlan extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
-				okButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						Airport selectedDeparture = (Airport) txtDeparture.getSelectedItem();
-						Airport selectedArrival = (Airport) txtArrival.getSelectedItem();
-						ArrayList<TileName> tiles = findAllTiles(selectedDeparture, selectedArrival);
-						terraMaster.frame.map.setSelection(tiles);
-						terraMaster.frame.map.repaint();
-						setVisible(false);
-					}
-
-					private ArrayList<TileName> findAllTiles(Airport selectedDeparture, Airport selectedArrival) {
-						double distance = CoordinateCalculation.greatCircleDistance(selectedDeparture.lat,
-								selectedDeparture.lon, selectedArrival.lat, selectedArrival.lon);
-						TreeSet<TileName> tiles = new TreeSet<>();
-						double angle = Math.toRadians(CoordinateCalculation.greatCircleBearing(selectedDeparture.lat,
-								selectedDeparture.lon, selectedArrival.lat, selectedArrival.lon));
-						double newLat = selectedDeparture.lat;
-						double newLon = selectedDeparture.lon;						
-						for (double i = 0; i < distance; i += 0.1) {
-							double dx = Math.cos(angle)/10;
-							double dy = Math.sin(angle)/10;
-							newLat += dx;
-							newLon += dy;
-							angle = Math.toRadians(CoordinateCalculation.greatCircleBearing(newLat, newLon, selectedArrival.lat, selectedArrival.lon));
-							double newDistance = CoordinateCalculation.greatCircleDistance(newLat,
-									newLon, selectedArrival.lat, selectedArrival.lon);
-							if( newDistance < 10)
-								break;
-							TileName tile = TileName.getTile(TileName.computeTileName(
-									(int) newLat, (int) newLon));
-							if (tile != null) {
-								tiles.add(tile);
-							}
-						}
-						ArrayList<TileName> ret = new ArrayList<>();
-						ret.addAll(tiles);
-						return ret;
-					}
-				});
+				okButton.addActionListener(new OkActionListner(terraMaster));
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
