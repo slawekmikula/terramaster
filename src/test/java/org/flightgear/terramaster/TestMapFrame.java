@@ -13,6 +13,7 @@ import java.awt.Toolkit;
 import java.awt.geom.Point2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +34,7 @@ public class TestMapFrame {
   private JProgressBar mockProgress;
   private FGMap fgmap = null;
   private Graphics g;
+  private Properties props = new Properties();
 
   @Before
   public void initMocks() {
@@ -41,6 +43,7 @@ public class TestMapFrame {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
+    doReturn(props ).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());

@@ -81,11 +81,12 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private boolean quitFlag;
 
-  FlightgearNAPTRQuery flightgearNAPTRQuery = new FlightgearNAPTRQuery();
+  FlightgearNAPTRQuery flightgearNAPTRQuery = null; 
 
   public HTTPTerraSync(TerraMaster terraMaster) {
     super("HTTPTerraSync");
     this.terraMaster = terraMaster;
+    flightgearNAPTRQuery = new FlightgearNAPTRQuery(terraMaster);
   }
 
   @Override
@@ -203,7 +204,7 @@ public class HTTPTerraSync extends Thread implements TileService {
     invokeLater(EXTEND, syncList.size() * tilesize + AIRPORT_MAX); // update
     while (!syncList.isEmpty()) {
       urls = flightgearNAPTRQuery
-          .queryDNSServer(TerraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, "ws20"));
+          .queryDNSServer(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, "ws20"));
       downloadStats.clear();
       badUrls.clear();
       urls.forEach(element -> downloadStats.put(element, new TileResult(element)));

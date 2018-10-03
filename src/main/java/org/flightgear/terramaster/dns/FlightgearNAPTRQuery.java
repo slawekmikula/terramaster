@@ -75,6 +75,12 @@ public class FlightgearNAPTRQuery {
 
   private HashMap<String, HealthStats> stats = new HashMap<>();
 
+  private TerraMaster terraMaster;
+
+  public FlightgearNAPTRQuery(TerraMaster tm) {
+    terraMaster = tm;
+  }
+
   public synchronized HashMap<String, HealthStats> getStats() {
     return stats;
   }
@@ -437,17 +443,15 @@ public class FlightgearNAPTRQuery {
   public List<String> getNameservers() {
     ResolverConfiguration config = sun.net.dns.ResolverConfiguration.open();
 
-    Field[] f = config.getClass().getDeclaredFields();
-
     List<String> nameservers = config.nameservers();
 
-    if (Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false"))
-        || Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false"))) {
+    if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false"))
+        || Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false"))) {
       nameservers.clear();
-      if (Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false")))
+      if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false")))
         // Add google
         nameservers.add(0, "8.8.8.8");
-      if (Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false")))
+      if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false")))
         // Add GCA DNS
         nameservers.add(0, "9.9.9.9");
     }

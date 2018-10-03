@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +28,7 @@ public class TestFlightplan {
   private HTTPTerraSync ts;
   File scnDir = null;
   private Map<TileName, TileData> mapScenery = new HashMap<>();
-  
+  private Properties props = new Properties();
 
   @Before
   public void initMocks() throws IOException {
@@ -36,18 +37,19 @@ public class TestFlightplan {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
+    doReturn(props).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
     doReturn(mapScenery).when(tm).getMapScenery();
     System.out.println(tm.getMapScenery().getClass().getName());
-    tm.log =   Logger.getAnonymousLogger();
+    tm.log = Logger.getAnonymousLogger();
     scnDir = Files.createTempDirectory("").toFile();
 
     ts = new HTTPTerraSync(tm);
     ts.start();
     ts.setScnPath(scnDir);
-    
+
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
@@ -59,8 +61,8 @@ public class TestFlightplan {
   @Test
   public void test() {
     FlightPlan f = new FlightPlan(tm);
-//    f.setVisible(true);
-    
+    // f.setVisible(true);
+
   }
 
 }

@@ -1,6 +1,7 @@
 package org.flightgear.terramaster;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +27,8 @@ public class TestHTTPTerraSync {
   TerraMaster tm;
   private JProgressBar mockProgress;
   private HTTPTerraSync ts;
+  private Properties props = new Properties();
+
 
   @Before
   public void initMocks() {
@@ -33,6 +37,7 @@ public class TestHTTPTerraSync {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
+    doReturn(props ).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());

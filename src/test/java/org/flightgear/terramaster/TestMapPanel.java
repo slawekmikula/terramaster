@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.awt.Graphics;
@@ -12,6 +13,7 @@ import java.awt.Toolkit;
 import java.awt.geom.Point2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +33,7 @@ public class TestMapPanel {
   TerraMaster tm;
   private JProgressBar mockProgress;
   private Graphics g;
+  private Properties props = new Properties();
 
   @Before
   public void initMocks() {
@@ -39,6 +42,7 @@ public class TestMapPanel {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
+    doReturn(props ).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());

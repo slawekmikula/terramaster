@@ -52,8 +52,8 @@ public class TerraMaster {
   private TileService tileService;
 
   private FGMap fgmap;
-  private static Properties props = new Properties();
-  private static Logger staticLogger = Logger.getLogger(TerraMaster.class.getCanonicalName());
+  private Properties props = new Properties();
+  private Logger staticLogger = Logger.getLogger(TerraMaster.class.getCanonicalName());
   
   public TerraMaster() {
     setFgmap(new FGMap(this)); // handles webqueries
@@ -122,14 +122,40 @@ public class TerraMaster {
     } catch (SecurityException | IOException e1) {
       e1.printStackTrace();
     }
-    try {
-      loadVersion();
-    } catch (IOException e) {
-      staticLogger.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
-    }
-    readMetaINF();
 
 
+
+
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        TerraMaster tm = new TerraMaster();
+        tm.loadVersion();
+        tm.readMetaINF();
+        tm.startUp();
+        tm.setTileService();
+
+        tm.createAndShowGUI();
+      }
+    });
+//    if (getProps().getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
+//
+//      Level newLevel = Level.parse(getProps().getProperty(TerraMasterProperties.LOG_LEVEL));
+//      staticLogger.getParent().setLevel(newLevel);
+//      LogManager manager = LogManager.getLogManager();
+//      Enumeration<String> loggers = manager.getLoggerNames();
+//      while (loggers.hasMoreElements()) {
+//        String logger = loggers.nextElement();
+//        Logger logger2 = manager.getLogger(logger);
+//        if (logger2 != null && logger2.getLevel() != null) {
+//          logger2.setLevel(newLevel);
+//        }
+//      }
+//
+//    }
+
+  }
+
+  protected void startUp() {
     try {
       getProps().load(new FileReader("terramaster.properties"));
       if (getProps().getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
@@ -145,35 +171,11 @@ public class TerraMaster {
       staticLogger.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
     }
     staticLogger.info("Starting TerraMaster " + getProps().getProperty("version"));
-
-
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        TerraMaster tm = new TerraMaster();
-        tm.setTileService();
-
-        tm.createAndShowGUI();
-      }
-    });
-    if (getProps().getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
-
-      Level newLevel = Level.parse(getProps().getProperty(TerraMasterProperties.LOG_LEVEL));
-      staticLogger.getParent().setLevel(newLevel);
-      LogManager manager = LogManager.getLogManager();
-      Enumeration<String> loggers = manager.getLoggerNames();
-      while (loggers.hasMoreElements()) {
-        String logger = loggers.nextElement();
-        Logger logger2 = manager.getLogger(logger);
-        if (logger2 != null && logger2.getLevel() != null) {
-          logger2.setLevel(newLevel);
-        }
-      }
-
-    }
-
   }
 
-  private static void readMetaINF() {
+
+
+  private void readMetaINF() {
     try {
       Enumeration<URL> resources = TerraMaster.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
       while (resources.hasMoreElements()) {
@@ -184,7 +186,7 @@ public class TerraMaster {
     }
   }
 
-  public static void readManifest(URL resource) {
+  public void readManifest(URL resource) {
     try {
       Manifest manifest = new Manifest(resource.openStream());
       // check that this is your manifest and do what you need or
@@ -222,20 +224,22 @@ public class TerraMaster {
   }
 
 
-  public static Properties getProps() {
+  public Properties getProps() {
     return props;
   }
 
 
-  public static void setProps(Properties props) {
-    TerraMaster.props = props;
+  public void setProps(Properties props) {
+    this.props = props;
   }
 
 
-  private static void loadVersion() throws IOException {
+  private void loadVersion(){
     try (InputStream is = TerraMaster.class
         .getResourceAsStream("/META-INF/maven/org.flightgear/terramaster/pom.properties")) {
       getProps().load(is);
+    } catch (IOException e) {
+      staticLogger.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
     }
     catch (Exception e) {
       staticLogger.log(Level.WARNING, e.toString(), e);

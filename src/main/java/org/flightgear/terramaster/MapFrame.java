@@ -465,7 +465,7 @@ public class MapFrame extends JFrame {
   }
 
   public void restoreSettings() {
-    String geom = TerraMaster.getProps().getProperty(TerraMasterProperties.GEOMETRY);
+    String geom = terraMaster.getProps().getProperty(TerraMasterProperties.GEOMETRY);
     int w = 800;
     int h = 600;
     int x = 0;
@@ -484,11 +484,11 @@ public class MapFrame extends JFrame {
     setLocation(x, y);
 
     map.projectionLatitude = Double
-        .parseDouble(TerraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LAT, "0"));
+        .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LAT, "0"));
     map.projectionLongitude = Double
-        .parseDouble(TerraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LON, "0"));
-    map.setProjection(Boolean.parseBoolean(TerraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION, "false")));
-    map.fromMetres = Double.parseDouble(TerraMaster.getProps().getProperty(TerraMasterProperties.FROM_METRES, "1"));
+        .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LON, "0"));
+    map.setProjection(Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION, "false")));
+    map.fromMetres = Double.parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.FROM_METRES, "1"));
     map.setFromMetres();
   }
 
@@ -509,12 +509,12 @@ public class MapFrame extends JFrame {
   }
 
   public void storeSettings() {
-    TerraMaster.getProps().setProperty(TerraMasterProperties.GEOMETRY,
+    terraMaster.getProps().setProperty(TerraMasterProperties.GEOMETRY,
         String.format("%dx%d%+d%+d", getWidth(), getHeight(), getX(), getY()));
-    TerraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION, Boolean.toString(map.isWinkel));
-    TerraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LAT, Double.toString(map.projectionLatitude));
-    TerraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LON, Double.toString(map.projectionLongitude));
-    TerraMaster.getProps().setProperty(TerraMasterProperties.FROM_METRES, Double.toString(map.fromMetres));
+    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION, Boolean.toString(map.isWinkel));
+    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LAT, Double.toString(map.projectionLatitude));
+    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LON, Double.toString(map.projectionLongitude));
+    terraMaster.getProps().setProperty(TerraMasterProperties.FROM_METRES, Double.toString(map.fromMetres));
   }
 
   public void passPolys(ArrayList<MapPoly> p) {

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +41,7 @@ public class TestHTTPTerraSync2 {
   private HTTPTerraSync ts;
   File scnDir = null;
   private Map<TileName, TileData> mapScenery = new HashMap<>();
+  private Properties props = new Properties();
   
 
   @Before
@@ -49,6 +51,7 @@ public class TestHTTPTerraSync2 {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
+    doReturn(props ).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
