@@ -29,19 +29,6 @@ public class DownloadResultDialog extends JDialog {
   private ArrayList<Exception> exceptions = new ArrayList<>();
 
   /**
-   * Launch the application.
-   */
-  public static void main(String[] args) {
-    try {
-      DownloadResultDialog dialog = new DownloadResultDialog(null);
-      dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-      dialog.setVisible(true);
-    } catch (Exception e) {
-      log.log(Level.WARNING, e.toString(), e);
-    }
-  }
-
-  /**
    * Create the dialog.
    * 
    * @param downloadStats
@@ -116,7 +103,7 @@ public class DownloadResultDialog extends JDialog {
     return sb.toString();
   }
 
-  public String getBytes(long numberBytes) {
+  private String getBytes(long numberBytes) {
     if (numberBytes > 1024 * 1024)
       return String.format("%4.2f MB", (float) numberBytes / (1024 * 1024));
     if (numberBytes > 1024)
@@ -124,7 +111,7 @@ public class DownloadResultDialog extends JDialog {
     return String.format("%d B", numberBytes);
   }
 
-  public String getSpeedBytes(long numberBytes, double seconds) {
+  private String getSpeedBytes(long numberBytes, double seconds) {
     if (numberBytes > 1024 * 1024)
       return String.format("%4.2f MB/s", ((double) numberBytes / seconds) / (1024 * 1024));
     if (numberBytes > 1024)

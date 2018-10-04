@@ -14,6 +14,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Observable;
@@ -41,6 +44,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
 
+import org.flightgear.terramaster.gshhs.GshhsReader;
 import org.flightgear.terramaster.gshhs.MapPoly;
 
 public class MapFrame extends JFrame {
@@ -541,6 +545,24 @@ public class MapFrame extends JFrame {
   @Override
   public void setVisible(boolean b) {
     super.setVisible(b);
+    passPolys(new GshhsReader().newPolyList("maps/gshhs_l.b"));
+    passBorders(new GshhsReader().newPolyList("maps/wdb_borders_l.b"));
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        storeSettings();
+        terraMaster.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, log.getParent().getLevel().getName());
+        try {
+          terraMaster.getProps().store(new FileWriter("terramaster.properties"), null);
+        } catch (Exception x) {
+          log.log(Level.WARNING, "Couldn\'t store settings {0}", x);
+          JOptionPane.showMessageDialog(null, "Couldn't store Properties " + x.toString(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+        }
+        log.info("Shut down Terramaster");
+      }
+    });
+
     if (b && terraMaster.getMapScenery() == null) {
 
       JOptionPane.showMessageDialog(this,

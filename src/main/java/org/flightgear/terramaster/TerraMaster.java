@@ -82,30 +82,6 @@ public class TerraMaster {
     frame.restoreSettings();
     frame.setVisible(true);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    /*
-     * worker_polys = new Worker<ArrayList<MapPoly>, Void>("gshhs_l.b");
-     * worker_polys.execute(); worker_borders = new Worker<ArrayList<MapPoly>,
-     * Void>("wdb_borders_l.b"); worker_borders.execute();
-     */
-    frame.passPolys(new GshhsReader().newPolyList("maps/gshhs_l.b"));
-    frame.passBorders(new GshhsReader().newPolyList("maps/wdb_borders_l.b"));
-    frame.addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(WindowEvent e) {
-        tileService.quit();
-        frame.storeSettings();
-        getProps().setProperty(TerraMasterProperties.LOG_LEVEL, log.getParent().getLevel().getName());
-        try {
-          getProps().store(new FileWriter("terramaster.properties"), null);
-        } catch (Exception x) {
-          log.log(Level.WARNING, "Couldn\'t store settings {0}", x);
-          JOptionPane.showMessageDialog(frame, "Couldn't store Properties " + x.toString(), "Error",
-              JOptionPane.ERROR_MESSAGE);
-        }
-        log.info("Shut down Terramaster");
-      }
-    });
   }
 
   public static void main(String[] args) {
