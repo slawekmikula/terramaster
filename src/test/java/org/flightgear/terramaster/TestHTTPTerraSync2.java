@@ -56,7 +56,6 @@ public class TestHTTPTerraSync2 {
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
     doReturn(mapScenery).when(tm).getMapScenery();
-    System.out.println(tm.getMapScenery().getClass().getName());
     tm.log =   Logger.getAnonymousLogger();
     scnDir = Files.createTempDirectory("").toFile();
 
@@ -90,6 +89,7 @@ public class TestHTTPTerraSync2 {
     // when(ts.flightgearNAPTRQuery.queryDNSServer("ws20")).thenReturn(urls);
     ts.sync(m, true);
     // there must be exactly 1 call
+    verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(true);
     verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());
     ts.quit();
@@ -118,6 +118,7 @@ public class TestHTTPTerraSync2 {
     doReturn(urls).when(ts.flightgearNAPTRQuery).queryDNSServer("ws20");
     ts.sync(m, true);
     // there must be exactly 1 call
+    verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(true);
     verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());
     File f = new File(scnDir, "Objects/w010n50/w001n53/2941888.stg");
@@ -143,6 +144,7 @@ public class TestHTTPTerraSync2 {
     doReturn(urls).when(ts.flightgearNAPTRQuery).queryDNSServer("ws20");
     ts.sync(m, true);
     // there must be exactly 1 call
+    verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(true);
     verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());
     ts.quit();

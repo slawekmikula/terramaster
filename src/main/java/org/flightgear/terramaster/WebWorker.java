@@ -41,7 +41,6 @@ public class WebWorker extends SwingWorker<List<Airport>, Void> {
   JOBTYPES jobType;
   AirportResult callback;
   private String searchString;
-  private Object terraMaster;
 
   private enum JOBTYPES {
     SEARCH, BROWSE

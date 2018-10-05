@@ -1,6 +1,7 @@
 package org.flightgear.terramaster;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 public class CoordinateCalculation {
@@ -57,7 +58,7 @@ public class CoordinateCalculation {
 		return (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
 	}
 
-    public static ArrayList<TileName> findAllTiles(double departureLat, double departureLon, double arrivalLat, double arrivalLon) {
+    public static List<TileName> findAllTiles(double departureLat, double departureLon, double arrivalLat, double arrivalLon) {
   	double distance = CoordinateCalculation.greatCircleDistance(departureLat,
   			departureLon, arrivalLat, arrivalLon);
   	TreeSet<TileName> tiles = new TreeSet<>();

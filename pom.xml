@@ -37,6 +37,9 @@
         <version>2.7.2</version>
         <configuration>
           <workingDirectory>${project.build.directory}/test-run</workingDirectory>
+          <systemPropertyVariables>
+            <java.net.useSystemProxies>true</java.net.useSystemProxies>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       <plugin>
@@ -87,8 +90,29 @@
           <tag>${project.version}</tag>
         </configuration>
       </plugin>
-      <!-- <plugin> <groupId>org.sonarsource.scanner.maven</groupId> <artifactId>sonar-maven-plugin</artifactId> 
-        <version>3.4.0.905</version> </plugin> -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
+        <executions>
+          <execution>
+            <id>install-external</id>
+            <phase>clean</phase>
+            <configuration>
+              <file>${project.basedir}/LIB/javaproj-1.0.6.jar</file>
+              <repositoryLayout>default</repositoryLayout>
+              <groupId>com.jhlabs</groupId>
+              <artifactId>javaproj</artifactId>
+              <version>1.0.6</version>
+              <packaging>jar</packaging>
+              <generatePom>true</generatePom>
+            </configuration>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
     <resources>
       <resource>
@@ -112,8 +136,6 @@
       <groupId>com.jhlabs</groupId>
       <artifactId>javaproj</artifactId>
       <version>1.0.6</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/LIB/javaproj-1.0.6.jar</systemPath>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.tmatesoft.svnkit/svnkit -->
     <dependency>
@@ -138,7 +160,7 @@
     <dependency>
       <groupId>de.keithpaterson</groupId>
       <artifactId>tar-n-feathers</artifactId>
-      <version>0.0.7-SNAPSHOT</version>
+      <version>0.0.7</version>
     </dependency>
     <dependency>
       <groupId>javax.websocket</groupId>

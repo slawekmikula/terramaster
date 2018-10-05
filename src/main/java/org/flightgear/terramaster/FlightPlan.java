@@ -7,7 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,7 +28,7 @@ public class FlightPlan extends JDialog {
     public void actionPerformed(ActionEvent e) {
     	Airport selectedDeparture = (Airport) txtDeparture.getSelectedItem();
     	Airport selectedArrival = (Airport) txtArrival.getSelectedItem();
-    	ArrayList<TileName> tiles = CoordinateCalculation.findAllTiles(selectedDeparture.lat, selectedDeparture.lon, selectedArrival.lat, selectedArrival.lon);
+    	List<TileName> tiles = CoordinateCalculation.findAllTiles(selectedDeparture.lat, selectedDeparture.lon, selectedArrival.lat, selectedArrival.lon);
     	terraMaster.frame.map.setSelection(tiles);
     	terraMaster.frame.map.repaint();
     	setVisible(false);

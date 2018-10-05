@@ -9,8 +9,6 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -26,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -78,23 +77,59 @@ public class MapPanel extends JPanel {
     }
 
   }
+  
+  /**
+   * Class holding a point and a distance to make it sortable.
+   * @author keith.paterson
+   *
+   */
 
-  class SortPoint implements Comparable<SortPoint> {
+  class SortablePoint implements Comparable<SortablePoint> {
+
     Point p;
     long d;
 
-    SortPoint(Point pt, long l) {
+    SortablePoint(Point pt, long l) {
       p = pt;
       d = l;
     }
 
-    public int compareTo(SortPoint l) {
+    public int compareTo(SortablePoint l) {
       return (int) (d - l.d);
     }
-
+    
     public String toString() {
       return d + " " + p;
     }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + (int) (d ^ (d >>> 32));
+      result = prime * result + ((p == null) ? 0 : p.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (!(obj instanceof SortablePoint))
+        return false;
+      SortablePoint other = (SortablePoint) obj;
+      if (d != other.d)
+        return false;
+      if (p == null) {
+        if (other.p != null)
+          return false;
+      } else if (!p.equals(other.p))
+        return false;
+      return true;
+    }
+
   }
 
   class SimpleMouseHandler extends MouseAdapter {
@@ -113,7 +148,6 @@ public class MapPanel extends JPanel {
       fromMetres -= n;
       pj.setFromMetres(Math.pow(2, fromMetres / 4));
       pj.initialize();
-      // repaint();
       mapFrame.repaint();
     }
   }
@@ -152,7 +186,8 @@ public class MapPanel extends JPanel {
     public void mouseReleasedSelection(MouseEvent e) {
       last = null;
       dragbox = null;
-      Point2D.Double d1 = screen2geo(press), d2 = screen2geo(e.getPoint());
+      Point2D.Double d1 = screen2geo(press);
+      Double d2 = screen2geo(e.getPoint());
       if (d1 == null || d2 == null)
         return;
 
@@ -163,15 +198,16 @@ public class MapPanel extends JPanel {
       int y1 = (int) -Math.ceil(d1.y);
       int x2 = (int) Math.floor(d2.x);
       int y2 = (int) -Math.ceil(d2.y);
-      int inc_i = (x2 > x1 ? 1 : -1), inc_j = (y2 > y1 ? 1 : -1);
+      int inc_i = (x2 > x1 ? 1 : -1);
+      int inc_j = (y2 > y1 ? 1 : -1);
 
       // build a list of Points
-      ArrayList<SortPoint> l = new ArrayList<SortPoint>();
+      ArrayList<SortablePoint> l = new ArrayList<>();
       x2 += inc_i;
       y2 += inc_j;
       for (int i = x1; i != x2; i += inc_i) {
         for (int j = y1; j != y2; j += inc_j) {
-          l.add(new SortPoint(new Point(i, j), (i - x1) * (i - x1) + (j - y1) * (j - y1)));
+          l.add(new SortablePoint(new Point(i, j), (i - x1) * (i - x1) + (j - y1) * (j - y1)));
         }
       }
       // sort by distance from x1,y1
@@ -180,7 +216,7 @@ public class MapPanel extends JPanel {
 
       // finally, add the sorted list to selectionSet
       for (Object t : arr) {
-        SortPoint p = (SortPoint) t;
+        SortablePoint p = (SortablePoint) t;
         TileName n = TileName.getTile(p.p.x, p.p.y);
         if (!selectionSet.add(n))
           selectionSet.remove(n); // remove on reselect
@@ -261,33 +297,32 @@ public class MapPanel extends JPanel {
       double w = getWidth();
       double h = getHeight();
       double r = pj.getEquatorRadius();
-      double i = (h < w ? h : w); // the lesser dimension
+      double i = Math.min(w, h); // the lesser dimension
 
-      sc = i / r / 2;
+      scale = i / r / 2;
       affine = new AffineTransform();
       affine.translate(w / 2, h / 2);
-      affine.scale(sc, sc);
+      affine.scale(scale, scale);
       mapFrame.repaint();
     }
   }
 
-  private ArrayList<MapPoly> continents;  
-  private ArrayList<MapPoly> borders; 
+  private List<MapPoly> continents;  
+  private List<MapPoly> borders; 
   transient BufferedImage map;
   transient BufferedImage grat;
-  double sc;
+  transient MouseAdapter mousehandler;
+
+  double scale;
   MapFrame mapFrame;
   AffineTransform affine;
-  MouseAdapter mousehandler;
   boolean isWinkel = true;
 
-  Projection pj;
-  double projectionLatitude = -Math.toRadians(-30);
-  double projectionLongitude = Math.toRadians(145);
-  double totalFalseEasting = 0;
-  double totalFalseNorthing = 0; // 3e-4,
-  double mapRadius = HALFPI;
-  double fromMetres = 1;
+  private transient Projection pj;
+  private double projectionLatitude = -Math.toRadians(-30);
+  private double projectionLongitude = Math.toRadians(145);
+  private double mapRadius = HALFPI;
+  private double fromMetres = 1;
   public static final int NORTH_POLE = 1;
   public static final int SOUTH_POLE = 2;
   public static final int EQUATOR = 3;
@@ -363,10 +398,10 @@ public class MapPanel extends JPanel {
     double w = getWidth();
     double h = getHeight();
     double i = (h < w ? h : w); // the lesser dimension
-    sc = i / r / 2;
+    scale = i / r / 2;
     affine = new AffineTransform();
     affine.translate(w / 2, h / 2);
-    affine.scale(sc, sc);
+    affine.scale(scale, scale);
 
     removeMouseListener(mousehandler);
     mousehandler = new MouseHandler();
@@ -393,10 +428,10 @@ public class MapPanel extends JPanel {
     double w = getWidth();
     double h = getHeight();
     double i = (h < w ? h : w); // the lesser dimension
-    sc = i / r / 2;
+    scale = i / r / 2;
     affine = new AffineTransform();
     affine.translate(w / 2, h / 2);
-    affine.scale(sc, sc);
+    affine.scale(scale, scale);
 
     removeMouseWheelListener(mousehandler);
     removeMouseListener(mousehandler);
@@ -771,54 +806,6 @@ public class MapPanel extends JPanel {
     }
   }
 
-  int abrl(int west, int north, Point2D p1, Point2D p2) {
-    int a = 0;
-    double x = west / 1000000.;
-    double y = -north / 1000000.;
-    if (x < p1.getX())
-      a |= 0x0001;
-    if (x > p2.getX())
-      a |= 0x0010;
-    if (y < p1.getY())
-      a |= 0x0100;
-    if (y > p2.getY())
-      a |= 0x1000;
-    return a;
-  }
-
-  /**
-   * draws the landmass filter by rect region
-   * 
-   * @param g
-   */
-  void showLandmass_rect(Graphics g) {
-    Graphics2D g2 = (Graphics2D) g;
-    Rectangle r = g2.getClipBounds();
-
-    g2.setColor(land);
-    g2.setBackground(sea);
-    g2.clearRect(r.x, r.y, r.width, r.height);
-    g2.setTransform(affine);
-
-    Point2D.Double p1 = screen2geo(new Point(r.x, r.y));
-    Point2D.Double p2 = screen2geo(new Point(r.x + r.width, r.y + r.height));
-
-    for (MapPoly s : continents) {
-      int a1;
-      int a2;
-      if (p1 != null && p2 != null) {
-        a1 = abrl(s.getGshhsHeader().getWest(), s.getGshhsHeader().getNorth(), p1, p2);
-        a2 = abrl(s.getGshhsHeader().getEast(), s.getGshhsHeader().getSouth(), p1, p2);
-        if (a1 != a2 || (a1 & a2) == 0) {
-          MapPoly d = convertPoly(s);
-          g2.setColor(s.level % 2 == 1 ? land : sea);
-          if (d.npoints != 0)
-            g2.fillPolygon(d);
-        }
-      }
-    }
-  }
-
   /**
    * draws the landmass. filter by polygon size and zoom
    * 
@@ -919,11 +906,11 @@ public class MapPanel extends JPanel {
     mapFrame = f;
   }
 
-  void passPolys(ArrayList<MapPoly> p) {
+  void passPolys(List<MapPoly> p) {
     continents = p;
   }
 
-  void passBorders(ArrayList<MapPoly> p) {
+  void passBorders(List<MapPoly> p) {
     borders = p;
   }
 
@@ -962,7 +949,6 @@ public class MapPanel extends JPanel {
   public void setFromMetres() {
     pj.setFromMetres(Math.pow(2, fromMetres / 4));
     pj.initialize();
-    // repaint(new Rectangle(0, 0, getWidth(), getHeight()));
     mapFrame.repaint();
   }
 
@@ -1006,5 +992,30 @@ public class MapPanel extends JPanel {
     }
     repaint();
 
+  }
+
+  public void restoreSettings() {
+    projectionLatitude = java.lang.Double
+        .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LAT, "0"));
+    projectionLongitude = java.lang.Double
+        .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LON, "0"));
+    setProjection(Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION, "false")));
+    fromMetres = java.lang.Double.parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.FROM_METRES, "1"));
+    setFromMetres();
+  }
+
+  public void setProjection(double lat, double lon) {
+    projectionLatitude = -Math.toRadians(lat);
+
+    projectionLongitude = Math.toRadians(lon);
+    pj.setProjectionLatitude(projectionLatitude);
+    pj.setProjectionLongitude(projectionLongitude);
+    pj.initialize();
+  }
+
+  public void storeSettings() {
+    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LAT, java.lang.Double.toString(projectionLatitude));
+    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LON, java.lang.Double.toString(projectionLongitude));
+    terraMaster.getProps().setProperty(TerraMasterProperties.FROM_METRES, java.lang.Double.toString(fromMetres));
   }
 }

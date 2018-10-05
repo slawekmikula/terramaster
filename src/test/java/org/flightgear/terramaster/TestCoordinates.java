@@ -3,6 +3,7 @@ package org.flightgear.terramaster;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flightgear.terramaster.CoordinateCalculation;
 import org.junit.Test;
@@ -44,19 +45,19 @@ public class TestCoordinates {
 	
 	@Test
 	public void testFlightplan() {
-	  ArrayList<TileName> allTiles = CoordinateCalculation.findAllTiles(55, 10.5, 55, 11.5);
+	  List<TileName> allTiles = CoordinateCalculation.findAllTiles(55, 10.5, 55, 11.5);
 	  assertEquals(2, allTiles.size());
 	}
 
 	@Test
   public void testFlightplan2() {
-    ArrayList<TileName> allTiles = CoordinateCalculation.findAllTiles(-0.5, 10.5, +1.5, 10.5);
+    List<TileName> allTiles = CoordinateCalculation.findAllTiles(-0.5, 10.5, +1.5, 10.5);
     assertEquals(2, allTiles.size());
   }
 
 	@Test
   public void testFlightplan3() {
-    ArrayList<TileName> allTiles = CoordinateCalculation.findAllTiles(-0.5, -179.5, -0.5, +179.5);
+    List<TileName> allTiles = CoordinateCalculation.findAllTiles(-0.5, -179.5, -0.5, +179.5);
     assertEquals(2, allTiles.size());
   }
 }

@@ -48,7 +48,7 @@ import de.keithpaterson.tar_n_feathers.TarFileHeader;
 public class HTTPTerraSync extends Thread implements TileService {
   private static final String DIRINDEX_FILENAME = ".dirindex";
 
-  private static final int DIR_SIZE = 400;
+  private static final int DIR_SIZE = 600;
 
   private static final int AIRPORT_MAX = 30000;
 
@@ -57,9 +57,9 @@ public class HTTPTerraSync extends Thread implements TileService {
   private static final int RESET = 1;
   private static final int UPDATE = 2;
   private static final int EXTEND = 3;
+  private static final int START = 4;
   private LinkedList<Syncable> syncList = new LinkedList<>();
   private boolean cancelFlag = false;
-  private boolean noquit = true;
 
   private List<WeightedUrl> urls = new ArrayList<>();
   SecureRandom rand = new SecureRandom();
@@ -201,6 +201,7 @@ public class HTTPTerraSync extends Thread implements TileService {
   private void sync() {
     int tilesize = 10000;
     // update progressbar
+    invokeLater(START, 0); // update
     invokeLater(EXTEND, syncList.size() * tilesize + AIRPORT_MAX); // update
     while (!syncList.isEmpty()) {
       urls = flightgearNAPTRQuery
@@ -427,7 +428,6 @@ public class HTTPTerraSync extends Thread implements TileService {
     try (TarFile tf = new TarFile(new GZIPInputStream(new ByteArrayInputStream(bs)))) {
       TarFileHeader h = null;
       while ((h = tf.readHeader()) != null) {
-        System.out.println(new File(new File(localBaseDir, path), h.getFilename()));
         tf.writeFileContentToDir(new File(localBaseDir, path));
       }
     }
@@ -655,6 +655,7 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private void writeFile(File file, String remoteDirIndex) throws IOException {
     file.getParentFile().mkdirs();
+    System.out.println(file.getAbsolutePath());
     try (FileOutputStream fos = new FileOutputStream(file)) {
       fos.write(remoteDirIndex.getBytes());
     }
@@ -673,6 +674,7 @@ public class HTTPTerraSync extends Thread implements TileService {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         switch (action) {
+
         case RESET: // reset progressBar
           terraMaster.frame.butStop.setEnabled(false);
           try {
@@ -688,6 +690,13 @@ public class HTTPTerraSync extends Thread implements TileService {
           break;
         case EXTEND: // progressBar maximum++
           terraMaster.frame.progressBar.setMaximum(terraMaster.frame.progressBar.getMaximum() + num);
+          break;
+        case START:
+          terraMaster.frame.progressBar.setMaximum(terraMaster.frame.progressBar.getMaximum() + syncList.size() * 2);
+          terraMaster.frame.progressBar.setVisible(true);
+          terraMaster.frame.butStop.setEnabled(true);
+          break;
+        default:
           break;
         }
       }

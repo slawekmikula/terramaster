@@ -6,9 +6,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import java.awt.AWTException;
+import java.awt.Robot;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,11 +33,12 @@ public class TestHTTPTerraSync {
   TerraMaster tm;
   private JProgressBar mockProgress;
   private HTTPTerraSync ts;
+  private Map<TileName, TileData> mapScenery = new HashMap<>();
   private Properties props = new Properties();
 
 
   @Before
-  public void initMocks() {
+  public void initMocks() throws IOException {
     MockitoAnnotations.initMocks(this);
     tm.frame = mock(MapFrame.class);
     mockProgress = mock(JProgressBar.class);
@@ -41,10 +48,12 @@ public class TestHTTPTerraSync {
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
+    doReturn(mapScenery).when(tm).getMapScenery();
     tm.log =   Logger.getAnonymousLogger();
 
     ts = new HTTPTerraSync(tm);
     ts.start();
+    ts.setScnPath(new File("."));    
   }
 
 
@@ -53,6 +62,7 @@ public class TestHTTPTerraSync {
     Collection<Syncable> m = new ArrayList<>();
     m.add(new ModelsSync());
     ts.sync(m, true);
+    verify(tm.frame.progressBar, timeout(400000).times(1)).setVisible(true);
     verify(tm.frame.progressBar, timeout(400000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());
     ts.quit();
@@ -60,6 +70,20 @@ public class TestHTTPTerraSync {
     assertEquals(false, ts.isAlive());
     File f = new File("Models/Aircraft/a310-tnt.xml");
     assertEquals(true, f.exists());
+  }
+
+  @Test
+  public void testModelsCancel() throws InterruptedException, AWTException {
+    Collection<Syncable> m = new ArrayList<>();
+    m.add(new ModelsSync());
+    ts.sync(m, true);
+    verify(tm.frame.progressBar, timeout(400000).times(1)).setVisible(true);
+    ts.cancel();
+    verify(tm.frame.progressBar, timeout(400000).times(1)).setVisible(false);
+    assertEquals(0, ts.getSyncList().size());
+    ts.quit();
+    Thread.sleep(1000);
+    assertEquals(false, ts.isAlive());
   }
 
   @Test
@@ -73,7 +97,8 @@ public class TestHTTPTerraSync {
     m.add(t);
     ts.sync(m, true);
     // there must be exactly 1 call
-    verify(tm.frame.progressBar, timeout(100000).times(1)).setVisible(false);
+    verify(tm.frame.progressBar, timeout(400000).times(1)).setVisible(true);
+    verify(tm.frame.progressBar, timeout(300000).times(1)).setVisible(false);
     assertEquals(0, ts.getSyncList().size());
     ts.quit();
     Thread.sleep(1000);

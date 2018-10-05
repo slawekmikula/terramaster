@@ -13,8 +13,8 @@ public interface TerraMasterProperties {
   static final String DNS_GOOGLE = "DNS_Google";
   static final String DNS_GCA = "DNS_GCA";
   static final String MAX_TILE_AGE = "MaxTileAge";
-  String SCENERY_VERSION = "SceneryVersion";
-  String DEFAULT_SCENERY_VERSION = "ws20";
-  String LOG_LEVEL = "LogLevel";
+  static final String SCENERY_VERSION = "SceneryVersion";
+  static final String DEFAULT_SCENERY_VERSION = "ws20";
+  static final String LOG_LEVEL = "LogLevel";
 
 }

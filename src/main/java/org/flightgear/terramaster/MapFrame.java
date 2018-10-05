@@ -19,6 +19,7 @@ import java.awt.event.WindowEvent;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -118,9 +119,6 @@ public class MapFrame extends JFrame {
           set.add(i);
         });
         terraMaster.getTileService().sync(set, false);
-        progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
-        progressBar.setVisible(true);
-        butStop.setEnabled(true);
         map.clearSelection();
         repaint();
       } else if (a.equals(SYNC_OLD)) {
@@ -225,7 +223,7 @@ public class MapFrame extends JFrame {
   private JButton addFlightplan;
   private JPanel bottomPanel;
   JTextField tileindex;
-  private TerraMaster terraMaster;
+  private transient TerraMaster terraMaster;
 
   public MapFrame(TerraMaster terraMaster, String title) {
     this.terraMaster = terraMaster;
@@ -487,13 +485,7 @@ public class MapFrame extends JFrame {
     setSize(w, h);
     setLocation(x, y);
 
-    map.projectionLatitude = Double
-        .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LAT, "0"));
-    map.projectionLongitude = Double
-        .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LON, "0"));
-    map.setProjection(Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION, "false")));
-    map.fromMetres = Double.parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.FROM_METRES, "1"));
-    map.setFromMetres();
+    map.restoreSettings();
   }
 
   /**
@@ -504,29 +496,22 @@ public class MapFrame extends JFrame {
    */
 
   public void setProjection(double lat, double lon) {
-    map.projectionLatitude = -Math.toRadians(lat);
-
-    map.projectionLongitude = Math.toRadians(lon);
-    map.pj.setProjectionLatitude(map.projectionLatitude);
-    map.pj.setProjectionLongitude(map.projectionLongitude);
-    map.pj.initialize();
+    map.setProjection(lat, lon);
   }
 
   public void storeSettings() {
     terraMaster.getProps().setProperty(TerraMasterProperties.GEOMETRY,
         String.format("%dx%d%+d%+d", getWidth(), getHeight(), getX(), getY()));
     terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION, Boolean.toString(map.isWinkel));
-    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LAT, Double.toString(map.projectionLatitude));
-    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LON, Double.toString(map.projectionLongitude));
-    terraMaster.getProps().setProperty(TerraMasterProperties.FROM_METRES, Double.toString(map.fromMetres));
+    map.storeSettings();
   }
 
-  public void passPolys(ArrayList<MapPoly> p) {
+  public void passPolys(List<MapPoly> p) {
     map.passPolys(p);
     repaint();
   }
 
-  public void passBorders(ArrayList<MapPoly> p) {
+  public void passBorders(List<MapPoly> p) {
     map.passBorders(p);
     repaint();
   }

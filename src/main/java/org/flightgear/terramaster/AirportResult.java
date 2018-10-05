@@ -1,7 +1,5 @@
 package org.flightgear.terramaster;
 
-import java.awt.Frame;
-
 /**
  * Callback for the WebWorker
  * {@link WebWorker}

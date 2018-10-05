@@ -39,10 +39,12 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
     this.lat = lat;
     this.lon = lon;
     name = computeTileName(lat, lon);
+    types = new TerraSyncDirectoryTypes[] {TerraSyncDirectoryTypes.TERRAIN};
   }
 
   public TileName(String name) {
     this.name = name;
+    types = new TerraSyncDirectoryTypes[] {TerraSyncDirectoryTypes.TERRAIN};    
     Pattern p = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
     Matcher m = p.matcher(name);
     if (m.matches()) {
@@ -112,6 +114,8 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
   }
 
   public static TileName getTile(int x, int y) {
+    if( y == 90)
+      return new TileName(y, x);
     return tilenameMap.get(computeTileName(y, x));
   }
 
