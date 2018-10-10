@@ -46,7 +46,8 @@ public class TestMapPanel {
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
-    tm.setFgmap(new FGMap(tm));
+    FGMap map = new FGMap(tm);
+    doReturn(map ).when(tm).getFgmap();
     tm.log =   Logger.getAnonymousLogger();
     BufferedImage offScreen = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
 

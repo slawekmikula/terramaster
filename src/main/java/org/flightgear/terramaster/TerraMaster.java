@@ -80,8 +80,9 @@ public class TerraMaster {
 
     frame = new MapFrame(this, "TerraMaster");
     frame.restoreSettings();
-    frame.setVisible(true);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setVisible(true);
+    frame.toFront();
   }
 
   public static void main(String[] args) {

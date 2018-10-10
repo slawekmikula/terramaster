@@ -28,9 +28,12 @@ public class FlightPlan extends JDialog {
     public void actionPerformed(ActionEvent e) {
     	Airport selectedDeparture = (Airport) txtDeparture.getSelectedItem();
     	Airport selectedArrival = (Airport) txtArrival.getSelectedItem();
-    	List<TileName> tiles = CoordinateCalculation.findAllTiles(selectedDeparture.lat, selectedDeparture.lon, selectedArrival.lat, selectedArrival.lon);
-    	terraMaster.frame.map.setSelection(tiles);
-    	terraMaster.frame.map.repaint();
+    	if( selectedDeparture != null && selectedArrival != null )
+    	{
+        List<TileName> tiles = CoordinateCalculation.findAllTiles(selectedDeparture.lat, selectedDeparture.lon, selectedArrival.lat, selectedArrival.lon);
+        terraMaster.frame.map.setSelection(tiles);
+        terraMaster.frame.map.repaint();    	  
+    	}
     	setVisible(false);
     }
   }

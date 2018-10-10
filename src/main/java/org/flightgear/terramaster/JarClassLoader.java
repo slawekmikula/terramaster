@@ -643,9 +643,8 @@ public class JarClassLoader extends ClassLoader {
                 // Ignore. In the worst case temp files will accumulate.
             }
             File file = jarFileInfo.fileDeleteOnExit;
-            Path p = file.toPath();
             try {
-              if (file != null  &&  !Files.deleteIfExists(p)) {
+              if (file != null  &&  !Files.deleteIfExists(file.toPath())) {
                   hsDeleteOnExit.add(file);
               }
             } catch (IOException e) {

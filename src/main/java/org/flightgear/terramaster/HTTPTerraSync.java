@@ -374,7 +374,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         if (cancelFlag)
           return updates;
         HashMap<String, String> parentTypeLookup = buildTypeLookup(getRemoteDirIndex(baseUrl, getParent(path)));
-        String[] parts = path.split("/");
+        String[] parts = path.replace("\\", "/").split("/");
         String string = parts[parts.length - 1];
         String pathType = parentTypeLookup.get(string);
 
@@ -383,7 +383,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         } else if ("d".equals(pathType)) {
           updates += processDir(path, force, type);
         } else {
-          log.log(Level.WARNING, () -> "Couldn't process " + path);
+          log.log(Level.WARNING, () -> "Couldn't process " + path + " with type " + pathType );
         }
 
         if (type.isTile())
@@ -655,10 +655,10 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private void writeFile(File file, String remoteDirIndex) throws IOException {
     file.getParentFile().mkdirs();
-    System.out.println(file.getAbsolutePath());
     try (FileOutputStream fos = new FileOutputStream(file)) {
       fos.write(remoteDirIndex.getBytes());
     }
+    log.finest(()-> "Written "+ file.getAbsolutePath());
   }
 
   /**
@@ -669,7 +669,7 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private void invokeLater(final int action, final int num) {
     if (num < 0)
-      log.warning("Update < 0 (" + action + ")");
+      log.warning(()->"Update < 0 (" + action + ")");
     // invoke this on the Event Disp Thread
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {

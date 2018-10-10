@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -32,6 +31,10 @@ import net.sf.ivmaidns.util.UnsignedInt;
 import sun.net.dns.ResolverConfiguration;
 
 public class FlightgearNAPTRQuery {
+
+  private static final String GCA_DNS = "9.9.9.9";
+
+  private static final String GOOGLE_DNS = "8.8.8.8";
 
   public class NAPTRComparator implements Comparator<Object[]> {
 
@@ -251,7 +254,6 @@ public class FlightgearNAPTRQuery {
         }
         if (rcode != DNSMsgHeader.NOERROR) {
           connection.close();
-          // return rcode == DNSMsgHeader.NXDOMAIN ? 5 : 6;
           return urls;
         }
       }
@@ -434,26 +436,27 @@ public class FlightgearNAPTRQuery {
     if (!urls.isEmpty()) {
       storeData();
     } else {
-      log.fine("Didn't get DNS Records, reading dump");
+      log.warning(()->"Didn't get DNS Records, reading dump");
       readData();
     }
     return urls;
   }
 
+  @SuppressWarnings("restriction")
   public List<String> getNameservers() {
     ResolverConfiguration config = sun.net.dns.ResolverConfiguration.open();
 
     List<String> nameservers = config.nameservers();
 
-    if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false"))
-        || Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false"))) {
+    if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.FALSE.toString()))
+        || Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, Boolean.FALSE.toString()))) {
       nameservers.clear();
-      if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false")))
+      if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.FALSE.toString())))
         // Add google
-        nameservers.add(0, "8.8.8.8");
-      if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false")))
+        nameservers.add(0, GOOGLE_DNS);
+      if (Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, Boolean.FALSE.toString())))
         // Add GCA DNS
-        nameservers.add(0, "9.9.9.9");
+        nameservers.add(0, GCA_DNS);
     }
     for (String string : nameservers) {
       if (!stats.containsKey(string)) {

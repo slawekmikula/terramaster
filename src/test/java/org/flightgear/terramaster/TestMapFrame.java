@@ -57,17 +57,18 @@ public class TestMapFrame {
     HTTPTerraSync sync = new HTTPTerraSync(tm);
     mapScenery = sync.newScnMap(new File(".").getAbsolutePath());
     sync.start();
-    doReturn(sync ).when(tm).getTileService();
-    doReturn(props ).when(tm).getProps();
+    doReturn(sync).when(tm).getTileService();
+    doReturn(props).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
-    tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());    
+    tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
     fgmap = new FGMap(tm);
     fgmap.addAirport(new Airport("BLA", "BLABLA Airport"));
     doReturn(fgmap).when(tm).getFgmap();
     doReturn(mapScenery).when(tm).getMapScenery();
-    tm.log =   Logger.getAnonymousLogger();    
+    tm.log = Logger.getAnonymousLogger();
   }
+
   @Test
   public void testSettings() {
     MapFrame mf = new MapFrame(tm, "");
@@ -78,51 +79,53 @@ public class TestMapFrame {
     assertEquals(100, mf.getSize().getWidth(), 0);
   }
 
-  
   @Test
   public void testShowing() throws AWTException {
     MapFrame mf = new MapFrame(tm, "");
-    mf.setSize(1000, 500);
-    mf.setVisible(true);
-    mf.map.setProjection(false);
-    r = new Robot();
-    r.setAutoDelay(1000);
-    mouseMove(400, 300);
-    r.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-    mouseMove(310, 320);
-    mouseMove(300, 300);
-    mouseMove(350, 320);
-    r.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
-    r.mouseWheel(-6);
-    mouseMove(490, 320);
-    r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-    mouseMove(520, 320);
-    r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-    Collection<TileName> selection = mf.map.getSelection();
-    List<Syncable> synch = new ArrayList<>();
-    synch.addAll(selection);
-    assertEquals(3, selection.size());
-    tm.getTileService().sync(synch, true);
-    for (int i = 500; i < 540; i+=4) {
-      mouseMove(i, 320);      
+    try {
+      mf.setSize(1000, 500);
+      mf.setBounds(0, 0, mf.getWidth(), mf.getHeight());
+      mf.setVisible(true);
+      mf.map.setProjection(false);
+      r = new Robot();
+      r.setAutoDelay(1000);
+      mouseMove(400, 300);
+      r.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+      mouseMove(310, 320);
+      mouseMove(300, 300);
+      mouseMove(350, 320);
+      r.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+      r.mouseWheel(-10);
+      mouseMove(490, 320);
+      r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      mouseMove(520, 320);
+      r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      Collection<TileName> selection = mf.map.getSelection();
+      List<Syncable> synch = new ArrayList<>();
+      synch.addAll(selection);
+      assertEquals(2, selection.size());
+      tm.getTileService().sync(synch, true);
+      for (int i = 500; i < 540; i += 4) {
+        mouseMove(i, 320);
+      }
+      for (int i = 540; i > 500; i -= 4) {
+        mouseMove(i, 320);
+      }
+      r.delay(4000);
+      mouseMove(520, 320);
+      r.keyPress(KeyEvent.VK_ADD);
+      r.keyPress(KeyEvent.VK_PLUS);
+      r.keyPress(KeyEvent.VK_MINUS);
+      r.keyPress(KeyEvent.VK_SUBTRACT);
+      r.keyPress(KeyEvent.VK_LEFT);
+      r.keyPress(KeyEvent.VK_RIGHT);
+      r.keyPress(KeyEvent.VK_UP);
+      r.keyPress(KeyEvent.VK_DOWN);
+      r.mouseWheel(10);
+    } finally {
+      mf.setVisible(false);
     }
-    for (int i = 540; i > 500; i-=4) {
-      mouseMove(i, 320);      
-    }
-    r.delay(4000);
-    mouseMove(520, 320);
-    r.keyPress(KeyEvent.VK_ADD);
-    r.keyPress(KeyEvent.VK_PLUS);
-    r.keyPress(KeyEvent.VK_MINUS);
-    r.keyPress(KeyEvent.VK_SUBTRACT);
-    r.keyPress(KeyEvent.VK_LEFT);
-    r.keyPress(KeyEvent.VK_RIGHT);
-    r.keyPress(KeyEvent.VK_UP);
-    r.keyPress(KeyEvent.VK_DOWN);
-    r.mouseWheel(6);
-    mf.setVisible(false);
   }
-
 
   private void mouseMove(int x, int y) {
     for (int count = 0; (MouseInfo.getPointerInfo().getLocation().getX() != x

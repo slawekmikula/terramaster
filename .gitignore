@@ -8,3 +8,7 @@
 /bin/
 /nameservers.bin
 /target/
+/.classpath
+/.project
+/.pydevproject
+/_nameservers.bin
