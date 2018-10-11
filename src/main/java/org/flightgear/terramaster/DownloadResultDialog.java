@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.SystemColor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
@@ -30,9 +31,9 @@ public class DownloadResultDialog extends JDialog {
   /**
    * Create the dialog.
    * 
-   * @param downloadStats
+   * @param completeStats
    */
-  public DownloadResultDialog(HashMap<WeightedUrl, TileResult> downloadStats) {
+  public DownloadResultDialog(Map<WeightedUrl, TileResult> completeStats) {
     setAlwaysOnTop(true);
     setBounds(100, 100, 633, 381);
     getContentPane().setLayout(new BorderLayout());
@@ -52,7 +53,7 @@ public class DownloadResultDialog extends JDialog {
     jEditorPane.setEditorKit(kit);
     Document doc = kit.createDefaultDocument();
     jEditorPane.setDocument(doc);
-    jEditorPane.setText(getHTML(downloadStats));
+    jEditorPane.setText(getHTML(completeStats));
     jEditorPane.setCaretPosition(0);
     JScrollPane scrollPane = new JScrollPane(jEditorPane);
     contentPanel.add(scrollPane, BorderLayout.CENTER);
@@ -78,11 +79,11 @@ public class DownloadResultDialog extends JDialog {
     styleSheet.addRule(String.format("pre {font : %dpx %s }", 10, Font.DIALOG));
   }
 
-  private String getHTML(HashMap<WeightedUrl, TileResult> downloadStats) {
+  private String getHTML(Map<WeightedUrl, TileResult> completeStats) {
 
     StringBuilder sb = new StringBuilder();
     sb.append("<HTML>");
-    for (Entry<WeightedUrl, TileResult> entry : downloadStats.entrySet()) {
+    for (Entry<WeightedUrl, TileResult> entry : completeStats.entrySet()) {
       sb.append("<H3>" + entry.getKey().getUrl().toExternalForm() + "</H3>");
       sb.append("404s " + entry.getValue().errors + " Downloads " + entry.getValue().actualDownloads + " Equal "
           + entry.getValue().equal + "<BR>");

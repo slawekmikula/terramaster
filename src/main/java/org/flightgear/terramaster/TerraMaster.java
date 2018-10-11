@@ -1,21 +1,8 @@
 package org.flightgear.terramaster;
 // WinkelTriple, Azimuthal Orthographic (globe)
 
-// svn --force co http://terrascenery.googlecode.com/svn/trunk/data/Scenery/Terrain/e100n00/e104n00
-
-// http://stackoverflow.com/questions/3727662/how-can-you-search-google-programmatically-java-api
-
-// XXX TODO
-// 1. on exit, check if still syncing; close Svn
-// 2. on exit, write Properties DONE
-// 3. keyboard actions
-// 4. double-click for priority sync
-
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -28,8 +15,6 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -38,7 +23,6 @@ import javax.swing.SwingUtilities;
 import org.flightgear.terramaster.dns.FlightgearNAPTRQuery;
 import org.flightgear.terramaster.dns.FlightgearNAPTRQuery.HealthStats;
 import org.flightgear.terramaster.dns.WeightedUrl;
-import org.flightgear.terramaster.gshhs.GshhsReader;
 
 public class TerraMaster {
   public static final String LOGGER_CATEGORY = "org.flightgear";
@@ -235,7 +219,7 @@ public class TerraMaster {
     int errors = 0;
     for (Entry<String, HealthStats> entry : flightgearNAPTRQuery.getStats().entrySet()) {
       HealthStats stats = entry.getValue();
-      log.fine(stats.toString());
+      log.fine(()->stats.toString());
       errors += stats.errors;
     }
     if (errors > 0) {
@@ -249,7 +233,7 @@ public class TerraMaster {
    * @param completeStats 
    * 
    */
-  public void showStats(HashMap<WeightedUrl, TileResult> completeStats) {
+  public void showStats(Map<WeightedUrl, TileResult> completeStats) {
     try {
       
       new DownloadResultDialog(completeStats).setVisible(true);

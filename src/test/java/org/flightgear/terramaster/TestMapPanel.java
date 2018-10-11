@@ -3,7 +3,9 @@ package org.flightgear.terramaster;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -13,6 +15,9 @@ import java.awt.Toolkit;
 import java.awt.geom.Point2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +25,7 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
 
+import org.flightgear.terramaster.MapPanel.SortablePoint;
 import org.flightgear.terramaster.gshhs.GshhsReader;
 import org.flightgear.terramaster.gshhs.MapPoly;
 import org.junit.Before;
@@ -53,6 +59,56 @@ public class TestMapPanel {
 
     g = offScreen.getGraphics();
   }
+  
+  @Test
+  public void testMap() {
+    MapPanel mp = new MapPanel(tm);
+    HashMap<MapPanel.SortablePoint, String> m = new HashMap<>();
+    m.put(mp.new SortablePoint( new Point(1, 1), 2), "D");
+    m.put(mp.new SortablePoint( new Point(1, 2), 2), "D");
+    SortablePoint k1 = mp.new SortablePoint( new Point(1, 1), 2);
+    m.put(k1, "D");
+    m.put(k1, "D");
+    
+    assertEquals(2, m.size());
+  }
+
+
+  @Test
+  public void testList() {
+    MapPanel mp = new MapPanel(tm);
+    ArrayList<MapPanel.SortablePoint> m = new ArrayList<>();
+    m.add(mp.new SortablePoint( new Point(1, 1), 2));
+    m.add(mp.new SortablePoint( new Point(1, 2), 2));
+    m.add(mp.new SortablePoint( new Point(1, 1), 2));
+    
+    String s = mp.new SortablePoint( new Point(1, 1), 2).toString();
+    
+    assertTrue(s.matches("[0-9]* java\\.awt\\.Point\\[x=[0-9]*,y=[0-9]*\\]"));
+    
+    assertEquals(3, m.size());
+    
+    Collections.sort(m);
+  }
+
+  @Test
+  public void testList2() {
+    MapPanel mp = new MapPanel(tm);
+    SortablePoint s1 = mp.new SortablePoint( new Point(1, 1), 2);
+    SortablePoint s2 = mp.new SortablePoint( new Point(1, 1), 3);
+    SortablePoint s3 = mp.new SortablePoint( new Point(1, 2), 2);
+    SortablePoint s4 = mp.new SortablePoint( null, 2);
+        
+    assertFalse(s1.equals(""));
+    assertFalse(s1.equals(null));
+    assertFalse(s1.equals(s2));
+    assertFalse(s1.equals(s3));
+    assertFalse(s1.equals(s4));
+    assertFalse(s4.equals(s1));
+    assertTrue(s1.equals(s1));
+    
+  }
+
   @Test
   public void test() {
     MapPanel mp = new MapPanel(tm);

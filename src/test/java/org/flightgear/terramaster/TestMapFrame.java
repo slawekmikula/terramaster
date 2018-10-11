@@ -1,22 +1,14 @@
 package org.flightgear.terramaster;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.awt.AWTException;
-import java.awt.Graphics;
 import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.Robot;
-import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Point2D.Double;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,8 +22,6 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
 
-import org.flightgear.terramaster.gshhs.GshhsReader;
-import org.flightgear.terramaster.gshhs.MapPoly;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -88,14 +78,15 @@ public class TestMapFrame {
       mf.setVisible(true);
       mf.map.setProjection(false);
       r = new Robot();
-      r.setAutoDelay(1000);
-      mouseMove(400, 300);
+      r.setAutoDelay(300);
+      mouseMove(400, 305);
       r.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-      mouseMove(310, 320);
+      r.delay(1000);
+      mouseMove(315, 330);
       mouseMove(300, 300);
-      mouseMove(350, 320);
+      mouseMove(350, 330);
       r.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
-      r.mouseWheel(-10);
+      r.mouseWheel(-14);
       mouseMove(490, 320);
       r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
       mouseMove(520, 320);
@@ -104,27 +95,68 @@ public class TestMapFrame {
       List<Syncable> synch = new ArrayList<>();
       synch.addAll(selection);
       assertEquals(2, selection.size());
+      mouseMove(490, 40);
+      r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      r.delay(2000);
       tm.getTileService().sync(synch, true);
-      for (int i = 500; i < 540; i += 4) {
+      for (int i = 500; i < 540; i += 6) {
         mouseMove(i, 320);
       }
-      for (int i = 540; i > 500; i -= 4) {
+      for (int i = 540; i > 500; i -= 6) {
         mouseMove(i, 320);
       }
-      r.delay(4000);
       mouseMove(520, 320);
-      r.keyPress(KeyEvent.VK_ADD);
-      r.keyPress(KeyEvent.VK_PLUS);
-      r.keyPress(KeyEvent.VK_MINUS);
-      r.keyPress(KeyEvent.VK_SUBTRACT);
-      r.keyPress(KeyEvent.VK_LEFT);
-      r.keyPress(KeyEvent.VK_RIGHT);
-      r.keyPress(KeyEvent.VK_UP);
-      r.keyPress(KeyEvent.VK_DOWN);
-      r.mouseWheel(10);
+      keyType(KeyEvent.VK_ADD, false);
+      keyType(KeyEvent.VK_PLUS, false);
+      keyType(KeyEvent.VK_MINUS, false);
+      keyType(KeyEvent.VK_SUBTRACT, false);
+      keyType(KeyEvent.VK_LEFT, false);
+      keyType(KeyEvent.VK_RIGHT, false);
+      keyType(KeyEvent.VK_UP, false);
+      keyType(KeyEvent.VK_DOWN, false);
+      keyType(KeyEvent.VK_RIGHT, true);
+      assertEquals(2, mf.map.getSelection().size());
+      r.delay(3000);
+      mouseMove(100, 40);
+      r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      r.delay(3000);
+      mouseMove(180, 40);
+      r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      r.delay(3000);
+      mouseMove(430, 40);
+      r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      r.delay(1000);
+      r.mouseWheel(14);
+      mouseMove(590, 40);
+      r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      assertEquals(0, mf.map.getSelection().size());
+      r.delay(2000);
     } finally {
       mf.setVisible(false);
     }
+  }
+
+  /**
+   * @deprecated Use {@link #keyType(int,boolean)} instead
+   */
+  public void keyType(int keyCode) {
+    keyType(keyCode, false);
+  }
+
+  public void keyType(int keyCode, boolean shifted) {
+    if (shifted)
+      r.keyPress(KeyEvent.VK_SHIFT);
+    r.keyPress(keyCode);
+    r.keyRelease(keyCode);
+    if (shifted)
+      r.keyRelease(KeyEvent.VK_SHIFT);
   }
 
   private void mouseMove(int x, int y) {
