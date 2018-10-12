@@ -212,7 +212,7 @@ public class JarClassLoader extends ClassLoader {
      */
     public static final String KEY_LOGGER_AREA = "JarClassLoader.logger.area";
 
-    public enum LogLevel { ERROR, WARN, INFO, DEBUG }
+    public enum LogLevel { ERROR, WARN, INFO, DEBUG, OFF, ALL, }
     public enum LogArea {
         /** Enable all logging areas. */
         ALL,
