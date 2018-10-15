@@ -17,8 +17,7 @@ http://mpmap02.flightgear.org
 #### Build instructions:
 0. You need Apache Maven to build.
 1. Grab the source code.
-2. The required libraries are already in the LIB subdirectory.
-3. 'maven' to do the work.
+2. mvn clean install
 
 #### Run instructions:
 1. Start the program using the command "java -jar terramaster.jar"
