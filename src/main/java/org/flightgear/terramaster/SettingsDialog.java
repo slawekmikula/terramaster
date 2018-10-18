@@ -63,6 +63,7 @@ public class SettingsDialog extends JDialog {
     levels.add(Level.INFO);
     levels.add(Level.WARNING);
     levels.add(Level.SEVERE);
+    levels.add(Level.OFF);
   }
 
   /**

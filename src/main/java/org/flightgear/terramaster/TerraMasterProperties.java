@@ -16,5 +16,7 @@ public interface TerraMasterProperties {
   static final String SCENERY_VERSION = "SceneryVersion";
   static final String DEFAULT_SCENERY_VERSION = "ws20";
   static final String LOG_LEVEL = "LogLevel";
+  static final String BORDERS = "borders";
+  static final String POLYS = "polys";
 
 }

@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +46,8 @@ import com.jhlabs.map.proj.WinkelTripelProjection;
  */
 
 public class MapPanel extends JPanel {
+
+  Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
 
   /**
    * 
@@ -332,12 +335,15 @@ public class MapPanel extends JPanel {
   static final double TWOPI = Math.PI * 2.0;
   static final Color sea = new Color(0, 0, 64);
   static final Color land = new Color(64, 128, 0);
+  static final Color border = new Color(128, 192, 128);
+
 
   private Collection<TileName> selectionSet = new LinkedHashSet<TileName>();
   private int[] dragbox;
-  private transient BufferedImage offScreen;
   private TileName cursorTilename;
-  private TerraMaster terraMaster;
+
+  private transient BufferedImage offScreen;
+  private transient TerraMaster terraMaster;
 
   public MapPanel(TerraMaster terraMaster) {
     this.terraMaster = terraMaster;
@@ -811,11 +817,7 @@ public class MapPanel extends JPanel {
    * 
    * @param g
    */
-  void showLandmass(Graphics g) {
-    Graphics2D g2 = (Graphics2D) g;
-    Color sea = new Color(0, 0, 64);
-    Color land = new Color(64, 128, 0);
-    Color border = new Color(128, 192, 128);
+  void showLandmass(Graphics2D g2) {
     Rectangle r = g2.getClipBounds();
 
     g2.setColor(land);
@@ -827,7 +829,12 @@ public class MapPanel extends JPanel {
         MapPoly d = convertPoly(s);
         g2.setColor(s.level % 2 == 1 ? land : sea);
         if (d.npoints != 0)
+        {
           g2.fillPolygon(d);
+        }
+        else {
+          log.info("Ignored Landmass");
+        }
       }
     }
     // borders
@@ -842,8 +849,11 @@ public class MapPanel extends JPanel {
     }
   }
 
-  // in: MapPoly
-  // out: transformed new MapPoly
+  /** 
+   * in: MapPoly
+   *  out: transformed new MapPoly
+   */
+  
   MapPoly convertPoly(MapPoly s) {
     int i;
     Point2D.Double p = new Point2D.Double();
@@ -857,7 +867,7 @@ public class MapPanel extends JPanel {
         project(x, y, p);
         d.addPoint((int) p.x, (int) p.y);
       } else {
-        // XXX
+//        log.warning("Point outside \t" +  x + "\t" + y );
       }
     }
     return d;
@@ -900,6 +910,8 @@ public class MapPanel extends JPanel {
 
   boolean inside(double lon, double lat) {
     return CoordinateCalculation.oldHaversine(lat, lon, projectionLatitude, projectionLongitude) < mapRadius;
+//    log.info(""+CoordinateCalculation.greatCircleDistance(lat, lon, projectionLatitude, projectionLongitude));
+//    return CoordinateCalculation.greatCircleDistance(lat, lon, projectionLatitude, projectionLongitude) < CoordinateCalculation.R/4;
   }
 
   void passFrame(MapFrame f) {
@@ -908,18 +920,21 @@ public class MapPanel extends JPanel {
 
   void passPolys(List<MapPoly> p) {
     continents = p;
+    repaint();
   }
 
   void passBorders(List<MapPoly> p) {
     borders = p;
+    repaint();
   }
 
+  @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     if (offScreen == null) {
       return;
     }
-    Graphics graphics = offScreen.getGraphics();
+    Graphics2D graphics = (Graphics2D) offScreen.getGraphics();
     graphics.setClip(0, 0, getWidth(), getHeight());
     showLandmass(graphics);
     showTiles(graphics);
@@ -927,17 +942,20 @@ public class MapPanel extends JPanel {
     showSyncList(graphics);
     showAirports(graphics);
 
-    // crosshair
-    {
-      Graphics2D g2 = (Graphics2D) graphics;
-      g2.setTransform(new AffineTransform());
-      g2.setColor(Color.white);
-      g2.drawLine(getWidth() / 2 - 50, getHeight() / 2, getWidth() / 2 + 50, getHeight() / 2);
-      g2.drawLine(getWidth() / 2, getHeight() / 2 - 50, getWidth() / 2, getHeight() / 2 + 50);
-    }
+    showCrosshair(graphics);
     // Draw double buffered Image
     g.drawImage(offScreen, 0, 0, this);
   }
+
+  public void showCrosshair(Graphics2D graphics) {
+    {
+      graphics.setTransform(new AffineTransform());
+      graphics.setColor(Color.white);
+      graphics.drawLine(getWidth() / 2 - 50, getHeight() / 2, getWidth() / 2 + 50, getHeight() / 2);
+      graphics.drawLine(getWidth() / 2, getHeight() / 2 - 50, getWidth() / 2, getHeight() / 2 + 50);
+    }
+  }
+
 
   @Override
   public void setSize(int width, int height) {

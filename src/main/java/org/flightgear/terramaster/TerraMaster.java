@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -86,10 +87,10 @@ public class TerraMaster {
         }
         TerraMaster tm = new TerraMaster();
         tm.loadVersion();
-        tm.readMetaINF();
-        tm.startUp();
-        tm.setTileService();
+        tm.loadSettings();
         tm.initLoggers();
+        tm.readMetaINF();
+        tm.setTileService();
 
         tm.createAndShowGUI();
       }
@@ -109,7 +110,7 @@ public class TerraMaster {
         Logger logger2 = manager.getLogger(logger);
         if (logger2 != null && logger2.getLevel() != null) {
           if (logger.contains("awt"))
-            logger2.setLevel(Level.FINEST);
+            logger2.setLevel(Level.OFF);
           else
             logger2.setLevel(newLevel);
         }
@@ -118,7 +119,7 @@ public class TerraMaster {
     }
   }
 
-  protected void startUp() {
+  private void loadSettings() {
     try {
       getProps().load(new FileReader("terramaster.properties"));
       if (getProps().getProperty(TerraMasterProperties.LOG_LEVEL) != null) {
@@ -138,27 +139,30 @@ public class TerraMaster {
   }
 
   private void readMetaINF() {
-    try {
-      Enumeration<URL> resources = TerraMaster.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-      while (resources.hasMoreElements()) {
-        readManifest(resources.nextElement());
+    log.warning("readingMetaINF");
+    try (InputStream is = TerraMaster.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
+      Manifest manifest = new Manifest(is);
+      if (manifest.getEntries().get(TerraMasterProperties.BORDERS) != null)
+        getProps().setProperty(TerraMasterProperties.BORDERS,
+            manifest.getEntries().get(TerraMasterProperties.BORDERS).toString());
+      if (manifest.getEntries().get(TerraMasterProperties.POLYS) != null)
+        getProps().setProperty(TerraMasterProperties.POLYS,
+            manifest.getEntries().get(TerraMasterProperties.POLYS).toString());
+      for (Entry<String, Attributes> entry : manifest.getEntries().entrySet()) {
+        log.warning("ENTRY " + entry.getKey() + "\t:\t" + entry.getValue());
       }
-    } catch (IOException e) {
-      staticLogger.log(Level.SEVERE, e.toString(), e);
-    }
-  }
-
-  public void readManifest(URL resource) {
-    try {
-      Manifest manifest = new Manifest(resource.openStream());
-      // check that this is your manifest and do what you need or
-      // get the next one
-      if ("TerraMasterLauncher".equals(manifest.getMainAttributes().getValue("Main-Class"))) {
+      if ("org.flightgear.terramaster.TerraMasterLauncher"
+          .equals(manifest.getMainAttributes().getValue("Main-Class"))) {
         for (Entry<Object, Object> entry : manifest.getMainAttributes().entrySet()) {
-          staticLogger.finest(entry.getKey() + "\t:\t" + entry.getValue());
+          log.warning("ENTRY Main" + entry.getKey() + "\t:\t" + entry.getValue());
+        }
+        for (Entry<String, Attributes> entry : manifest.getEntries().entrySet()) {
+          log.warning("ENTRY " + entry.getKey() + "\t:\t" + entry.getValue());
         }
       }
     } catch (IOException e) {
+      staticLogger.log(Level.WARNING, "Couldn't load properties : " + e.toString(), e);
+    } catch (Exception e) {
       staticLogger.log(Level.WARNING, e.toString(), e);
     }
   }

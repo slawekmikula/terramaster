@@ -530,8 +530,8 @@ public class MapFrame extends JFrame {
   @Override
   public void setVisible(boolean b) {
     super.setVisible(b);
-    passPolys(new GshhsReader().newPolyList("maps/gshhs_l.b"));
-    passBorders(new GshhsReader().newPolyList("maps/wdb_borders_l.b"));
+    passPolys(new GshhsReader().newPolyList(terraMaster.getProps().getProperty(TerraMasterProperties.POLYS, "maps/wdb_borders_l.b")));
+    passBorders(new GshhsReader().newPolyList(terraMaster.getProps().getProperty(TerraMasterProperties.BORDERS, "maps/gshhs_l.b")));
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {

@@ -42,6 +42,12 @@ public class TestCoordinates {
 		double dist = CoordinateCalculation.greatCircleDistance(40.777244, -73.872608, 51.423889, 12.236389);
 		assertEquals(6353.295, dist, 2);
 	}
+
+	@Test
+  public void test6() {
+    double dist = CoordinateCalculation.oldHaversine(40.777244, -73.872608, 51.423889, 12.236389) * 4540;
+    assertEquals(6353.295, dist, 0);
+  }
 	
 	@Test
 	public void testFlightplan() {

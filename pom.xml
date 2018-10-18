@@ -78,14 +78,65 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>org.flightgear.terramaster.TerraMasterLauncher</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>large-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <exclude>**/maps/*_i.b</exclude>
+                <exclude>**/maps/*_l.b</exclude>
+              </excludes>
+              <classifier>large</classifier>
+              <!-- <finalName>${project.artifactId}-${project.version}-large.jar</finalName> -->
+              <archive>
+                <compress>true</compress>
+                <manifest>
+
+                  <addClasspath>true</addClasspath>
+                  <mainClass>org.flightgear.terramaster.TerraMasterLauncher</mainClass>
+                </manifest>
+                <manifestEntries>
+                  <polys>maps/gshhs_h.b</polys>
+                  <borders>maps/wdb_borders_h.b</borders>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </execution>
+          <execution>
+            <id>small-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <exclude>**/maps/*_i.b</exclude>
+                <exclude>**/maps/*_h.b</exclude>
+              </excludes>
+              <classifier>small</classifier>
+              <!-- <finalName>${project.artifactId}-${project.version}-small.jar</finalName> -->
+              <archive>
+                <compress>true</compress>
+                <manifest>
+                  <addClasspath>true</addClasspath>
+                  <mainClass>org.flightgear.terramaster.TerraMasterLauncher</mainClass>
+                </manifest>
+                <manifestEntries>
+                  <polys>maps/gshhs_i.b</polys>
+                  <borders>maps/wdb_borders_i.b</borders>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>de.jutzig</groupId>
