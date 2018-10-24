@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
@@ -80,9 +81,10 @@ public class MapPanel extends JPanel {
     }
 
   }
-  
+
   /**
    * Class holding a point and a distance to make it sortable.
+   * 
    * @author keith.paterson
    *
    */
@@ -100,7 +102,7 @@ public class MapPanel extends JPanel {
     public int compareTo(SortablePoint l) {
       return (int) (d - l.d);
     }
-    
+
     public String toString() {
       return d + " " + p;
     }
@@ -310,8 +312,8 @@ public class MapPanel extends JPanel {
     }
   }
 
-  private List<MapPoly> continents;  
-  private List<MapPoly> borders; 
+  private List<MapPoly> continents;
+  private List<MapPoly> borders;
   transient BufferedImage map;
   transient BufferedImage grat;
   transient MouseAdapter mousehandler;
@@ -336,7 +338,6 @@ public class MapPanel extends JPanel {
   static final Color sea = new Color(0, 0, 64);
   static final Color land = new Color(64, 128, 0);
   static final Color border = new Color(128, 192, 128);
-
 
   private Collection<TileName> selectionSet = new LinkedHashSet<TileName>();
   private int[] dragbox;
@@ -535,10 +536,6 @@ public class MapPanel extends JPanel {
     return txt;
   }
 
-  public int polyCount() {
-    return continents.size();
-  }
-
   /**
    * selection stuff
    */
@@ -642,7 +639,7 @@ public class MapPanel extends JPanel {
         TileName t = (TileName) s;
         Polygon p = getBox(t.getLon(), t.getLat());
         if (p != null)
-          g.drawPolygon(p);        
+          g.drawPolygon(p);
       }
     }
   }
@@ -697,6 +694,8 @@ public class MapPanel extends JPanel {
 
   /**
    * Returns a box that is paintable w and s are negative
+   * @param x Longitude
+   * @param y Latitude
    */
   Polygon getBox(int x, int y) {
     double l;
@@ -707,7 +706,6 @@ public class MapPanel extends JPanel {
     int[] y4 = new int[4];
     Point2D.Double p = new Point2D.Double();
 
-    
     double inc = 1;
     l = Math.toRadians(x);
     b = Math.toRadians(-y);
@@ -819,29 +817,41 @@ public class MapPanel extends JPanel {
    */
   void showLandmass(Graphics2D g2) {
     Rectangle r = g2.getClipBounds();
+    log.finest(()->"Clip : " + r.toString());
 
+    
     g2.setColor(land);
     g2.setBackground(sea);
     g2.clearRect(r.x, r.y, r.width, r.height);
     g2.setTransform(affine);
+    g2.setBackground(sea);
+    g2.setColor(Color.ORANGE);
+    MapPoly cross = getCross(400);
+    g2.draw(convertPoly(cross));
+    g2.setColor(Color.CYAN);
+    cross = getCross(300);
+    g2.fill(convertPoly(cross));
     for (MapPoly s : continents) {
-      if (s.getNumPoints() > 20 / Math.pow(2, fromMetres / 4)) {
+      // if (s.getArea() > 20 / Math.pow(2, fromMetres / 4)) {
+      if (s.level > 0) {
         MapPoly d = convertPoly(s);
-        g2.setColor(s.level % 2 == 1 ? land : sea);
-        if (d.npoints != 0)
-        {
+        g2.setColor(Color.RED);
+        // g2.setColor(s.level % 2 == 1 ? land : sea);
+        if (d.npoints != 0) {
           g2.fillPolygon(d);
+        } else {
+          // log.info("Ignored Landmass");
         }
-        else {
-          log.info("Ignored Landmass");
-        }
+      } else {
+        log.finest("" + s.getNumPoints() + "\t" + Math.pow(2, fromMetres / 4));
       }
     }
     // borders
     g2.setColor(border);
     if (borders != null) {
       for (MapPoly s : borders) {
-        int[] xp = new int[s.npoints], yp = new int[s.npoints];
+        int[] xp = new int[s.npoints];
+        int[] yp = new int[s.npoints];
         int n = convertPolyline(s, xp, yp);
         if (n != 0)
           g2.drawPolyline(xp, yp, n);
@@ -849,25 +859,46 @@ public class MapPanel extends JPanel {
     }
   }
 
-  /** 
-   * in: MapPoly
-   *  out: transformed new MapPoly
+  private MapPoly getCross(int len) {
+    MapPoly mapPoly = new MapPoly();
+    mapPoly.addPoint(-1*len, 2*len);
+    mapPoly.addPoint(+1*len, 2*len);
+    mapPoly.addPoint(+1*len, +1*len);
+    mapPoly.addPoint(2*len, +1*len);
+    mapPoly.addPoint(2*len, -1*len);
+    mapPoly.addPoint(+1*len, -1*len);
+    mapPoly.addPoint(+1*len, -2*len);
+    mapPoly.addPoint(-1*len, -2*len);
+    mapPoly.addPoint(-1*len, -1*len);
+    mapPoly.addPoint(-2*len, -1*len);
+    mapPoly.addPoint(-2*len, +1*len);
+    mapPoly.addPoint(-1*len, +1*len);
+    mapPoly.addPoint(-1*len, 2*len);
+//    mapPoly.translate(0, 0);
+    return mapPoly;
+  }
+
+  /**
+   * Converts a MapPoly
+   * @param s a MapPoly in Lat/Lon coordinates
+   * @return a MapPoly on the globe
    */
-  
+
   MapPoly convertPoly(MapPoly s) {
     int i;
     Point2D.Double p = new Point2D.Double();
     MapPoly d = new MapPoly();
 
     for (i = 0; i < s.npoints; ++i) {
-      double x = s.xpoints[i], y = s.ypoints[i];
+      double x = s.xpoints[i];
+      double y = s.ypoints[i];
       x = Math.toRadians(x / 100.0);
       y = Math.toRadians(y / 100.0);
       if (inside(x, y)) {
-        project(x, y, p);
+        project( x, y, p);
         d.addPoint((int) p.x, (int) p.y);
       } else {
-//        log.warning("Point outside \t" +  x + "\t" + y );
+        // log.warning("Point outside \t" + x + "\t" + y );
       }
     }
     return d;
@@ -896,7 +927,7 @@ public class MapPanel extends JPanel {
   }
 
   /**
-   * Projects the given point on the globe.
+   * Projects the given point on to the globe.
    * 
    * @param lam
    * @param phi
@@ -904,14 +935,20 @@ public class MapPanel extends JPanel {
    */
 
   void project(double lam, double phi, Point2D.Double d) {
+    if(lam>TWOPI)
+      throw new IllegalArgumentException();
+    if(phi>TWOPI)
+      throw new IllegalArgumentException();
     Point2D.Double s = new Point2D.Double(lam, phi);
     pj.transformRadians(s, d);
   }
 
   boolean inside(double lon, double lat) {
     return CoordinateCalculation.oldHaversine(lat, lon, projectionLatitude, projectionLongitude) < mapRadius;
-//    log.info(""+CoordinateCalculation.greatCircleDistance(lat, lon, projectionLatitude, projectionLongitude));
-//    return CoordinateCalculation.greatCircleDistance(lat, lon, projectionLatitude, projectionLongitude) < CoordinateCalculation.R/4;
+    // log.info(""+CoordinateCalculation.greatCircleDistance(lat, lon,
+    // projectionLatitude, projectionLongitude));
+    // return CoordinateCalculation.greatCircleDistance(lat, lon,
+    // projectionLatitude, projectionLongitude) < CoordinateCalculation.R/4;
   }
 
   void passFrame(MapFrame f) {
@@ -920,11 +957,13 @@ public class MapPanel extends JPanel {
 
   void passPolys(List<MapPoly> p) {
     continents = p;
+//    continents = p.stream().filter(mp->mp.npoints > 20).collect(Collectors.toList());
     repaint();
   }
 
   void passBorders(List<MapPoly> p) {
-    borders = p;
+    borders = p.stream().filter(mp->mp.level<2).collect(Collectors.toList());
+//    borders = p;
     repaint();
   }
 
@@ -955,7 +994,6 @@ public class MapPanel extends JPanel {
       graphics.drawLine(getWidth() / 2, getHeight() / 2 - 50, getWidth() / 2, getHeight() / 2 + 50);
     }
   }
-
 
   @Override
   public void setSize(int width, int height) {
@@ -1018,7 +1056,8 @@ public class MapPanel extends JPanel {
     projectionLongitude = java.lang.Double
         .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION_LON, "0"));
     setProjection(Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.PROJECTION, "false")));
-    fromMetres = java.lang.Double.parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.FROM_METRES, "1"));
+    fromMetres = java.lang.Double
+        .parseDouble(terraMaster.getProps().getProperty(TerraMasterProperties.FROM_METRES, "1"));
     setFromMetres();
   }
 
@@ -1032,8 +1071,10 @@ public class MapPanel extends JPanel {
   }
 
   public void storeSettings() {
-    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LAT, java.lang.Double.toString(projectionLatitude));
-    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LON, java.lang.Double.toString(projectionLongitude));
+    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LAT,
+        java.lang.Double.toString(projectionLatitude));
+    terraMaster.getProps().setProperty(TerraMasterProperties.PROJECTION_LON,
+        java.lang.Double.toString(projectionLongitude));
     terraMaster.getProps().setProperty(TerraMasterProperties.FROM_METRES, java.lang.Double.toString(fromMetres));
   }
 }

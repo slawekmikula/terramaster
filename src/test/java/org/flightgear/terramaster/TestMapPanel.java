@@ -114,7 +114,7 @@ public class TestMapPanel {
     MapPanel mp = new MapPanel(tm);
     mp.passFrame(new MapFrame(tm, ""));
     mp.setSize(100, 100);
-    ArrayList<MapPoly> newPolyList = new GshhsReader().newPolyList("maps/gshhs_l.b");
+    List<MapPoly> newPolyList = new GshhsReader().newPolyList("maps/gshhs_l.b");
     assertThat(newPolyList.size(), is(not(0)));
     mp.passPolys(newPolyList);
     mp.toggleProj();
@@ -133,9 +133,9 @@ public class TestMapPanel {
     MapPanel mp = new MapPanel(tm);
     mp.passFrame(tm.frame);
     mp.setSize(100, 100);
-    ArrayList<MapPoly> newPolyList = new GshhsReader().newPolyList("maps/gshhs_l.b");
+    List<MapPoly> newPolyList = new GshhsReader().newPolyList("maps/gshhs_l.b");
     assertThat(newPolyList.size(), is(not(0)));
-    ArrayList<MapPoly> borders = new GshhsReader().newPolyList("maps/wdb_borders_l.b");
+    List<MapPoly> borders = new GshhsReader().newPolyList("maps/wdb_borders_l.b");
     assertThat(newPolyList.size(), is(not(0)));
     mp.passPolys(newPolyList);
     mp.passBorders(borders);

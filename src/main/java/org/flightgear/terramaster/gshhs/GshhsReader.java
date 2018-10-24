@@ -2,15 +2,17 @@ package org.flightgear.terramaster.gshhs;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GshhsReader {
-  public static final String LOGGER_CATEGORY = "org.flightgear";
-  Logger log = Logger.getLogger(LOGGER_CATEGORY);
+import org.flightgear.terramaster.TerraMaster;
 
-  
+public class GshhsReader {
+  Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
+
   private int readGshhsHeader(DataInput s, GshhsHeader h) {
     int fl;
     try {
@@ -28,25 +30,27 @@ public class GshhsReader {
       h.container = s.readInt();
       h.ancestor = s.readInt();
       return h.getNumPoints();
+    } catch (EOFException e) {
+      return -1;
     } catch (Exception e) {
+      log.log(Level.SEVERE, "Error reading GsshhsHeader", e);
       return -1;
     }
   }
 
   /**
    * reads in GSHHS and builds ArrayList of polys
+   * 
    * @param filename
    * @return
    */
 
-  public ArrayList<MapPoly> newPolyList(String filename) {
+  public List<MapPoly> newPolyList(String filename) {
 
-    ArrayList<MapPoly> poly = new ArrayList<MapPoly>();
+    ArrayList<MapPoly> poly = new ArrayList<>();
 
     try {
-      DataInput s = new DataInputStream(
-          // new FileInputStream(filename));
-          getClass().getClassLoader().getResourceAsStream(filename));
+      DataInput s = new DataInputStream(getClass().getClassLoader().getResourceAsStream(filename));
       int n = 0;
       do {
         GshhsHeader h = new GshhsHeader();
@@ -58,7 +62,6 @@ public class GshhsReader {
       log.log(Level.SEVERE, filename, e);
     }
 
-    // System.out.format("%s: %d polys\n", filename, poly.size());
     return poly;
   }
 
