@@ -106,13 +106,13 @@ public class TerraMaster {
       LogManager manager = LogManager.getLogManager();
       Enumeration<String> loggers = manager.getLoggerNames();
       while (loggers.hasMoreElements()) {
-        String logger = loggers.nextElement();
-        Logger logger2 = manager.getLogger(logger);
-        if (logger2 != null && logger2.getLevel() != null) {
-          if (logger.contains("awt"))
-            logger2.setLevel(Level.OFF);
+        String loggerName = loggers.nextElement();
+        Logger logger = manager.getLogger(loggerName);
+        if (logger != null && logger.getLevel() != null) {
+          if (loggerName.contains("awt"))
+            logger.setLevel(Level.OFF);
           else
-            logger2.setLevel(newLevel);
+            logger.setLevel(newLevel);
         }
       }
 

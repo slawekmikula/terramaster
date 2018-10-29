@@ -265,24 +265,14 @@ public class SettingsDialog extends JDialog {
       cmbLogLevel = new JComboBox<Level>();
       cmbLogLevel.addPropertyChangeListener(new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent evt) {
-          if (root != null)
-            root.setLevel(cmbLogLevel.getItemAt(cmbLogLevel.getSelectedIndex()));
+          setNewLogLevel(cmbLogLevel.getItemAt(cmbLogLevel.getSelectedIndex()));
         }
       });
       cmbLogLevel.addActionListener(new ActionListener() {
 
         public void actionPerformed(ActionEvent e) {
-          Level newLevell = cmbLogLevel.getItemAt(cmbLogLevel.getSelectedIndex());
-          root.setLevel(newLevell);
-          LogManager manager = LogManager.getLogManager();
-          Enumeration<String> loggers = manager.getLoggerNames();
-          while (loggers.hasMoreElements()) {
-            String logger = (String) loggers.nextElement();
-            Logger logger2 = manager.getLogger(logger);
-            if (logger2 != null && logger2.getLevel() != null) {
-              logger2.setLevel(newLevell);
-            }
-          }
+          Level newLevel = cmbLogLevel.getItemAt(cmbLogLevel.getSelectedIndex());
+          setNewLogLevel(newLevel);
         }
       });
       cmbLogLevel.setModel(new DefaultComboBoxModel<Level>(levels.toArray(new Level[levels.size()])));
@@ -350,6 +340,23 @@ public class SettingsDialog extends JDialog {
     }
     restoreValues();
   }
+  
+  private void setNewLogLevel(Level newLevel) {
+    root.setLevel(newLevel);
+    LogManager manager = LogManager.getLogManager();
+    Enumeration<String> loggers = manager.getLoggerNames();
+    while (loggers.hasMoreElements()) {
+      String loggerName = (String) loggers.nextElement();
+      Logger logger = manager.getLogger(loggerName);
+      if (logger != null && logger.getLevel() != null) {
+        if (loggerName.contains("awt"))
+          logger.setLevel(Level.OFF);
+        else
+          logger.setLevel(newLevel);
+      }
+    }
+  }
+
 
   private void restoreValues() {
     root = log;
