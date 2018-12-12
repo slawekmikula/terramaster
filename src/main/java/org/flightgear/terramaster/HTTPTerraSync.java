@@ -389,7 +389,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         if (type.isTile())
           addScnMapTile(terraMaster.getMapScenery(), new File(localBaseDir, path), type);
         if (type == TerraSyncDirectoryTypes.TERRAIN) {
-          HashSet<String> airports = findAirports(new File(path));
+          HashSet<String> airports = findAirports(new File(localBaseDir, path));
           ArrayList<Syncable> sync = new ArrayList<>();
           airports.forEach(icaoPart -> sync.add(new AirportsSync(icaoPart)));
           sync(sync, false);

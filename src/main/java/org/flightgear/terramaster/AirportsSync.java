@@ -12,7 +12,7 @@ public class AirportsSync implements Syncable {
 
   @Override
   public String buildPath() {
-    return icaoPart.charAt(0) + File.separator + icaoPart.charAt(1) + File.separator +icaoPart.charAt(2);
+    return icaoPart.charAt(0) + File.separator + icaoPart.charAt(1);
   }
 
   @Override
