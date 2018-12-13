@@ -36,6 +36,7 @@ public class TestMapFrame {
   private Properties props = new Properties();
   private Map<TileName, TileData> mapScenery = new HashMap<>();
   private Robot r;
+  private File scnPath = new File("C:\\Users\\keith.paterson\\Documents\\FlightGear\\TerraSync");
 
   @Before
   public void initMocks() {
@@ -45,14 +46,18 @@ public class TestMapFrame {
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
     HTTPTerraSync sync = new HTTPTerraSync(tm);
-    mapScenery = sync.newScnMap(new File(".").getAbsolutePath());
+    mapScenery = sync.newScnMap(scnPath.getAbsolutePath());
+    sync.setScnPath(scnPath);
     sync.start();
     doReturn(sync).when(tm).getTileService();
     doReturn(props).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
+    tm.getProps().setProperty(TerraMasterProperties.SCENERY_PATH, scnPath.getAbsolutePath());
+   
     fgmap = new FGMap(tm);
+    
     fgmap.addAirport(new Airport("BLA", "BLABLA Airport"));
     doReturn(fgmap).when(tm).getFgmap();
     doReturn(mapScenery).when(tm).getMapScenery();
