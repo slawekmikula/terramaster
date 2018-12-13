@@ -35,7 +35,7 @@ public class TestHTTPTerraSync {
   private HTTPTerraSync ts;
   private Map<TileName, TileData> mapScenery = new HashMap<>();
   private Properties props = new Properties();
-
+  private File scnPath = new File("C:\\Users\\keith.paterson\\Documents\\FlightGear\\TerraSync");
 
   @Before
   public void initMocks() throws IOException {
@@ -44,21 +44,22 @@ public class TestHTTPTerraSync {
     mockProgress = mock(JProgressBar.class);
     tm.frame.progressBar = mockProgress;
     tm.frame.butStop = mock(JButton.class);
-    doReturn(props ).when(tm).getProps();
+    doReturn(props).when(tm).getProps();
     tm.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.TRUE.toString());
     tm.getProps().setProperty(TerraMasterProperties.LOG_LEVEL, Level.ALL.toString());
     doReturn(mapScenery).when(tm).getMapScenery();
-    tm.log =   Logger.getAnonymousLogger();
+    tm.log = Logger.getAnonymousLogger();
 
     ts = new HTTPTerraSync(tm);
     ts.start();
-    ts.setScnPath(new File("."));    
+    ts.setScnPath(scnPath);
   }
-
 
   @Test
   public void testModels() throws InterruptedException {
+    File f = new File(scnPath, "Models/Aircraft/a310-tnt.xml");
+    
     Collection<Syncable> m = new ArrayList<>();
     m.add(new ModelsSync());
     ts.sync(m, true);
@@ -68,7 +69,6 @@ public class TestHTTPTerraSync {
     ts.quit();
     Thread.sleep(1000);
     assertEquals(false, ts.isAlive());
-    File f = new File("Models/Aircraft/a310-tnt.xml");
     assertEquals(true, f.exists());
   }
 
@@ -91,7 +91,8 @@ public class TestHTTPTerraSync {
     Collection<Syncable> m = new ArrayList<>();
     Collection<TileName> tl = new ArrayList<>();
     TileName t = new TileName("w006n56");
-    t.setTypes(new TerraSyncDirectoryTypes[] {TerraSyncDirectoryTypes.BUILDINGS, TerraSyncDirectoryTypes.OBJECTS, TerraSyncDirectoryTypes.ROADS, TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.PYLONS});
+    t.setTypes(new TerraSyncDirectoryTypes[] { TerraSyncDirectoryTypes.BUILDINGS, TerraSyncDirectoryTypes.OBJECTS,
+        TerraSyncDirectoryTypes.ROADS, TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.PYLONS });
     tl.add(t);
     ts.delete(tl);
     m.add(t);
@@ -103,7 +104,7 @@ public class TestHTTPTerraSync {
     ts.quit();
     Thread.sleep(1000);
     assertEquals(false, ts.isAlive());
-    
+
     File f = new File("Terrain/w010n50/w006n56/2860184.stg");
     assertEquals(true, f.exists());
   }
