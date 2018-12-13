@@ -374,7 +374,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         if (cancelFlag)
           return updates;
         HashMap<String, String> parentTypeLookup = buildTypeLookup(getRemoteDirIndex(baseUrl, getParent(path)));
-        String[] parts = path.replace("\\", "/").split("/");
+        String[] parts = path.replace("\\", "/").replace("//", "/").split("/");
         String string = parts[parts.length - 1];
         String pathType = parentTypeLookup.get(string);
 
@@ -453,6 +453,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         // otherwise check the SHA against
         // the one from the server
         String dirname = path + "/" + splitLine[1];
+        dirname = dirname.replace("\\", "/").replace("//", "/");
         if (force || !(new File(dirname).exists()) || !splitLine[2].equals(lookup.get(splitLine[1])))
           updates += syncDirectory(dirname, force, type);
       } else if (line.startsWith("f:")) {
