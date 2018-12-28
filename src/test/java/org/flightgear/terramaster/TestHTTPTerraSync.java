@@ -105,7 +105,7 @@ public class TestHTTPTerraSync {
     Thread.sleep(1000);
     assertEquals(false, ts.isAlive());
 
-    File f = new File("Terrain/w010n50/w006n56/2860184.stg");
-    assertEquals(true, f.exists());
+    File f = new File(scnPath, "Terrain/w010n50/w006n56/2860184.stg");
+    assertEquals("2860 must exist", true, f.exists());
   }
 }

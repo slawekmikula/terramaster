@@ -51,6 +51,8 @@ public class FlightgearNAPTRQuery {
 
   Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
 
+  /**Are the urls from the dump*/
+  private boolean isDump = false;
   private ArrayList<WeightedUrl> urls = new ArrayList<>();
 
   private String[] versions;
@@ -99,8 +101,9 @@ public class FlightgearNAPTRQuery {
 
   public List<WeightedUrl> queryDNSServer(String sceneryType) {
     refresh();
-    if (urls != null && !urls.isEmpty())
+    if (urls != null && !urls.isEmpty() && !isDump)
       return urls;
+    isDump = false;
     int index, len = 0, rcode, count = 0;
     boolean isZone = false;
     boolean isNS = false;
@@ -437,6 +440,7 @@ public class FlightgearNAPTRQuery {
       storeData();
     } else {
       log.warning(()->"Didn't get DNS Records, reading dump");
+      isDump = true;
       readData();
     }
     return urls;

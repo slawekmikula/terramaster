@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -48,17 +49,16 @@ import de.keithpaterson.tar_n_feathers.TarFileHeader;
 public class HTTPTerraSync extends Thread implements TileService {
   private static final String DIRINDEX_FILENAME = ".dirindex";
 
-  private static final int DIR_SIZE = 600;
+  private static final int DIR_SIZE = 2000;
 
   private static final int AIRPORT_MAX = 30000;
 
   private Logger log = Logger.getLogger(TerraMaster.LOGGER_CATEGORY);
 
-  private static final int RESET = 1;
-  private static final int UPDATE = 2;
-  private static final int EXTEND = 3;
-  private static final int START = 4;
-  private LinkedList<Syncable> syncList = new LinkedList<>();
+  enum UPDATETYPE {RESET, UPDATE, EXTEND, START};
+
+  private static final int MAXRETRY = 10;
+  private CopyOnWriteArrayList<Syncable> syncList = new CopyOnWriteArrayList<>();
   private boolean cancelFlag = false;
 
   private List<WeightedUrl> urls = new ArrayList<>();
@@ -81,7 +81,9 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private boolean quitFlag;
 
-  FlightgearNAPTRQuery flightgearNAPTRQuery = null; 
+  FlightgearNAPTRQuery flightgearNAPTRQuery = null;
+
+  private int retryCount; 
 
   public HTTPTerraSync(TerraMaster terraMaster) {
     super("HTTPTerraSync");
@@ -201,25 +203,28 @@ public class HTTPTerraSync extends Thread implements TileService {
   private void sync() {
     int tilesize = 10000;
     // update progressbar
-    invokeLater(START, 0); // update
-    invokeLater(EXTEND, syncList.size() * tilesize + AIRPORT_MAX); // update
+    invokeLater(UPDATETYPE.START, 0); // update
+    invokeLater(UPDATETYPE.EXTEND, syncList.size() * tilesize + AIRPORT_MAX); // update
     while (!syncList.isEmpty()) {
-      urls = flightgearNAPTRQuery
+      List<WeightedUrl> newUrls = flightgearNAPTRQuery
           .queryDNSServer(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, "ws20"));
-      downloadStats.clear();
-      badUrls.clear();
-      urls.forEach(element -> downloadStats.put(element, new TileResult(element)));
+      if (newUrls != urls) {
+        urls = newUrls;
+        downloadStats.clear();
+        badUrls.clear();
+        urls.forEach(element -> downloadStats.put(element, new TileResult(element)));
+      }
       final Syncable n;
       synchronized (syncList) {
         if (syncList.isEmpty())
           continue;
-        n = syncList.getFirst();
+        n = syncList.get(0);
       }
 
       TerraSyncDirectoryTypes[] types = n.getTypes();
       for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
         int updates = syncDirectory(terraSyncDirectoryType.dirname + n.buildPath(), false, terraSyncDirectoryType);
-        invokeLater(UPDATE, DIR_SIZE - updates); // update progressBar
+        invokeLater(UPDATETYPE.UPDATE, DIR_SIZE - updates); // update progressBar
       }
 
       synchronized (syncList) {
@@ -233,7 +238,7 @@ public class HTTPTerraSync extends Thread implements TileService {
     terraMaster.showDnsStats(flightgearNAPTRQuery);
     terraMaster.showStats(completeStats);
     // syncList is now empty
-    invokeLater(RESET, 0); // reset progressBar
+    invokeLater(UPDATETYPE.RESET, 0); // reset progressBar
   }
 
   /**
@@ -264,7 +269,11 @@ public class HTTPTerraSync extends Thread implements TileService {
 
   private WeightedUrl getBaseUrl() {
     if (urls.isEmpty()) {
-      log.warning("No URLs to sync with");
+      log.warning("No URLs to sync with, retrying.");
+      if(retryCount++ < MAXRETRY)
+      {
+        resetUrls();
+      }
     }
 
     // Compute the total weight of all items together
@@ -284,6 +293,10 @@ public class HTTPTerraSync extends Thread implements TileService {
       }
     }
     return urls.get(randomIndex);
+  }
+
+  private void resetUrls() {
+    urls.addAll(badUrls.keySet());
   }
 
   /**
@@ -383,7 +396,7 @@ public class HTTPTerraSync extends Thread implements TileService {
         } else if ("d".equals(pathType)) {
           updates += processDir(path, force, type);
         } else {
-          log.log(Level.WARNING, () -> "Couldn't process " + path + " with type " + pathType );
+          //log.log(Level.WARNING, () -> "Couldn't process " + path + " with type " + pathType );
         }
 
         if (type.isTile())
@@ -477,9 +490,9 @@ public class HTTPTerraSync extends Thread implements TileService {
         if (load) {
           downloadFile(path, getBaseUrl(), splitLine, localFile, filebaseUrl);
         } else {
-          downloadStats.get(filebaseUrl).equal += 1;
+          downloadStats.get(filebaseUrl).equal += 0;
         }
-        invokeLater(UPDATE, 1);
+        invokeLater(UPDATETYPE.UPDATE, 1);
         updates++;
       } else if (line.startsWith("t:")) {
         updates += processTar(path + splitLine[1], force, type);
@@ -668,9 +681,9 @@ public class HTTPTerraSync extends Thread implements TileService {
    * @param action
    */
 
-  private void invokeLater(final int action, final int num) {
+  private void invokeLater(UPDATETYPE action, final int num) {
     if (num < 0)
-      log.warning(()->"Update < 0 (" + action + ")");
+      log.warning(()->"Update < 0 (" + action.name() + ")");
     // invoke this on the Event Disp Thread
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {

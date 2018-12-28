@@ -626,10 +626,8 @@ public class MapPanel extends JPanel {
   void showSyncList(Graphics g) {
     if (terraMaster.getTileService() == null)
       return;
-    Collection<Syncable> a = terraMaster.getTileService().getSyncList();
-    if (a == null)
-      return;
-
+    Collection<Syncable> a = new ArrayList<>();
+    a.addAll(terraMaster.getTileService().getSyncList())        ;
     g.setColor(Color.cyan);
     for (Syncable s : a) {
       if (s instanceof TileName) {

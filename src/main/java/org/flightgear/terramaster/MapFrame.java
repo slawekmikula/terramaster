@@ -128,6 +128,10 @@ public class MapFrame extends JFrame {
           i.setTypes(getSyncTypes());
           set.add(i);
         });
+        if(set.size() == 0) {
+          set.addAll(terraMaster.getMapScenery().keySet());          
+        }
+        
         terraMaster.getTileService().sync(set, true);
         progressBar.setMaximum(progressBar.getMaximum() + set.size() * 2);
         progressBar.setVisible(true);
