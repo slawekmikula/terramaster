@@ -55,7 +55,7 @@ public class FlightgearNAPTRQuery {
   private boolean isDump = false;
   private ArrayList<WeightedUrl> urls = new ArrayList<>();
 
-  private String[] versions;
+  private String[] versions = new String[] {};
   private static final String TERRASYNC_SERVERS_FILE = "nameservers.bin";
 
   public class HealthStats {

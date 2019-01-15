@@ -41,7 +41,7 @@ public class SettingsDialog extends JDialog {
   transient Logger log = Logger.getLogger(getClass().getName());
   private final JPanel contentPanel = new JPanel();
   private JTextField txtScenerypath;
-  private JComboBox cmbSceneryVersion;
+  private JComboBox<String> cmbSceneryVersion;
   private final Action action = new SwingAction();
   private JCheckBox chckbxTerrain;
   private JCheckBox chckbxObjects;
@@ -67,7 +67,8 @@ public class SettingsDialog extends JDialog {
 
   /**
    * Create the dialog.
-   * @param terraMaster 
+   * 
+   * @param terraMaster
    */
   public SettingsDialog(TerraMaster terraMaster) {
     this.terraMaster = terraMaster;
@@ -178,10 +179,11 @@ public class SettingsDialog extends JDialog {
           @Override
           public void run() {
             FlightgearNAPTRQuery query = new FlightgearNAPTRQuery(terraMaster);
-            query.queryDNSServer(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
-            
+            query.queryDNSServer(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION,
+                TerraMasterProperties.DEFAULT_SCENERY_VERSION));
+
             for (String version : query.getVersions()) {
-              cmbSceneryVersion.addItem(version);              
+              cmbSceneryVersion.addItem(version);
             }
             for (Entry<String, HealthStats> entry : query.getStats().entrySet()) {
               log.fine(entry.getValue().toString());
@@ -230,19 +232,19 @@ public class SettingsDialog extends JDialog {
         chckbxPylons = new JCheckBox("Pylons");
         panel.add(chckbxPylons);
         chckbxPylons.setSelected(
-            Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.PYLONS.name(), "false")));      
+            Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.PYLONS.name(), "false")));
       }
       {
         chckbxBuildings = new JCheckBox("Buildings");
         panel.add(chckbxBuildings);
-        chckbxBuildings.setSelected(
-            Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false")));
+        chckbxBuildings.setSelected(Boolean
+            .parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.BUILDINGS.name(), "false")));
       }
       {
         chckbxRoads = new JCheckBox("Roads");
         panel.add(chckbxRoads);
         chckbxRoads.setSelected(
-            Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.ROADS.name(), "false")));      
+            Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraSyncDirectoryTypes.ROADS.name(), "false")));
       }
       {
         chckbxObjects = new JCheckBox("Objects");
@@ -356,11 +358,24 @@ public class SettingsDialog extends JDialog {
       root = root.getParent();
 
     cmbLogLevel.setSelectedItem(root.getLevel());
-    tileage.setText("" + (Integer.parseInt(terraMaster.getProps().getProperty(TerraMasterProperties.MAX_TILE_AGE, "100")) / (24 * 3600)));
-    cmbSceneryVersion.addItem(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
-    cmbSceneryVersion.setSelectedItem(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION, TerraMasterProperties.DEFAULT_SCENERY_VERSION));
-    checkBoxGoogle.setSelected(Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false")));
-    checkBoxGCA.setSelected(Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false")));
+    tileage
+        .setText("" + (Integer.parseInt(terraMaster.getProps().getProperty(TerraMasterProperties.MAX_TILE_AGE, "100"))
+            / (24 * 3600)));
+    boolean defaultAdded = false;
+    for (int i = 0; i < cmbSceneryVersion.getItemCount(); i++) {
+      String item = cmbSceneryVersion.getItemAt(i);
+      defaultAdded |= (TerraMasterProperties.DEFAULT_SCENERY_VERSION.equals(item));
+    }
+    if (!defaultAdded) {
+      cmbSceneryVersion.addItem(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION,
+          TerraMasterProperties.DEFAULT_SCENERY_VERSION));
+    }
+    cmbSceneryVersion.setSelectedItem(terraMaster.getProps().getProperty(TerraMasterProperties.SCENERY_VERSION,
+        TerraMasterProperties.DEFAULT_SCENERY_VERSION));
+    checkBoxGoogle.setSelected(
+        Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GOOGLE, "false")));
+    checkBoxGCA
+        .setSelected(Boolean.parseBoolean(terraMaster.getProps().getProperty(TerraMasterProperties.DNS_GCA, "false")));
   }
 
   private void saveValues() {
@@ -381,9 +396,12 @@ public class SettingsDialog extends JDialog {
           Boolean.toString(chckbxPylons.isSelected()));
       terraMaster.getProps().setProperty(TerraSyncDirectoryTypes.ROADS.name(),
           Boolean.toString(chckbxRoads.isSelected()));
-      terraMaster.getProps().setProperty(TerraMasterProperties.MAX_TILE_AGE, "" + (Integer.parseInt(tileage.getText()) * 24 * 3600));
-      terraMaster.getProps().setProperty(TerraMasterProperties.SCENERY_VERSION, cmbSceneryVersion.getSelectedItem().toString());
-      terraMaster.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE, Boolean.toString(checkBoxGoogle.isSelected()));
+      terraMaster.getProps().setProperty(TerraMasterProperties.MAX_TILE_AGE,
+          "" + (Integer.parseInt(tileage.getText()) * 24 * 3600));
+      terraMaster.getProps().setProperty(TerraMasterProperties.SCENERY_VERSION,
+          cmbSceneryVersion.getSelectedItem().toString());
+      terraMaster.getProps().setProperty(TerraMasterProperties.DNS_GOOGLE,
+          Boolean.toString(checkBoxGoogle.isSelected()));
       terraMaster.getProps().setProperty(TerraMasterProperties.DNS_GCA, Boolean.toString(checkBoxGCA.isSelected()));
       terraMaster.setTileService();
     } catch (Exception x) {
