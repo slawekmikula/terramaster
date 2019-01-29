@@ -12,7 +12,7 @@ public enum TerraSyncDirectoryTypes {
   TERRAIN("Terrain", 0, true), OBJECTS("Objects", 1, true), MODELS("Models",
       2, false), AIRPORTS("Airports", 3, false), BUILDINGS("Buildings", 4, false), PYLONS("Pylons", 4, true), ROADS("Roads", 4, true);
 
-  String dirname = null;
+  private String dirname = null;
   private boolean tile;
   
   public synchronized boolean isTile() {
@@ -20,8 +20,16 @@ public enum TerraSyncDirectoryTypes {
   }
 
   TerraSyncDirectoryTypes(String name, int index, boolean tile) {
-    this.dirname = name + "/";
+    this.setDirname(name + "/");
     this.tile = tile;
+  }
+
+  public String getDirname() {
+    return dirname;
+  }
+
+  public void setDirname(String dirname) {
+    this.dirname = dirname;
   }
 
 }

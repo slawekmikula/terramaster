@@ -155,7 +155,7 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
   /**
    * Returns a TileIndex for the given lat/lon
    * @see <a href="http://wiki.flightgear.org/Tile_Index_Scheme">http://wiki.flightgear.org/Tile_Index_Scheme</a>
-   * @param p
+   * @param p (x lon, y lat)
    * @return
    */
 
@@ -183,7 +183,7 @@ public class TileName implements Comparable<TileName>, Serializable, Syncable {
    * @return
    */
 
-  private static double getTileWidth(Double p) {
+  public static double getTileWidth(Double p) {
     if (Math.abs(p.y) < 22)
       return 0.125;
     if (Math.abs(p.y) < 62)

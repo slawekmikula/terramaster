@@ -223,7 +223,7 @@ public class HTTPTerraSync extends Thread implements TileService {
 
       TerraSyncDirectoryTypes[] types = n.getTypes();
       for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
-        int updates = syncDirectory(terraSyncDirectoryType.dirname + n.buildPath(), false, terraSyncDirectoryType);
+        int updates = syncDirectory(terraSyncDirectoryType.getDirname() + n.buildPath(), false, terraSyncDirectoryType);
         invokeLater(UPDATETYPE.UPDATE, DIR_SIZE - updates); // update progressBar
       }
 
@@ -775,7 +775,7 @@ public class HTTPTerraSync extends Thread implements TileService {
     Map<TileName, TileData> map = new HashMap<>(180 * 90);
 
     for (TerraSyncDirectoryTypes terraSyncDirectoryType : types) {
-      File d = new File(path + File.separator + terraSyncDirectoryType.dirname);
+      File d = new File(path + File.separator + terraSyncDirectoryType.getDirname());
       File[] list = d.listFiles();
       if (list != null) {
         // list of 10x10 dirs

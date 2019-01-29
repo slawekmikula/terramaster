@@ -65,6 +65,7 @@ public class TerraMaster {
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setVisible(true);
     frame.toFront();
+    new VersionChecker(this).run();
   }
 
   public static void main(String[] args) {
