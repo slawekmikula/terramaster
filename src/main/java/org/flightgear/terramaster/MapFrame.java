@@ -2,11 +2,13 @@ package org.flightgear.terramaster;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -488,6 +490,12 @@ public class MapFrame extends JFrame {
     }
     setSize(w, h);
     setLocation(x, y);
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    Rectangle r = new Rectangle(screenSize);
+    if(!r.contains(getLocation()))
+    {
+      setLocation(0, 0);
+    }
 
     map.restoreSettings();
   }
