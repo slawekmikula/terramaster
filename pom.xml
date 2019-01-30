@@ -18,7 +18,6 @@
 		<url>https://github.com/Portree-Kid/terramaster.git</url>
 		<connection>scm:git:git://github.com/Portree-Kid/terramaster.git</connection>
 		<developerConnection>scm:git:git@github.com:Portree-Kid/terramaster.git</developerConnection>
-		<tag>terramaster-2.12</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
