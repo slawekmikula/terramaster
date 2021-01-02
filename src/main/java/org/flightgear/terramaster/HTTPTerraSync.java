@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -770,7 +769,7 @@ public class HTTPTerraSync extends Thread implements TileService {
    */
   public Map<TileName, TileData> newScnMap(String path) {
     TerraSyncDirectoryTypes[] types = { TerraSyncDirectoryTypes.TERRAIN, TerraSyncDirectoryTypes.OBJECTS,
-        TerraSyncDirectoryTypes.BUILDINGS };
+        TerraSyncDirectoryTypes.BUILDINGS, TerraSyncDirectoryTypes.ORTHOPHOTOS };
     Pattern patt = Pattern.compile("([ew])(\\p{Digit}{3})([ns])(\\p{Digit}{2})");
     Map<TileName, TileData> map = new HashMap<>(180 * 90);
 
