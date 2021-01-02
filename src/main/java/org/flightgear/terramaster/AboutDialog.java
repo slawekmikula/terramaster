@@ -22,7 +22,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import javax.swing.UIManager;
 import java.awt.SystemColor;
 
 public class AboutDialog extends JDialog {

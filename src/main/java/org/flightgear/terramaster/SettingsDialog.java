@@ -11,14 +11,12 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -42,7 +40,6 @@ public class SettingsDialog extends JDialog {
   private final JPanel contentPanel = new JPanel();
   private JTextField txtScenerypath;
   private JComboBox<String> cmbSceneryVersion;
-  private final Action action = new SwingAction();
   private JCheckBox chckbxTerrain;
   private JCheckBox chckbxObjects;
   private JCheckBox chckbxBuildings;
