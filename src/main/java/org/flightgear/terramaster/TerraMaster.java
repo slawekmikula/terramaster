@@ -110,7 +110,7 @@ public class TerraMaster {
         Logger logger2 = manager.getLogger(logger);
         if (logger2 != null && logger2.getLevel() != null) {
           if (logger.contains("awt"))
-            logger2.setLevel(Level.FINEST);
+            logger2.setLevel(Level.WARNING);
           else
             logger2.setLevel(newLevel);
         }
